@@ -23,9 +23,7 @@ public class DonatorCleanUpTask extends RunnableCronTask {
     public void run() {
         Gson gson = new Gson();
 
-        MySQL mysql = Database.getConnection();
-
-        try {
+        try (MySQL mysql = Database.getConnection()) {
 
             ResultSet rs = mysql.Query("SELECT `donor_end`, `priv`, `id` FROM `users`");
 
@@ -65,8 +63,6 @@ public class DonatorCleanUpTask extends RunnableCronTask {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-
-            mysql.close();
         } catch (Exception e) {
             e.printStackTrace();
         }

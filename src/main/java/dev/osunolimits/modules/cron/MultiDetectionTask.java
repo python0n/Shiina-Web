@@ -12,9 +12,9 @@ public class MultiDetectionTask extends RunnableCronTask {
 
     @Override
     public void run() {
-        MySQL mysql = Database.getConnection();
+        
 
-        try {
+        try (MySQL mysql = Database.getConnection()){
             ResultSet multiAccountResultSet = mysql.Query(MULTI_SQL);
             while (multiAccountResultSet.next()) {
                 int user1 = multiAccountResultSet.getInt("user1");
@@ -51,8 +51,6 @@ public class MultiDetectionTask extends RunnableCronTask {
             }
         } catch (Exception e) {
             logger.error("An error occurred while running the hourly task", e);
-        } finally {
-            mysql.close();
         }
     }
 

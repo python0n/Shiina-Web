@@ -28,11 +28,7 @@ public class CountryLeaderboardTask extends RunnableCronTask {
             if (mode == 7)
                 continue;
 
-            MySQL mysql = null;
-
-            try {
-                mysql = Database.getConnection();
-
+            try (MySQL mysql = Database.getConnection()) {
                 CountryLeaderboardResponse cacheObject = new CountryLeaderboardResponse();
                 ResultSet countriesResultSet = mysql.Query(
                         "SELECT COUNT(`id`) AS `people`, `country` FROM `users` WHERE `id` IN ( SELECT `userid` FROM `scores` WHERE `mode` = ? AND `scores`.`status`!= 0 ) GROUP BY `country` ORDER BY `people` DESC;",
@@ -50,10 +46,6 @@ public class CountryLeaderboardTask extends RunnableCronTask {
 
             } catch (SQLException e) {
                 logger.error("Error fetching country leaderboard for mode " + mode, e);
-            } finally {
-                if (mysql != null) {
-                    mysql.close();
-                }
             }
         }
     }
