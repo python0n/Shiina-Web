@@ -15,7 +15,7 @@ public class NotFound extends Shiina {
     public Object handle(Request req, Response res) throws Exception {
         ShiinaRequest shiina = new ShiinaRoute().handle(req, res);
         shiina.data.put("actNav", 0);
-        res.status(200);
+        res.status(404);
         shiina.data.put("seo", new SEOBuilder("Not Found", App.customization.get("homeDescription").toString()));
         return renderTemplate("errors/notfound.html", shiina, res, req);
     }
