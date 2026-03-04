@@ -49,13 +49,50 @@ public class Auth {
         return base64Encoder.encodeToString(randomBytes);
     }
 
-    public static Boolean checkPw(String raw, String bcrypt) {
-        try {
-            return BCrypt.checkpw(md5(raw), bcrypt);
-        } catch (Exception e) {
-            App.log.error("Failed to check hash using BCrypt", e);
-            return null;
+    /**
+     * Result of a lazy-migration password check.
+     * If needsRehash is true, the DB should be updated with newHash.
+     */
+    public static class PwCheckResult {
+        public final boolean matched;
+        public final boolean needsRehash;
+        public final String newHash;
+
+        PwCheckResult(boolean matched, boolean needsRehash, String newHash) {
+            this.matched = matched;
+            this.needsRehash = needsRehash;
+            this.newHash = newHash;
         }
+    }
+
+    /**
+     * Lazy migration password check.
+     * 1. Try bcrypt(raw) directly – new format (no MD5).
+     * 2. If that fails, try bcrypt(md5(raw)) – old format.
+     *    On match: signals that the hash should be re-stored without MD5.
+     */
+    public static PwCheckResult checkPwLazy(String raw, String bcrypt) {
+        try {
+            // New format first (no MD5)
+            if (BCrypt.checkpw(raw, bcrypt)) {
+                return new PwCheckResult(true, false, null);
+            }
+            // Old format fallback (MD5 + bcrypt) – lazy migration
+            String md5Hash = md5(raw);
+            if (md5Hash != null && BCrypt.checkpw(md5Hash, bcrypt)) {
+                return new PwCheckResult(true, true, Auth.bcrypt(raw));
+            }
+            return new PwCheckResult(false, false, null);
+        } catch (Exception e) {
+            App.log.error("Failed to check password", e);
+            return new PwCheckResult(false, false, null);
+        }
+    }
+
+    /** @deprecated Use checkPwLazy for new code. Kept for compatibility. */
+    @Deprecated
+    public static Boolean checkPw(String raw, String bcrypt) {
+        return checkPwLazy(raw, bcrypt).matched;
     }
 
     public static String md5(String input) {
