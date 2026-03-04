@@ -79,8 +79,8 @@ public class HandleRegister extends Shiina {
             return renderTemplate("register.html", shiina, res, req);
         }
 
-        String pwMd5 = Auth.md5(password);
-        String pwBcrypt = Auth.bcrypt(pwMd5);
+        // Hash directly with bcrypt – no MD5 pre-hashing
+        String pwBcrypt = Auth.bcrypt(password);
 
         String country = "XX";
         String safeName = username.toLowerCase().replaceAll(" ", "_");
