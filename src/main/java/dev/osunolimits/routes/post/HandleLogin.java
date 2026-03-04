@@ -72,18 +72,24 @@ public class HandleLogin extends Shiina {
         }
 
         ResultSet validationRs = shiina.mysql.Query(selectSql, input);
-        if (!validationRs.next()) {
+        if (validationRs == null || !validationRs.next()) {
             shiina.data.put("error", "Invalid (Username/Mail) or Password");
             return renderTemplate("login.html", shiina, res, req);
         }
         String pwBcrypt = validationRs.getString("pw_bcrypt");
+        int userId = validationRs.getInt("id");
 
-        if (!Auth.checkPw(password, pwBcrypt)) {
+        Auth.PwCheckResult pwResult = Auth.checkPwLazy(password, pwBcrypt);
+        if (!pwResult.matched) {
             shiina.data.put("error", "Invalid (Username/Mail) or Password");
             return renderTemplate("login.html", shiina, res, req);
         }
 
-        int userId = validationRs.getInt("id");
+        // Lazy migration: re-hash without MD5 for users who had the old format
+        if (pwResult.needsRehash) {
+            shiina.mysql.Exec("UPDATE users SET pw_bcrypt = ? WHERE id = ?", pwResult.newHash, userId);
+            App.log.info("Password hash migrated (MD5+bcrypt → bcrypt) for user id=" + userId);
+        }
         
         UserInfoCache.reloadUserIfNotPresent(userId);
 
