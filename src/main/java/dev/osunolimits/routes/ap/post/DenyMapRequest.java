@@ -1,5 +1,6 @@
 package dev.osunolimits.routes.ap.post;
 
+import dev.osunolimits.main.App;
 import dev.osunolimits.modules.Shiina;
 import dev.osunolimits.modules.ShiinaRoute;
 import dev.osunolimits.modules.ShiinaRoute.ShiinaRequest;
@@ -23,12 +24,18 @@ public class DenyMapRequest extends Shiina {
             return notFound(res, shiina);
         }
 
-        //TODO: Deny request audit log
-
-        int reqId = Integer.parseInt(req.queryParams("reqId"));
-        int page = Integer.parseInt(req.queryParams("page"));
+        int reqId;
+        int page;
+        try {
+            reqId = Integer.parseInt(req.queryParams("reqId"));
+            page = Integer.parseInt(req.queryParams("page"));
+        } catch (NumberFormatException e) {
+            res.status(400);
+            return "Invalid request parameters";
+        }
 
         shiina.mysql.Exec("UPDATE `map_requests` SET `active` = 0 WHERE `id` = ?", reqId);
+        App.log.info("Map request {} denied by admin {} (id={})", reqId, shiina.user.name, shiina.user.id);
         res.redirect("/ap/maprequests?page=" + page);
 
         return null;
