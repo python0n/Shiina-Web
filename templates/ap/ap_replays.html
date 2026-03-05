@@ -3,24 +3,24 @@
 
   <#if requestParam("action")??>
     <#if requestParam("action") == "approved">
-    <div class="alert alert-success"><i class="fa-solid fa-check me-2"></i>Score zatwierdzony i dodany do bazy.</div>
+    <div class="alert alert-success"><i class="fa-solid fa-check me-2"></i>Score approved and added to the database.</div>
     <#elseif requestParam("action") == "rejected">
-    <div class="alert alert-warning"><i class="fa-solid fa-xmark me-2"></i>Replay odrzucony.</div>
+    <div class="alert alert-warning"><i class="fa-solid fa-xmark me-2"></i>Replay rejected.</div>
     </#if>
   </#if>
 
   <div class="card rounded mb-3">
     <div class="card-header bg-body d-flex justify-content-between align-items-center py-3">
-      <span class="fw-bold"><i class="fa-solid fa-film me-2"></i>Replaye do weryfikacji</span>
+      <span class="fw-bold"><i class="fa-solid fa-film me-2"></i>Replays for review</span>
       <div class="d-flex gap-2">
         <a href="/ap/replays?status=0" class="btn btn-sm <#if filterStatus == '0'>btn-primary<#else>btn-outline-secondary</#if>">
-          Oczekujące
+          Pending
         </a>
         <a href="/ap/replays?status=1" class="btn btn-sm <#if filterStatus == '1'>btn-success<#else>btn-outline-secondary</#if>">
-          Zatwierdzone
+          Approved
         </a>
         <a href="/ap/replays?status=2" class="btn btn-sm <#if filterStatus == '2'>btn-danger<#else>btn-outline-secondary</#if>">
-          Odrzucone
+          Rejected
         </a>
       </div>
     </div>
@@ -28,7 +28,7 @@
       <#if replays?size == 0>
         <div class="text-center py-5 text-muted">
           <i class="fa-solid fa-inbox fa-2x mb-3 d-block"></i>
-          Brak replayów w tej kategorii.
+          No replays in this category.
         </div>
       <#else>
         <div class="table-responsive">
@@ -36,15 +36,15 @@
             <thead>
               <tr>
                 <th>#</th>
-                <th>Gracz</th>
-                <th>Mapa</th>
-                <th>Wynik</th>
+                <th>Player</th>
+                <th>Map</th>
+                <th>Score</th>
                 <th>Acc</th>
                 <th>Combo</th>
                 <th>Grade</th>
-                <th>Tryb</th>
-                <th>Wysłano</th>
-                <th>Akcje</th>
+                <th>Mode</th>
+                <th>Submitted</th>
+                <th>Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -84,7 +84,7 @@
                 <td>
                   <div class="d-flex gap-1 flex-wrap">
                     <!-- Pobierz replay -->
-                    <a href="/ap/replays/download?id=${r.id}" class="btn btn-sm btn-outline-secondary" title="Pobierz .osr">
+                    <a href="/ap/replays/download?id=${r.id}" class="btn btn-sm btn-outline-secondary" title="Download .osr">
                       <i class="fa-solid fa-download"></i>
                     </a>
                     <#if filterStatus == '0'>
@@ -93,7 +93,7 @@
                       <input type="hidden" name="id" value="${r.id}">
                       <input type="hidden" name="action" value="approve">
                       <button type="submit" class="btn btn-sm btn-success"
-                        onclick="return confirm('Zatwierdź score dla ${r.username}?')">
+                        onclick="return confirm('Approve score for ${r.username}?')">
                         <i class="fa-solid fa-check"></i>
                       </button>
                     </form>
@@ -102,7 +102,7 @@
                       <input type="hidden" name="id" value="${r.id}">
                       <input type="hidden" name="action" value="reject">
                       <button type="submit" class="btn btn-sm btn-danger"
-                        onclick="return confirm('Odrzucić replay od ${r.username}?')">
+                        onclick="return confirm('Reject replay from ${r.username}?')">
                         <i class="fa-solid fa-xmark"></i>
                       </button>
                     </form>

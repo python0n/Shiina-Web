@@ -30,7 +30,7 @@
   <div class="row g-3 mb-4">
     <div class="col-md-3">
       <div class="card rounded text-center p-3">
-        <div class="text-muted small mb-1">Avg Timing Error <span tabindex="0" data-bs-toggle="tooltip" title="Średnie przesunięcie twoich kliknięć względem idealnego momentu. Ujemne = za wcześnie, dodatnie = za późno."><i class="fa-solid fa-circle-info fa-xs opacity-50"></i></span></div>
+        <div class="text-muted small mb-1">Avg Timing Error <span tabindex="0" data-bs-toggle="tooltip" title="Average offset of your clicks relative to the perfect moment. Negative = early, positive = late."><i class="fa-solid fa-circle-info fa-xs opacity-50"></i></span></div>
         <div class="fw-bold fs-5 ${(analysis.avgTimingError < -10)?then('text-warning', (analysis.avgTimingError > 10)?then('text-danger', 'text-success'))}">
           ${analysis.avgTimingError?string("0.0")} ms
         </div>
@@ -39,27 +39,27 @@
     </div>
     <div class="col-md-3">
       <div class="card rounded text-center p-3">
-        <div class="text-muted small mb-1">Timing Stability <span tabindex="0" data-bs-toggle="tooltip" title="Odchylenie standardowe timing error. Im mniejsze, tym bardziej równomiernie trafujesz nuty w czasie."><i class="fa-solid fa-circle-info fa-xs opacity-50"></i></span></div>
+        <div class="text-muted small mb-1">Timing Stability <span tabindex="0" data-bs-toggle="tooltip" title="Standard deviation of timing error. Lower = more consistent timing."><i class="fa-solid fa-circle-info fa-xs opacity-50"></i></span></div>
         <div class="fw-bold fs-5 ${(analysis.timingStdDev > 40)?then('text-danger', (analysis.timingStdDev > 20)?then('text-warning', 'text-success'))}">
           ±${analysis.timingStdDev?string("0.0")} ms
         </div>
-        <div class="text-muted small">odchylenie std</div>
+        <div class="text-muted small">std deviation</div>
       </div>
     </div>
     <div class="col-md-3">
       <div class="card rounded text-center p-3">
-        <div class="text-muted small mb-1">Avg Aim Error <span tabindex="0" data-bs-toggle="tooltip" title="Średnia odległość kursora od centrum nuty w momencie kliknięcia. Im mniejsza, tym dokładniejszy aim."><i class="fa-solid fa-circle-info fa-xs opacity-50"></i></span></div>
+        <div class="text-muted small mb-1">Avg Aim Error <span tabindex="0" data-bs-toggle="tooltip" title="Average cursor distance from note center at click time. Lower = more accurate aim."><i class="fa-solid fa-circle-info fa-xs opacity-50"></i></span></div>
         <div class="fw-bold fs-5 ${(analysis.avgAimError > 30)?then('text-danger', (analysis.avgAimError > 15)?then('text-warning', 'text-success'))}">
           ${analysis.avgAimError?string("0.0")} px
         </div>
-        <div class="text-muted small">od centrum nuty</div>
+        <div class="text-muted small">from note center</div>
       </div>
     </div>
     <div class="col-md-3">
       <div class="card rounded text-center p-3">
-        <div class="text-muted small mb-1">Early / Late <span tabindex="0" data-bs-toggle="tooltip" title="Ile razy trafiłeś za wcześnie vs za późno. Idealnie powinno być mniej więcej równo."><i class="fa-solid fa-circle-info fa-xs opacity-50"></i></span></div>
+        <div class="text-muted small mb-1">Early / Late <span tabindex="0" data-bs-toggle="tooltip" title="How many times you hit early vs late. Ideally should be roughly equal."><i class="fa-solid fa-circle-info fa-xs opacity-50"></i></span></div>
         <div class="fw-bold fs-5">${analysis.earlyHits} / ${analysis.lateHits}</div>
-        <div class="text-muted small">${score.nmiss} missów</div>
+        <div class="text-muted small">${score.nmiss} misses</div>
       </div>
     </div>
   </div>
@@ -68,7 +68,7 @@
   <!-- wykres timing error -->
   <div class="card rounded mb-4">
     <div class="card-header bg-body border-bottom px-4 py-3">
-      <h6 class="mb-0 fw-semibold"><i class="fa-solid fa-chart-line me-2"></i>Timing Error per nuta <span tabindex="0" data-bs-toggle="tooltip" title="Każdy słupek = jedna nuta. Żółty = jump, niebieski = stream, szary = inne. Scrolluj kółkiem myszy żeby przybliżyć, przeciągnij żeby przewijać."><i class="fa-solid fa-circle-info fa-xs opacity-50"></i></span></h6>
+      <h6 class="mb-0 fw-semibold"><i class="fa-solid fa-chart-line me-2"></i>Timing Error per note <span tabindex="0" data-bs-toggle="tooltip" title="Each bar = one note. Yellow = jump, blue = stream, grey = other. Scroll to zoom, drag to pan."><i class="fa-solid fa-circle-info fa-xs opacity-50"></i></span></h6>
     </div>
     <div class="card-body">
       <canvas id="timingChart" height="120"></canvas>
@@ -80,7 +80,7 @@
     <div class="col-md-6">
       <div class="card rounded h-100">
         <div class="card-header bg-body border-bottom px-4 py-3">
-          <h6 class="mb-0 fw-semibold"><i class="fa-solid fa-lightbulb me-2 text-warning"></i>Analiza <span tabindex="0" data-bs-toggle="tooltip" title="Automatyczne wnioski na podstawie twojego replaya."><i class="fa-solid fa-circle-info fa-xs opacity-50"></i></span></h6>
+          <h6 class="mb-0 fw-semibold"><i class="fa-solid fa-lightbulb me-2 text-warning"></i>Analysis <span tabindex="0" data-bs-toggle="tooltip" title="Automatic insights based on your replay."><i class="fa-solid fa-circle-info fa-xs opacity-50"></i></span></h6>
         </div>
         <div class="card-body">
           <#list analysis.insights as insight>
@@ -98,16 +98,16 @@
       <div class="card rounded h-100">
         <div class="card-header bg-body border-bottom px-4 py-3">
           <h6 class="mb-0 fw-semibold">
-  <i class="fa-solid fa-map me-2 text-info"></i>Polecane mapy
+  <i class="fa-solid fa-map me-2 text-info"></i>Recommended maps
   <span data-bs-toggle="tooltip" data-bs-placement="right"
-    title="Mapy dobierane na podstawie skillsetu aktualnej mapy (NPS i AR). Stream: NPS≥8, Jump: AR≥9 i NPS&lt;8, Burst: NPS 6-8. Podobna trudność ±0.7★. Tylko mapy których jeszcze nie grałeś/aś.">
+    title="Maps selected based on the current map's skillset (NPS and AR). Stream: NPS≥8, Jump: AR≥9 and NPS&lt;8, Burst: NPS 6-8. Similar difficulty ±0.7★. Only maps you haven't played yet.">
     <i class="fa-solid fa-circle-info text-muted ms-1" style="font-size:0.8rem;cursor:help;"></i>
   </span>
 </h6>
         </div>
         <div class="card-body p-0">
           <#if !analysis.recommendedMaps?has_content>
-            <div class="text-center text-muted py-4 small">Brak rekomendacji — świetna robota!</div>
+            <div class="text-center text-muted py-4 small">No recommendations — great job!</div>
           <#else>
             <#list analysis.recommendedMaps as m>
             <a href="/b/${m.id?c}" class="d-flex align-items-center gap-3 px-4 py-2 text-decoration-none border-bottom hover-bg">

@@ -63,13 +63,13 @@ public class HandleReplaySubmit extends Shiina {
             osr = OsrParser.parse(osrBytes);
         } catch (Exception e) {
             App.log.warn("Failed to parse osr: " + e.getMessage());
-            shiina.data.put("error", "Nie udało się sparsować pliku replay.");
+            shiina.data.put("error", "Failed to parse the replay file.");
             return renderTemplate("replays.html", shiina, res, req);
         }
 
         ResultSet mapRs = shiina.mysql.Query("SELECT title FROM maps WHERE md5 = ?", osr.getMapMd5());
         if (mapRs == null || !mapRs.next()) {
-            shiina.data.put("error", "Mapa z tego replaya nie istnieje na serwerze.");
+            shiina.data.put("error", "The beatmap for this replay does not exist on the server.");
             return renderTemplate("replays.html", shiina, res, req);
         }
 
@@ -77,7 +77,7 @@ public class HandleReplaySubmit extends Shiina {
                 "SELECT id FROM pending_replays WHERE userid = ? AND map_md5 = ? AND status = 0",
                 String.valueOf(shiina.user.id), osr.getMapMd5());
         if (existRs != null && existRs.next()) {
-            shiina.data.put("error", "Masz już oczekujący replay dla tej mapy.");
+            shiina.data.put("error", "You already have a pending replay for this map.");
             return renderTemplate("replays.html", shiina, res, req);
         }
 
@@ -85,7 +85,7 @@ public class HandleReplaySubmit extends Shiina {
                 "SELECT id FROM scores WHERE userid = ? AND map_md5 = ? AND online_checksum = ?",
                 String.valueOf(shiina.user.id), osr.getMapMd5(), osr.getReplayMd5());
         if (scoreRs != null && scoreRs.next()) {
-            shiina.data.put("error", "Ten score już istnieje na serwerze.");
+            shiina.data.put("error", "This score already exists on the server.");
             return renderTemplate("replays.html", shiina, res, req);
         }
 

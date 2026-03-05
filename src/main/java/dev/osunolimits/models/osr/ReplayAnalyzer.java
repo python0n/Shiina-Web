@@ -193,14 +193,14 @@ public class ReplayAnalyzer {
     private static void generateInsights(AnalysisResult r) {
         List<String> ins = r.insights; List<String> wk = r.weaknesses;
         if (Math.abs(r.avgTimingError) > 10) {
-            if (r.avgTimingError < 0) { ins.add(String.format("Grasz średnio %.0f ms za wcześnie.", Math.abs(r.avgTimingError))); wk.add("early_timing"); }
-            else { ins.add(String.format("Grasz średnio %.0f ms za późno.", r.avgTimingError)); wk.add("late_timing"); }
-        } else ins.add(String.format("Timing dobrze wycentrowany (avg %.1f ms).", r.avgTimingError));
-        if (r.timingStdDev > 40) { ins.add(String.format("Niestabilny timing (±%.0f ms) — ćwicz z metronome.", r.timingStdDev)); wk.add("unstable_timing"); }
-        else ins.add(String.format("Stabilność timingu: ±%.0f ms.", r.timingStdDev));
-        if (r.avgAimError > 30) { ins.add(String.format("Aim niedokładny — avg %.0f px od centrum.", r.avgAimError)); wk.add("poor_aim"); }
-        else ins.add(String.format("Aim: avg %.0f px od centrum.", r.avgAimError));
-        // stream/jump accuracy usuniete - niewiarygodne bez pelnego hit detection
-        if (r.missCount > 5) ins.add(String.format("%d missów — sprawdź aim i timing.", r.missCount));
+            if (r.avgTimingError < 0) { ins.add(String.format("Your timing is on average %.0f ms early.", Math.abs(r.avgTimingError))); wk.add("early_timing"); }
+            else { ins.add(String.format("Your timing is on average %.0f ms late.", r.avgTimingError)); wk.add("late_timing"); }
+        } else ins.add(String.format("Timing well centered (avg %.1f ms).", r.avgTimingError));
+        if (r.timingStdDev > 40) { ins.add(String.format("Unstable timing (±%.0f ms) — practice with a metronome.", r.timingStdDev)); wk.add("unstable_timing"); }
+        else ins.add(String.format("Timing stability: ±%.0f ms.", r.timingStdDev));
+        if (r.avgAimError > 30) { ins.add(String.format("Inaccurate aim — avg %.0f px from center.", r.avgAimError)); wk.add("poor_aim"); }
+        else ins.add(String.format("Aim: avg %.0f px from center.", r.avgAimError));
+        // stream/jump accuracy removed - unreliable without full hit detection
+        if (r.missCount > 5) ins.add(String.format("%d misses — check your aim and timing.", r.missCount));
     }
 }

@@ -9,7 +9,7 @@ import java.util.List;
 import lombok.Data;
 
 /**
- * Parser pliku .osu (osu! beatmap format)
+ * Parser for .osu (osu! beatmap format)
  * Spec: https://osu.ppy.sh/wiki/en/Client/File_formats/osu_(file_format)
  */
 public class OsuFileParser {

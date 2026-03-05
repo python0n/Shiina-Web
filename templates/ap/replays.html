@@ -6,26 +6,26 @@
     <div class="card-header bg-body d-flex justify-content-between align-items-center py-3">
       <span class="fw-bold"><i class="fa-solid fa-film me-2"></i>Pending Replays</span>
       <div class="d-flex gap-2">
-        <a href="/ap/replays?status=0" class="btn btn-sm <#if filterStatus == '0'>btn-primary<#else>btn-outline-secondary</#if>">Oczekujące</a>
-        <a href="/ap/replays?status=1" class="btn btn-sm <#if filterStatus == '1'>btn-success<#else>btn-outline-secondary</#if>">Zatwierdzone</a>
-        <a href="/ap/replays?status=2" class="btn btn-sm <#if filterStatus == '2'>btn-danger<#else>btn-outline-secondary</#if>">Odrzucone</a>
+        <a href="/ap/replays?status=0" class="btn btn-sm <#if filterStatus == '0'>btn-primary<#else>btn-outline-secondary</#if>">Pending</a>
+        <a href="/ap/replays?status=1" class="btn btn-sm <#if filterStatus == '1'>btn-success<#else>btn-outline-secondary</#if>">Approved</a>
+        <a href="/ap/replays?status=2" class="btn btn-sm <#if filterStatus == '2'>btn-danger<#else>btn-outline-secondary</#if>">Rejected</a>
       </div>
     </div>
     <div class="card-body bg-body p-0">
       <#if replays?size == 0>
-        <div class="text-center py-5 text-muted">Brak replayów.</div>
+        <div class="text-center py-5 text-muted">No replays.</div>
       <#else>
         <div class="table-responsive">
           <table class="table table-hover mb-0">
             <thead>
               <tr>
-                <th>Gracz</th>
-                <th>Mapa</th>
-                <th>Wynik</th>
+                <th>Player</th>
+                <th>Map</th>
+                <th>Score</th>
                 <th>Acc</th>
                 <th>Grade</th>
-                <th>Wysłano</th>
-                <th>Akcje</th>
+                <th>Submitted</th>
+                <th>Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -42,21 +42,21 @@
                 <td><small class="text-muted">${r.submitted_at}</small></td>
                 <td>
                   <div class="d-flex gap-1">
-                    <a href="/ap/replays/download?id=${r.id}" class="btn btn-sm btn-outline-secondary" title="Pobierz .osr">
+                    <a href="/ap/replays/download?id=${r.id}" class="btn btn-sm btn-outline-secondary" title="Download .osr">
                       <i class="fa-solid fa-download"></i>
                     </a>
                     <#if filterStatus == '0'>
                     <form data-turbo="false" method="post" action="/ap/replays/action" style="display:inline">
                       <input type="hidden" name="id" value="${r.id}">
                       <input type="hidden" name="action" value="approve">
-                      <button type="submit" class="btn btn-sm btn-success" onclick="return confirm('Zatwierdź?')">
+                      <button type="submit" class="btn btn-sm btn-success" onclick="return confirm('Approve?')">
                         <i class="fa-solid fa-check"></i>
                       </button>
                     </form>
                     <form data-turbo="false" method="post" action="/ap/replays/action" style="display:inline">
                       <input type="hidden" name="id" value="${r.id}">
                       <input type="hidden" name="action" value="reject">
-                      <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Odrzucić?')">
+                      <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Reject?')">
                         <i class="fa-solid fa-xmark"></i>
                       </button>
                     </form>
