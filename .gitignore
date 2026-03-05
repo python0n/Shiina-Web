@@ -66,3 +66,16 @@ inputFiles.lst
 
 old/
 todo.txt
+
+# Config backups (NIE powinny trafić na GitHub)
+/.config/.env.bak*
+
+# IDE
+.idea/
+*.iml
+
+# OS
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
