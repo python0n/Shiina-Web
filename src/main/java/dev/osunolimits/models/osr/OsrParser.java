@@ -13,7 +13,7 @@ import org.tukaani.xz.LZMAInputStream;
 import lombok.Data;
 
 /**
- * Parser pliku .osr (osu! replay format)
+ * Parser for .osr (osu! replay format)
  * Spec: https://osu.ppy.sh/wiki/en/Client/File_formats/osr_(file_format)
  */
 public class OsrParser {
@@ -119,7 +119,7 @@ public class OsrParser {
                     String replayStr = decompressLZMA(compressed);
                     osr.frames = parseReplayFrames(replayStr);
                 } catch (Exception e) {
-                    // jeśli nie uda się zdekompresować, zostaw pustą listę
+                    // if decompression fails, leave an empty list
                 }
             } else {
                 stream.skip(replayLen);
@@ -177,7 +177,7 @@ public class OsrParser {
                 frame.keys = keys;
                 frames.add(frame);
             } catch (NumberFormatException e) {
-                // pomiń nieprawidłowe framy
+                // skip invalid frames
             }
         }
 

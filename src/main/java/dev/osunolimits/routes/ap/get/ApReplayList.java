@@ -25,7 +25,7 @@ public class ApReplayList extends Shiina {
             return renderTemplate("errors/forbidden.html", shiina, res, req);
         }
 
-        String filter = req.queryParamOrDefault("status", "0"); // domyślnie pending
+        String filter = req.queryParamOrDefault("status", "0"); // default: pending
 
         ResultSet rs = shiina.mysql.Query(
                 "SELECT pr.id, pr.userid, pr.map_md5, pr.player_name, pr.mode, pr.mods, pr.score, " +
