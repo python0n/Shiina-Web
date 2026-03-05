@@ -191,8 +191,13 @@ public class App {
 
         UserInfoCache.populateIfNeeded();
 
-        ShiinaDocs shiinaDocs = new ShiinaDocs();
-        shiinaDocs.initializeDocs();
+        ShiinaDocs shiinaDocs = null;
+        try {
+            shiinaDocs = new ShiinaDocs();
+        } catch (Exception e) {
+            System.out.println("[WARN] ShiinaDocs disabled: " + e);
+        }
+// shiinaDocs.initializeDocs();
 
         ShiinaAchievementsSorter.initialize();
 
