@@ -48,6 +48,22 @@ For installation look up our [new documentation](https://osu-nolimits.github.io/
 - ✅ Easy customization via `.config/customization.yml`
 - ✅ Multiple webhook support
 
+### Extended Features (taksiegra.ovh fork)
+- ✅ **Replay Submission System** — players can upload `.osr` files for admin review
+- ✅ **Replay Analyzer** (`/analyzer`) — timing error and aim accuracy analysis with interactive Chart.js graphs and map recommendations based on skill type (Stream / Jump / Burst / Tech)
+- ✅ **Match History Pages** — match list and detailed match view with full event log and score tables
+- ✅ **Admin Replay Panel** — approve or reject submitted replays, download `.osr` files
+- ✅ **Beatmap Submission System UI** — frontend for the bancho.py-ex BSS, submit maps directly from osu! editor
+- ✅ **Profile & beatmap URL redirects** — `/users/<id>` → `/u/<id>`, `/beatmaps/<id>` → `/b/<id>` (HTTP 301)
+- ✅ **Score comments** — comment system on score pages
+- ✅ **Bot & Docs pages** — dedicated pages for Discord bot commands and server documentation
+
+---
+
+## 📋 Changelog
+
+Full changelog with all updates: **[taksiegra.ovh/changelog/](https://taksiegra.ovh/changelog/)**
+
 ---
 
 ## **License**
