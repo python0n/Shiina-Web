@@ -1,0 +1,210 @@
+<#include "../assets/base.html">
+<div class="container mb-4">
+
+  <!-- header mapy -->
+  <#if score??>
+  <div class="card rounded mb-4 overflow-hidden">
+    <div class="position-relative" style="background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);">
+      <div style="position:absolute;inset:0;background:url('https://assets.ppy.sh/beatmaps/${score.set_id}/covers/cover.jpg') center/cover no-repeat;opacity:0.15;"></div>
+      <div class="p-4 text-white position-relative">
+        <div class="d-flex justify-content-between align-items-start">
+          <div>
+            <h5 class="fw-bold mb-1">${score.artist} - ${score.title} [${score.version}]</h5>
+            <div class="opacity-75 small">★ ${score.diff} &nbsp;|&nbsp; Score: ${score.score?string(",##0")} &nbsp;|&nbsp; ${score.acc}% &nbsp;|&nbsp; ${score.pp}pp</div>
+          </div>
+          <a href="/analyzer" class="btn btn-sm btn-outline-light"><i class="fa-solid fa-arrow-left me-1"></i>Back</a>
+        </div>
+      </div>
+    </div>
+  </div>
+  </#if>
+
+  <!-- błąd -->
+  <#if error??>
+  <div class="alert alert-danger"><i class="fa-solid fa-triangle-exclamation me-2"></i>${error}</div>
+  </#if>
+
+  <#if analysis??>
+
+  <!-- statystyki ogólne -->
+  <div class="row g-3 mb-4">
+    <div class="col-md-3">
+      <div class="card rounded text-center p-3">
+        <div class="text-muted small mb-1">Avg Timing Error <span tabindex="0" data-bs-toggle="tooltip" title="Średnie przesunięcie twoich kliknięć względem idealnego momentu. Ujemne = za wcześnie, dodatnie = za późno."><i class="fa-solid fa-circle-info fa-xs opacity-50"></i></span></div>
+        <div class="fw-bold fs-5 ${(analysis.avgTimingError < -10)?then('text-warning', (analysis.avgTimingError > 10)?then('text-danger', 'text-success'))}">
+          ${analysis.avgTimingError?string("0.0")} ms
+        </div>
+        <div class="text-muted small">${(analysis.avgTimingError < 0)?then('early', 'late')}</div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card rounded text-center p-3">
+        <div class="text-muted small mb-1">Timing Stability <span tabindex="0" data-bs-toggle="tooltip" title="Odchylenie standardowe timing error. Im mniejsze, tym bardziej równomiernie trafujesz nuty w czasie."><i class="fa-solid fa-circle-info fa-xs opacity-50"></i></span></div>
+        <div class="fw-bold fs-5 ${(analysis.timingStdDev > 40)?then('text-danger', (analysis.timingStdDev > 20)?then('text-warning', 'text-success'))}">
+          ±${analysis.timingStdDev?string("0.0")} ms
+        </div>
+        <div class="text-muted small">odchylenie std</div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card rounded text-center p-3">
+        <div class="text-muted small mb-1">Avg Aim Error <span tabindex="0" data-bs-toggle="tooltip" title="Średnia odległość kursora od centrum nuty w momencie kliknięcia. Im mniejsza, tym dokładniejszy aim."><i class="fa-solid fa-circle-info fa-xs opacity-50"></i></span></div>
+        <div class="fw-bold fs-5 ${(analysis.avgAimError > 30)?then('text-danger', (analysis.avgAimError > 15)?then('text-warning', 'text-success'))}">
+          ${analysis.avgAimError?string("0.0")} px
+        </div>
+        <div class="text-muted small">od centrum nuty</div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card rounded text-center p-3">
+        <div class="text-muted small mb-1">Early / Late <span tabindex="0" data-bs-toggle="tooltip" title="Ile razy trafiłeś za wcześnie vs za późno. Idealnie powinno być mniej więcej równo."><i class="fa-solid fa-circle-info fa-xs opacity-50"></i></span></div>
+        <div class="fw-bold fs-5">${analysis.earlyHits} / ${analysis.lateHits}</div>
+        <div class="text-muted small">${score.nmiss} missów</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- pattern accuracy -->
+  <!-- wykres timing error -->
+  <div class="card rounded mb-4">
+    <div class="card-header bg-body border-bottom px-4 py-3">
+      <h6 class="mb-0 fw-semibold"><i class="fa-solid fa-chart-line me-2"></i>Timing Error per nuta <span tabindex="0" data-bs-toggle="tooltip" title="Każdy słupek = jedna nuta. Żółty = jump, niebieski = stream, szary = inne. Scrolluj kółkiem myszy żeby przybliżyć, przeciągnij żeby przewijać."><i class="fa-solid fa-circle-info fa-xs opacity-50"></i></span></h6>
+    </div>
+    <div class="card-body">
+      <canvas id="timingChart" height="120"></canvas>
+    </div>
+  </div>
+
+  <!-- insighty -->
+  <div class="row g-3 mb-4">
+    <div class="col-md-6">
+      <div class="card rounded h-100">
+        <div class="card-header bg-body border-bottom px-4 py-3">
+          <h6 class="mb-0 fw-semibold"><i class="fa-solid fa-lightbulb me-2 text-warning"></i>Analiza <span tabindex="0" data-bs-toggle="tooltip" title="Automatyczne wnioski na podstawie twojego replaya."><i class="fa-solid fa-circle-info fa-xs opacity-50"></i></span></h6>
+        </div>
+        <div class="card-body">
+          <#list analysis.insights as insight>
+          <div class="d-flex gap-2 mb-2">
+            <i class="fa-solid fa-circle-info text-muted mt-1 flex-shrink-0"></i>
+            <span class="small">${insight}</span>
+          </div>
+          </#list>
+        </div>
+      </div>
+    </div>
+
+    <!-- rekomendacje map -->
+    <div class="col-md-6">
+      <div class="card rounded h-100">
+        <div class="card-header bg-body border-bottom px-4 py-3">
+          <h6 class="mb-0 fw-semibold">
+  <i class="fa-solid fa-map me-2 text-info"></i>Polecane mapy
+  <span data-bs-toggle="tooltip" data-bs-placement="right"
+    title="Mapy dobierane na podstawie skillsetu aktualnej mapy (NPS i AR). Stream: NPS≥8, Jump: AR≥9 i NPS&lt;8, Burst: NPS 6-8. Podobna trudność ±0.7★. Tylko mapy których jeszcze nie grałeś/aś.">
+    <i class="fa-solid fa-circle-info text-muted ms-1" style="font-size:0.8rem;cursor:help;"></i>
+  </span>
+</h6>
+        </div>
+        <div class="card-body p-0">
+          <#if !analysis.recommendedMaps?has_content>
+            <div class="text-center text-muted py-4 small">Brak rekomendacji — świetna robota!</div>
+          <#else>
+            <#list analysis.recommendedMaps as m>
+            <a href="/b/${m.id?c}" class="d-flex align-items-center gap-3 px-4 py-2 text-decoration-none border-bottom hover-bg">
+              <img src="https://assets.ppy.sh/beatmaps/${m.set_id}/covers/list.jpg"
+                   style="width:40px;height:40px;object-fit:cover;border-radius:4px;"
+                   onerror="this.style.display='none'">
+              <div class="flex-grow-1">
+                <div class="fw-semibold small">${m.artist} - ${m.title}</div>
+                <div class="text-muted" style="font-size:0.75rem;">[${m.version}] &#9733; ${m.diff} &nbsp;&bull;&nbsp; ${m.bpm} BPM</div>
+              </div>
+              <#if m.skillset == "stream">
+                <span class="badge" style="background:#e74c3c;">Stream</span>
+              <#elseif m.skillset == "burst">
+                <span class="badge" style="background:#e67e22;">Burst</span>
+              <#elseif m.skillset == "jump">
+                <span class="badge" style="background:#3498db;">Jump</span>
+              <#else>
+                <span class="badge" style="background:#8e44ad;">Tech</span>
+              </#if>
+            </a>
+            </#list>
+          </#if>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  </#if>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/hammer.js/2.0.8/hammer.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-zoom/2.0.1/chartjs-plugin-zoom.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(el => {
+    new bootstrap.Tooltip(el, { placement: 'top', trigger: 'hover focus' });
+  });
+});
+<#if noteResultsJson??>
+(function() {
+  const notes = ${noteResultsJson};
+  if (!notes.length) return;
+  const labels = notes.map((n, i) => i + 1);
+  const timingData = notes.map(n => n.te);
+  const colors = notes.map(n => {
+    if (n.v === 'miss') return 'rgba(220,53,69,0.8)';
+    if (n.j) return 'rgba(255,193,7,0.7)';
+    if (n.s) return 'rgba(13,110,253,0.6)';
+    return 'rgba(108,117,125,0.5)';
+  });
+  const ctx = document.getElementById('timingChart');
+  if (!ctx) return;
+  const chart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: 'Timing Error (ms)',
+        data: timingData,
+        backgroundColor: colors,
+        borderWidth: 0,
+        barPercentage: 0.8,
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: (ctx) => {
+              const n = notes[ctx.dataIndex];
+              return [
+                'Timing: ' + (n.te > 0 ? '+' : '') + n.te + ' ms',
+                'Verdict: ' + n.v,
+                n.j ? 'Jump' : n.s ? 'Stream' : 'Other'
+              ];
+            }
+          }
+        },
+        zoom: {
+          pan: { enabled: true, mode: 'x' },
+          zoom: { wheel: { enabled: true }, pinch: { enabled: true }, mode: 'x' }
+        }
+      },
+      scales: {
+        x: { display: false },
+        y: {
+          title: { display: true, text: 'ms (early <- 0 -> late)' },
+          grid: { color: 'rgba(255,255,255,0.05)' }
+        }
+      }
+    }
+  });
+  ctx.addEventListener('dblclick', () => chart.resetZoom());
+})();
+</#if>
+</script>
+<#include "../assets/footer.html">

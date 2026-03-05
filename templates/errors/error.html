@@ -1,14 +1,14 @@
 <#include "/assets/base.html">
 <div class="container my-5">
   <div class="card rounded overflow-hidden">
-    <div class="position-relative" style="background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); min-height: 180px;">
+    <div class="position-relative" style="background: linear-gradient(135deg, #2e1a1a 0%, #3e1616 100%); min-height: 180px;">
       <div class="p-5 text-white position-relative">
+        <span style="font-size: 4rem; font-weight: 900; opacity: 0.15; position: absolute; right: 2rem; top: 1rem; line-height:1;">500</span>
         <div class="d-flex align-items-center gap-3 mb-2">
-          <span style="font-size: 4rem; font-weight: 900; opacity: 0.15; position: absolute; right: 2rem; top: 1rem; line-height:1;">404</span>
-          <i class="fa-solid fa-map-location-dot fa-2x text-warning"></i>
-          <h2 class="fw-bold mb-0">this page could not be found</h2>
+          <i class="fa-solid fa-triangle-exclamation fa-2x text-danger"></i>
+          <h2 class="fw-bold mb-0">Server Error</h2>
         </div>
-        <p class="opacity-75 mb-3">the page you're looking for doesn't exist or has been moved.</p>
+        <p class="opacity-75 mb-3">Something went wrong on our end. Please try again in a moment.</p>
         <a href="/" class="btn btn-outline-light btn-sm me-2"><i class="fa-solid fa-house me-1"></i>Home</a>
         <a href="javascript:history.back()" class="btn btn-outline-light btn-sm"><i class="fa-solid fa-arrow-left me-1"></i>Back</a>
       </div>
