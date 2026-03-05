@@ -63,7 +63,7 @@
                 <!-- Performance Stats -->
                 <div class="col-md-3 col-6">
                     <div class="text-center p-3 bg-primary bg-opacity-10 rounded border border-primary border-opacity-25">
-                        <div class="h2 fw-bold text-primary mb-1">${score.pp?string("0")}<small class="fs-6 text-muted">pp</small></div>
+                        <div class="h2 fw-bold text-primary mb-1"><span title="${score.pp?string("0.000")}pp">${score.pp?round}<small class="fs-6 text-muted">pp</small></span></div>
                         <div class="text-muted small">Performance Points</div>
                     </div>
                 </div>

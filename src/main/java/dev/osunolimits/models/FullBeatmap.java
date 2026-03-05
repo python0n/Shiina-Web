@@ -32,7 +32,7 @@ public class FullBeatmap {
     @Data
     public class BeatmapScore {
         private int id;
-        private int pp;
+        private float pp;
         private long score;
         private String[] mods;
         private String grade;

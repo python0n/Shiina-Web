@@ -1,0 +1,75 @@
+<#assign actNav = -1>
+<#include "assets/base.html">
+<div class="container mb-4">
+
+  <div class="card rounded">
+    <div class="card-header bg-body d-flex justify-content-between align-items-center py-3">
+      <span class="fw-bold"><i class="fa-solid fa-film me-2"></i>Pending Replays</span>
+      <div class="d-flex gap-2">
+        <a href="/ap/replays?status=0" class="btn btn-sm <#if filterStatus == '0'>btn-primary<#else>btn-outline-secondary</#if>">Oczekujące</a>
+        <a href="/ap/replays?status=1" class="btn btn-sm <#if filterStatus == '1'>btn-success<#else>btn-outline-secondary</#if>">Zatwierdzone</a>
+        <a href="/ap/replays?status=2" class="btn btn-sm <#if filterStatus == '2'>btn-danger<#else>btn-outline-secondary</#if>">Odrzucone</a>
+      </div>
+    </div>
+    <div class="card-body bg-body p-0">
+      <#if replays?size == 0>
+        <div class="text-center py-5 text-muted">Brak replayów.</div>
+      <#else>
+        <div class="table-responsive">
+          <table class="table table-hover mb-0">
+            <thead>
+              <tr>
+                <th>Gracz</th>
+                <th>Mapa</th>
+                <th>Wynik</th>
+                <th>Acc</th>
+                <th>Grade</th>
+                <th>Wysłano</th>
+                <th>Akcje</th>
+              </tr>
+            </thead>
+            <tbody>
+              <#list replays as r>
+              <tr>
+                <td><a href="/u/${r.userid}" target="_blank">${r.username}</a></td>
+                <td>
+                  <div>${r.artist} - ${r.title} [${r.version}]</div>
+                  <small class="text-muted font-monospace">${r.map_md5}</small>
+                </td>
+                <td>${r.score?string.number}</td>
+                <td>${r.acc}%</td>
+                <td>${r.grade}</td>
+                <td><small class="text-muted">${r.submitted_at}</small></td>
+                <td>
+                  <div class="d-flex gap-1">
+                    <a href="/ap/replays/download?id=${r.id}" class="btn btn-sm btn-outline-secondary" title="Pobierz .osr">
+                      <i class="fa-solid fa-download"></i>
+                    </a>
+                    <#if filterStatus == '0'>
+                    <form data-turbo="false" method="post" action="/ap/replays/action" style="display:inline">
+                      <input type="hidden" name="id" value="${r.id}">
+                      <input type="hidden" name="action" value="approve">
+                      <button type="submit" class="btn btn-sm btn-success" onclick="return confirm('Zatwierdź?')">
+                        <i class="fa-solid fa-check"></i>
+                      </button>
+                    </form>
+                    <form data-turbo="false" method="post" action="/ap/replays/action" style="display:inline">
+                      <input type="hidden" name="id" value="${r.id}">
+                      <input type="hidden" name="action" value="reject">
+                      <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Odrzucić?')">
+                        <i class="fa-solid fa-xmark"></i>
+                      </button>
+                    </form>
+                    </#if>
+                  </div>
+                </td>
+              </tr>
+              </#list>
+            </tbody>
+          </table>
+        </div>
+      </#if>
+    </div>
+  </div>
+</div>
+<#include "/assets/footer.html">

@@ -84,7 +84,7 @@ public class GetPlayerScores extends MySQLRoute {
             PlayerScore score = new PlayerScore();
             if (isBest) {
                 score.setWeight(Math.floor(Math.pow(0.95, iteration) * 100));
-                score.setWeight_pp(Math.round(Math.pow(0.95, iteration) * scoresQuery.getInt("pp")));
+                score.setWeight_pp(Math.round(Math.pow(0.95, iteration) * scoresQuery.getFloat("pp")));
             }
             
             score.setScore_id(scoresQuery.getInt("score_id"));
@@ -94,8 +94,8 @@ public class GetPlayerScores extends MySQLRoute {
             score.setMap_set_id(scoresQuery.getInt("map_set_id"));
             score.setMap_name(scoresQuery.getString("map_name"));
             score.setMax_score(scoresQuery.getInt("max_score"));
-            score.setPp(scoresQuery.getInt("pp"));
-            score.setAcc(scoresQuery.getInt("acc"));
+            score.setPp(scoresQuery.getFloat("pp"));
+            score.setAcc(scoresQuery.getFloat("acc"));
             score.setMods(OsuConverter.convertMods(scoresQuery.getInt("mods")));  // Parse mods
             score.setGrade(scoresQuery.getString("grade"));
             score.setPlay_time(scoresQuery.getString("play_time"));
@@ -133,8 +133,8 @@ public class GetPlayerScores extends MySQLRoute {
         private double weight;
         private double weight_pp;
         private int max_score;
-        private int pp;
-        private int acc;
+        private float pp;
+        private float acc;
         private String[] mods;
         private String grade;
         private String play_time;

@@ -38,7 +38,7 @@ loadEventTurbo = document.addEventListener("turbo:load", function () {
 
     loadContrySelectorIfPresent();
     loadTurnstileIfPresent();
-    
+
     if (document.getElementById('video') != undefined) {
         const video = document.getElementById('video');
         loadVideoWithDelay(video);
@@ -122,7 +122,7 @@ function handleRelUpdate(relArray) {
     relArray.forEach(node => {
         let user = node.getAttribute('data-user');
         node.onclick = function () {
-            fetch("/api/v1/update_rel?u="+user) 
+            fetch("/api/v1/update_rel?u="+user)
             .then(response => response.text())
             .then(response => {
                 Turbo.visit(window.location.href);
@@ -188,7 +188,7 @@ function loadTurnstileIfPresent() {
                 },
             });
             } catch (error) {
-                
+
             }
         }
     });
@@ -197,7 +197,7 @@ function loadTurnstileIfPresent() {
 
 function loadComments(firstLoad = true) {
     if(document.getElementById('commentLoadable') == undefined) return;
-    
+
     let offset = document.getElementById('offsetComments');
 
     if(firstLoad) {
@@ -225,22 +225,28 @@ function loadComments(firstLoad = true) {
     );
 }
 
+function changeFirstPlacesSort() {
+    let sort = document.getElementById('firstPlacesSort').value;
+    reqUrl = reqUrl.replace(/sort=(asc|desc)/, 'sort=' + sort);
+    loadFirstPlaces(reqUrl, true);
+}
+
 function loadFirstPlaces(apiUrl, firstLoad = true) {
     let offset = document.getElementById('offsetFirstPlaces');
 
     if(firstLoad) {
         offset.value = 0;
     }
-    
+
     apiUrl += offset.value;
 
     fetch(apiUrl)
         .then(response => response.json())
         .then(data => {
-           
+
             let container = document.getElementById('firstPlaces');
             let countElement = document.getElementById('firstPlacesCount');
-            
+
             countElement.innerHTML = '(' + data.count + ')';
             if(!data.hasNextPage) {
                 let btn = document.getElementById('firstPlacesButton');
@@ -267,15 +273,15 @@ function loadBestScores(apiUrl, firstLoad = true) {
     if(firstLoad) {
         offset.value = 0;
     }
-    
+
     apiUrl += offset.value + '&scope=best';
 
     fetch(apiUrl)
         .then(response => response.json())
         .then(data => {
-           
+
             let container = document.getElementById('bestScores');
-    
+
             if(!data.hasNextPage) {
                 let btn = document.getElementById('bestScoresButton');
                 btn.classList.add('disabled');
@@ -284,7 +290,7 @@ function loadBestScores(apiUrl, firstLoad = true) {
             if(firstLoad)
                 container.innerHTML = '';
             data.scores.forEach(firstPlace => {
-     
+
                 let element = document.createElement('div');
                 element.innerHTML = loadScorePanel(firstPlace.grade, firstPlace.map_id, firstPlace, firstPlace.pp, firstPlace.acc, firstPlace.max_combo, firstPlace.play_time, firstPlace.map_name, firstPlace.map_set_id, firstPlace.score_id,firstPlace.mods, firstPlace.weight, firstPlace.weight_pp);
                 container.appendChild(element);
@@ -301,15 +307,15 @@ function loadLastScores(apiUrl, firstLoad = true) {
     if(firstLoad) {
         offset.value = 0;
     }
-    
+
     apiUrl += offset.value + '&scope=recent';
 
     fetch(apiUrl)
         .then(response => response.json())
         .then(data => {
-           
+
             let container = document.getElementById('lastScores');
-    
+
             if(!data.hasNextPage) {
                 let btn = document.getElementById('lastScoresButton');
                 btn.classList.add('disabled');
@@ -318,7 +324,7 @@ function loadLastScores(apiUrl, firstLoad = true) {
             if(firstLoad)
                 container.innerHTML = '';
             data.scores.forEach(firstPlace => {
-     
+
                 let element = document.createElement('div');
                 element.innerHTML = loadScorePanel(firstPlace.grade, firstPlace.map_id, firstPlace, firstPlace.pp, firstPlace.acc, firstPlace.max_combo, firstPlace.play_time, firstPlace.map_name, firstPlace.map_set_id, firstPlace.score_id,firstPlace.mods);
                 container.appendChild(element);
@@ -469,7 +475,7 @@ function initPlayCountGraph() {
         if(out2) {
             out2.destroy();
         }
-        
+
         out2 = new Chart(ctx, {
             type: 'line',
             data: {
@@ -506,7 +512,7 @@ function initPlayCountGraph() {
 
     });
 
-    fetch(playCountGraphUrl) 
+    fetch(playCountGraphUrl)
     .then(response => response.json())
     .then(data => {
         let values = [];
@@ -520,7 +526,7 @@ function initPlayCountGraph() {
         let ctx = document.getElementById('playCountGraph');
 
         if (out) {
-            out.destroy(); 
+            out.destroy();
         }
 
         out = new Chart(ctx, {
@@ -572,7 +578,7 @@ function initPlayCountGraph() {
     });
 
 
-    
+
 }
 
 function loadCommentPanel(user, comment, time) {
@@ -591,13 +597,13 @@ function loadCommentPanel(user, comment, time) {
     groups.forEach(group => {
         groupsDiv += '<span class="badge ms-2 shiina-badge bg-light bg-opacity-25 text-white py-1 rounded-pill pe-3"><span class="groupEmoji me-2">' + group.emoji + '</span>' + group.name + '</span>';
     });
-    
+
     let supClass = '';
 
     if(comment.supporter == true) {
         supClass += 'supporter'
     }
-    
+
     output += '<a href="/u/' + user.id + '" class="text-decoration-none fw-medium no-a fw-bold ' + supClass + '">' + user.name + '</a>';
     output += groupsDiv;
     //output += '<small class="text-muted ms-auto">' + timeUntil(time, true) + '</small>';
@@ -610,23 +616,23 @@ function loadCommentPanel(user, comment, time) {
 }
 
 function loadScorePanel(
-    grade, 
-    mapId, 
-    score, 
-    pp, 
-    acc, 
-    maxCombo, 
-    playTime, 
-    name, 
-    setId, 
-    scoreId, 
-    mods, 
-    weight = 0, 
+    grade,
+    mapId,
+    score,
+    pp,
+    acc,
+    maxCombo,
+    playTime,
+    name,
+    setId,
+    scoreId,
+    mods,
+    weight = 0,
     weight_pp = 0
 ) {
     const beatmapImg = `https://assets.ppy.sh/beatmaps/${setId}/covers/cover.jpg?1650681317`;
     const sanitizedName = name.replace('.osu', '');
-    
+
     // Helper for conditional elements
     const createBadge = (condition, html) => condition ? html : '';
 
@@ -638,7 +644,7 @@ function loadScorePanel(
     const weightDisplay = createBadge(
         weight > 0,
         `<div class="weight-badge badge bg-info bg-opacity-25 text-info border border-info" title="Weight contribution to profile pp">
-            <span>${weight}%</span> 
+            <span>${weight}%</span>
             <span class="fw-bold">${weight_pp}pp</span>
         </div>`
     );
@@ -650,8 +656,8 @@ function loadScorePanel(
     let downloadButton = ``;
 
     if(score.grade != "F") {
-        downloadButton = `<a download href="${apiUrl}/v1/get_replay?id=${scoreId}" 
-           class="osu-action-btn osu-download-btn" 
+        downloadButton = `<a download onclick="event.stopPropagation();" href="${apiUrl}/v1/get_replay?id=${scoreId}"
+           class="osu-action-btn osu-download-btn"
            title="Download Replay"
            onmouseover="this.style.background='rgba(46,204,113,0.3)'; this.style.borderColor='#2ecc71';"
            onmouseout="this.style.background='rgba(255,255,255,0.1)'; this.style.borderColor='rgba(255,255,255,0.2)';">
@@ -660,44 +666,37 @@ function loadScorePanel(
     }
 
    return `
-    <div class="osu-score-card mb-3">
+    <div class="osu-score-card mb-3" role="link" tabindex="0" style="cursor:pointer;" onclick="window.location='/scores/${scoreId}'" onmousedown="if(event.button===1){event.preventDefault();window.open('/scores/${scoreId}','_blank');}" onkeydown="if(event.key==='Enter'||event.key===' ') { event.preventDefault(); window.location='/scores/${scoreId}'; }">
         <div class="osu-score-container">
             <!-- Beatmap Background -->
             <div class="osu-beatmap-bg" style="background-image: url('${beatmapImg}')"></div>
-            
+
             <!-- Content Overlay -->
             <div class="osu-score-content">
                 <!-- Grade Badge -->
                 ${gradeDisplay}
-                
+
                 <!-- Score Info -->
                 <div class="osu-score-info">
                     <div class="osu-beatmap-title">
                         ${sanitizedName}${modsDisplay}
                     </div>
-                    
+
                     <div class="osu-score-stats">
                         <div class="osu-pp-display">
-                            ${pp}<span class="pp-unit">pp</span>
+                            <span title="${pp.toFixed(3)}pp">${Math.round(pp)}</span><span class="pp-unit">pp</span>
                         </div>
                         <div class="osu-acc-display">
-                            ${acc}%
+                            ${parseFloat(acc).toFixed(2)}%
                         </div>
-        
+
                     </div>
-                    
+
                     ${weightDisplay}
                 </div>
-                
+
                 <!-- Action Buttons -->
                 <div class="osu-action-buttons">
-                    <a href="/scores/${scoreId}" 
-                       class="osu-action-btn osu-view-btn" 
-                       title="View Score"
-                       onmouseover="this.style.background='rgba(52,152,219,0.3)'; this.style.borderColor='#3498db';"
-                       onmouseout="this.style.background='rgba(255,255,255,0.1)'; this.style.borderColor='rgba(255,255,255,0.2)';">
-                        <i class="fas fa-eye"></i>
-                    </a>
                     ${downloadButton}
                 </div>
             </div>

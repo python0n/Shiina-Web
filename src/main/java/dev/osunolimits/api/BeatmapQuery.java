@@ -39,6 +39,7 @@ public class BeatmapQuery extends APIQuery {
         String url = "/v2/maps";
         url += getParameter() + "page=" + page;
         url += getParameter() + "page_size=" + pageSize;
+        url += getParameter() + "group_by_set=true";
 
         if (status != 999) {
             url += getParameter() + "status=" + status;
