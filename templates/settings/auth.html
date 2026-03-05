@@ -21,7 +21,25 @@
             </#if>
 
             <#include "auth/sessions.html">
-          
+
+            <#if ircKey??>
+            <div class="card mb-4">
+                <div class="card-header bg-transparent">
+                    <h5 class="mb-0">
+                        <i class="fas fa-terminal me-2"></i>IRC Key
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <input type="text" class="form-control font-monospace"
+                               value="${ircKey}"
+                               readonly onclick="this.select()">
+                        <div class="form-text">Use this key to connect to taksiegra IRC on port 6667</div>
+                    </div>
+                </div>
+            </div>
+            </#if>
+
         </div>
     </div>
 </div>
