@@ -1,5 +1,6 @@
 package dev.osunolimits.routes.get.settings;
 
+import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -70,6 +71,11 @@ public class Authentication extends Shiina {
         }
 
         shiina.data.put("webSessions", webSessions);
+
+        ResultSet ircKeyResult = shiina.mysql.Query("SELECT `irc_key` FROM `users` WHERE `id` = ?", shiina.user.id);
+        if (ircKeyResult != null && ircKeyResult.next()) {
+            shiina.data.put("ircKey", ircKeyResult.getString("irc_key"));
+        }
 
         shiina.data.put("pluginNav", NavbarRegister.getSettingsItems());
         shiina.data.put("seo", new SEOBuilder("Settings | Auth", App.customization.get("homeDescription").toString()));
