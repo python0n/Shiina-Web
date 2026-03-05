@@ -3,6 +3,7 @@ package dev.osunolimits.routes.get.settings;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import com.google.gson.Gson;
 
@@ -74,7 +75,12 @@ public class Authentication extends Shiina {
 
         ResultSet ircKeyResult = shiina.mysql.Query("SELECT `irc_key` FROM `users` WHERE `id` = ?", shiina.user.id);
         if (ircKeyResult != null && ircKeyResult.next()) {
-            shiina.data.put("ircKey", ircKeyResult.getString("irc_key"));
+            String ircKey = ircKeyResult.getString("irc_key");
+            if (ircKey == null || ircKey.isEmpty()) {
+                ircKey = UUID.randomUUID().toString();
+                shiina.mysql.Exec("UPDATE `users` SET `irc_key` = ? WHERE `id` = ?", ircKey, shiina.user.id);
+            }
+            shiina.data.put("ircKey", ircKey);
         }
 
         shiina.data.put("pluginNav", NavbarRegister.getSettingsItems());
