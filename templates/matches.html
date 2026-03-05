@@ -1,0 +1,67 @@
+<#include "assets/base.html">
+
+<div class="container mb-4">
+    <div class="card mb-3">
+        <div class="card-body d-flex align-items-center justify-content-between">
+            <h1 class="h4 mb-0"><i class="fa-solid fa-gamepad me-2"></i>Multiplayer Matches</h1>
+            <button class="btn btn-sm btn-outline-secondary" onclick="toggleOld()" id="toggleBtn">Show old matches</button>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body p-0">
+            <#if matches?? && matches?size gt 0>
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Name</th>
+                                <th>Creator</th>
+                                <th>Maps played</th>
+                                <th>Created</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <#list matches as m>
+                                <tr style="cursor:pointer;${(m.id?number < 52)?then(' display:none;', '')}" class="${(m.id?number < 52)?then('old-match', '')}" onclick="window.location.href='/matches/${m.id?c}'">
+                                    <td class="text-muted">#${m.id?c}</td>
+                                    <td class="fw-semibold">${m.name}</td>
+                                    <td>${m.creator_name!"-"}</td>
+                                    <td>${m.game_count}</td>
+                                    <td>
+                                        <span data-timestamp-format="date" data-timestamp="${m.created_at}">${m.created_at}</span>
+                                    </td>
+                                    <td>
+                                        <#if m.ended_at??>
+                                            <span class="badge bg-secondary">Ended</span>
+                                        <#else>
+                                            <span class="badge bg-success">Live</span>
+                                        </#if>
+                                    </td>
+                                </tr>
+                            </#list>
+                        </tbody>
+                    </table>
+                </div>
+            <#else>
+                <div class="p-4 text-center text-muted">
+                    <i class="fa-solid fa-inbox fa-2x mb-2"></i>
+                    <div>No matches found.</div>
+                </div>
+            </#if>
+        </div>
+    </div>
+</div>
+
+<script>
+function toggleOld() {
+    const rows = document.querySelectorAll(".old-match");
+    const btn = document.getElementById("toggleBtn");
+    const hidden = rows[0] && rows[0].style.display === "none";
+    rows.forEach(r => r.style.display = hidden ? "" : "none");
+    btn.textContent = hidden ? "Hide old matches" : "Show old matches";
+}
+</script>
+<#include "assets/footer.html">

@@ -23,7 +23,7 @@ public class ScoreQuery {
     public class Score {
         private int id;
         private long score;
-        private int pp;
+        private float pp;
         private double acc;
         private int maxCombo;
         private String[] mods;
@@ -46,7 +46,7 @@ public class ScoreQuery {
         private boolean supporter;
     }
 
-    private final String SCORE_QUERY = "SELECT `scores`.`id` AS `score_id`, `score`, `pp`, `acc`, `scores`.`max_combo` AS `max_combo_scores`, `mods`, `n300`, `n100`, `n50`, `nmiss`, `ngeki`, `nkatu`, `grade`, `scores`.`status` AS `score_status`, `scores`.`mode` AS `score_mode`, `play_time`, `userid`, `users`.`name`, `users`.`country`, `perfect`, `maps`.`id` AS `bm_id`, `maps`.`set_id`, `maps`.`filename` AS `bm_title`, `maps`.`artist`, `maps`.`creator`, `maps`.`passes`, `maps`.`plays`, `maps`.`diff`, `maps`.`last_update`, `maps`.`status` AS `bm_status` FROM `scores` INNER JOIN `maps` ON `map_md5` = `maps`.`md5` LEFT JOIN `users` ON `userid` = `users`.`id` WHERE `scores`.`id` = ?;";
+    private final String SCORE_QUERY = "SELECT `scores`.`id` AS `score_id`, `score`, `pp`, `acc`, `scores`.`max_combo` AS `max_combo_scores`, `mods`, `n300`, `n100`, `n50`, `nmiss`, `ngeki`, `nkatu`, `grade`, `scores`.`status` AS `score_status`, `scores`.`mode` AS `score_mode`, `play_time`, `userid`, `users`.`name`, `users`.`country`, `perfect`, `maps`.`id` AS `bm_id`, `maps`.`set_id`, `maps`.`filename` AS `bm_title`, `maps`.`title`, `maps`.`version`, `maps`.`artist`, `maps`.`creator`, `maps`.`passes`, `maps`.`plays`, `maps`.`diff`, `maps`.`last_update`, `maps`.`status` AS `bm_status` FROM `scores` INNER JOIN `maps` ON `map_md5` = `maps`.`md5` LEFT JOIN `users` ON `userid` = `users`.`id` WHERE `scores`.`id` = ?;";
 
     public Score getScore(int id) throws SQLException {
         ResultSet scoreRs = mysql.Query(SCORE_QUERY, id);
@@ -55,7 +55,7 @@ public class ScoreQuery {
             Score score = new Score();
             score.setId(scoreRs.getInt("score_id"));
             score.setScore(scoreRs.getLong("score"));
-            score.setPp(scoreRs.getInt("pp"));
+            score.setPp(scoreRs.getFloat("pp"));
             score.setAcc(scoreRs.getDouble("acc"));
             score.setMaxCombo(scoreRs.getInt("max_combo_scores"));
             score.setMods(OsuConverter.convertMods(scoreRs.getInt("mods")));
@@ -78,6 +78,8 @@ public class ScoreQuery {
             beatmap.setId(scoreRs.getInt("bm_id"));
             beatmap.setSet_id(scoreRs.getInt("set_id"));
             beatmap.setFilename(scoreRs.getString("bm_title"));
+            beatmap.setTitle(scoreRs.getString("title"));
+            beatmap.setVersion(scoreRs.getString("version"));
             beatmap.setArtist(scoreRs.getString("artist"));
             beatmap.setCreator(scoreRs.getString("creator"));
             beatmap.setPlays(scoreRs.getInt("plays"));

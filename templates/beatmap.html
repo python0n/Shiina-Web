@@ -32,8 +32,7 @@
         <!-- Background Header with Cover Image -->
         <div class="osu-beatmap-container" style="min-height: 280px;">
             <!-- Blurred background -->
-            <div class="osu-beatmap-bg" 
-                 style="background-image: url('https://assets.ppy.sh/beatmaps/${beatmap.setId?c}/covers/cover.jpg');"></div>
+            <div class="osu-beatmap-bg" style="background-image: url('<#if (beatmap.setId >= 1073741824)>https://c.taksiegra.ovh/api/v1/bss/bg/${beatmap.setId?c}<#else>https://assets.ppy.sh/beatmaps/${beatmap.setId?c}/covers/cover.jpg</#if>');"></div>
             
             <!-- Status Badge -->
             <div class="osu-beatmap-status">
@@ -183,7 +182,7 @@
                 <a href="osu://dl/${beatmap.setId?c}" class="btn btn-primary">
                     <i class="fa-solid fa-download me-2"></i>Download with osu!direct
                 </a>
-                <a href="https://catboy.best/d/${beatmap.setId?c}" class="btn btn-outline-secondary">
+                <a href="<#if (beatmap.setId >= 1073741824)>https://c.taksiegra.ovh/d/${beatmap.setId?c}<#else>https://catboy.best/d/${beatmap.setId?c}</#if>" class="btn btn-outline-secondary">
                     <i class="fa-solid fa-floppy-disk me-2"></i>Download beatmap
                 </a>
             </div>
@@ -287,7 +286,7 @@
                     <div class="text-end">
                         <div class="h5 mb-0 text-primary fw-bold">
                             <#if sort == 'pp' || !sort??>
-                                ${score.pp?string("0")}<small class="text-muted ms-1">pp</small>
+                                <span title="${score.pp?string("0.000")}pp">${score.pp?round}<small class="text-muted ms-1">pp</small></span>
                             <#elseif sort == 'score'>
                                 ${score.score}
                             <#elseif sort == 'scorev2'>

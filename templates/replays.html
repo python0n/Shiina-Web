@@ -1,0 +1,105 @@
+<#include "assets/base.html">
+<div class="container mb-4">
+
+  <#if submitted>
+  <div class="alert alert-success" role="alert">
+    <i class="fa-solid fa-check-circle me-2"></i>Replay został wysłany i oczekuje na weryfikację.
+  </div>
+  </#if>
+
+  <#if error??>
+  <div class="alert alert-danger" role="alert">
+    <i class="fa-solid fa-triangle-exclamation me-2"></i>${error}
+  </div>
+  </#if>
+
+  <!-- Upload -->
+  <div class="card rounded mb-4">
+    <div class="bg-gradient rounded-top position-relative"
+      style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+      <div class="p-4 text-white">
+        <h4 class="fw-bold mb-1"><i class="fa-solid fa-upload me-2"></i>Wyślij replay</h4>
+        <p class="mb-0 opacity-75">Jeśli Twój score nie został zapisany (np. grałeś na local ranking), możesz go tutaj przesłać do ręcznej weryfikacji.</p>
+      </div>
+    </div>
+    <div class="card-body bg-body px-4 py-3">
+      <form data-turbo="false" method="post" action="/replays/submit" enctype="multipart/form-data">
+        <div class="mb-3">
+          <label class="form-label fw-semibold">Plik replay (.osr)</label>
+          <input type="file" name="replay" accept=".osr" class="form-control" required>
+          <div class="form-text">Maksymalny rozmiar: 10MB. Tylko pliki .osr z osu!</div>
+        </div>
+        <button type="submit" class="btn btn-primary">
+          <i class="fa-solid fa-paper-plane me-1"></i>Wyślij do weryfikacji
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Lista replayów -->
+  <div class="card rounded">
+    <div class="card-header bg-body d-flex justify-content-between align-items-center py-3">
+      <span class="fw-bold"><i class="fa-solid fa-list me-2"></i>Moje replaye</span>
+    </div>
+    <div class="card-body bg-body p-0">
+      <#if replays?size == 0>
+        <div class="text-center py-5 text-muted">
+          <i class="fa-solid fa-inbox fa-2x mb-3 d-block"></i>
+          Nie masz jeszcze żadnych przesłanych replayów.
+        </div>
+      <#else>
+        <div class="table-responsive">
+          <table class="table table-hover mb-0">
+            <thead>
+              <tr>
+                <th>Mapa</th>
+                <th>Wynik</th>
+                <th>Acc</th>
+                <th>Grade</th>
+                <th>Status</th>
+                <th>Wysłano</th>
+              </tr>
+            </thead>
+            <tbody>
+              <#list replays as r>
+              <tr>
+                <td>
+                  <div class="fw-semibold">${r.artist} - ${r.title}</div>
+                  <small class="text-muted">${r.version}</small>
+                </td>
+                <td>${r.score?string.number}</td>
+                <td>${r.acc}%</td>
+                <td>
+                  <span class="badge
+                    <#if r.grade == 'X' || r.grade == 'XH'>bg-warning text-dark
+                    <#elseif r.grade == 'S' || r.grade == 'SH'>bg-success
+                    <#elseif r.grade == 'A'>bg-primary
+                    <#elseif r.grade == 'B'>bg-info text-dark
+                    <#elseif r.grade == 'C'>bg-secondary
+                    <#else>bg-danger</#if>">
+                    ${r.grade}
+                  </span>
+                </td>
+                <td>
+                  <#if r.status == 0>
+                    <span class="badge bg-warning text-dark"><i class="fa-solid fa-clock me-1"></i>Oczekuje</span>
+                  <#elseif r.status == 1>
+                    <span class="badge bg-success"><i class="fa-solid fa-check me-1"></i>Zaakceptowano</span>
+                  <#else>
+                    <span class="badge bg-danger"><i class="fa-solid fa-xmark me-1"></i>Odrzucono</span>
+                  </#if>
+                </td>
+                <td>
+                  <small class="text-muted">${r.submitted_at}</small>
+                </td>
+              </tr>
+              </#list>
+            </tbody>
+          </table>
+        </div>
+      </#if>
+    </div>
+  </div>
+
+</div>
+<#include "assets/footer.html">

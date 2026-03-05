@@ -2,6 +2,10 @@
         <h5 class="mb-0 me-3 text-muted text-uppercase fw-bold" style="font-size: 0.9rem; letter-spacing: 0.05em;">
             <i class="fas fa-trophy me-2 text-warning"></i>
             First Places <span id="firstPlacesCount">(-)</span>
+            <select id="firstPlacesSort" onchange="changeFirstPlacesSort()" class="form-select form-select-sm ms-2" style="width:auto;display:inline-block;">
+                <option value="desc">Newest first</option>
+                <option value="asc">Oldest first</option>
+            </select>
         </h5>
         <div class="flex-grow-1"
             style="height: 1px; background: linear-gradient(90deg, rgba(255,255,255,0.2) 0%, transparent 100%);"></div>

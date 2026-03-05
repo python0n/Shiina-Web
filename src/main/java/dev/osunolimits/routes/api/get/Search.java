@@ -27,7 +27,13 @@ public class Search extends MySQLRoute {
         public ArrayList<SearchEntry> results = new ArrayList<>();
     }
 
-    private final String SEARCH_QUERY = "SELECT id, name AS item_name, NULL AS set_id, 'users' AS source_table FROM users WHERE LOWER(name) LIKE CONCAT('%', LOWER(?), '%') UNION SELECT id, name AS item_name, NULL AS set_id, 'clans' AS source_table FROM clans WHERE LOWER(name) LIKE CONCAT('%', LOWER(?), '%') UNION SELECT id, CONCAT(COALESCE(artist, ''), ' ', COALESCE(title, ''), ' ', COALESCE(version, '')) AS item_name, set_id, 'maps' AS source_table FROM maps WHERE LOWER(CONCAT(COALESCE(artist, ''), ' ', COALESCE(title, ''), ' ', COALESCE(version, ''))) LIKE CONCAT('%', LOWER(?), '%') ORDER BY CASE WHEN source_table = 'users' THEN 1 WHEN source_table = 'clans' THEN 2 WHEN source_table = 'maps' THEN 3 END, item_name LIMIT ? OFFSET ?;";
+    private final String SEARCH_QUERY = 
+        "SELECT id, name AS item_name, NULL AS set_id, 'users' AS source_table FROM users WHERE LOWER(name) LIKE CONCAT('%', LOWER(?), '%') " +
+        "UNION " +
+        "SELECT id, name AS item_name, NULL AS set_id, 'clans' AS source_table FROM clans WHERE LOWER(name) LIKE CONCAT('%', LOWER(?), '%') " +
+        "UNION " +
+        "SELECT MIN(id) AS id, CONCAT(COALESCE(MIN(artist), ''), ' ', COALESCE(MIN(title), '')) AS item_name, set_id, 'maps' AS source_table FROM maps WHERE LOWER(CONCAT(COALESCE(artist, ''), ' ', COALESCE(title, ''), ' ', COALESCE(version, ''))) LIKE CONCAT('%', LOWER(?), '%') GROUP BY set_id " +
+        "ORDER BY CASE WHEN source_table = 'users' THEN 1 WHEN source_table = 'clans' THEN 2 WHEN source_table = 'maps' THEN 3 END, item_name LIMIT ? OFFSET ?;";
 
     @Override
     public Object handle(Request req, Response res) throws Exception {

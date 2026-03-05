@@ -1,7 +1,12 @@
 <div class="col-12  col-lg-<#if bigBm??>12<#else>6</#if> flex-column">
 
     <div class="osu-beatmap-card">
-        <div class="osu-beatmap-container">
+        <div class="osu-beatmap-container"
+             role="link"
+             tabindex="0"
+             onclick="window.location.href='/b/${beatmap.id?c}';"
+             onkeydown="if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); window.location.href='/b/${beatmap.id?c}'; }"
+             style="cursor: pointer;">
             <!-- Beatmap Background -->
             <div class="osu-beatmap-bg" style="background-image: url('https://assets.ppy.sh/beatmaps/${beatmap.set_id?c}/covers/cover.jpg?1650681317')"></div>
 
@@ -13,16 +18,16 @@
                         ${convertStatusBack(beatmap.status)}
                     </span>
                 </div>
-                
+
                 <!-- Beatmap Info -->
                 <div class="osu-beatmap-info">
                     <div class="osu-beatmap-title mt-2">
-                        ${beatmap.filename?replace(".osu", "")}
+                        ${beatmap.artist} - ${beatmap.title}
                     </div>
                     <div class="osu-beatmap-creator">
                         mapped by ${beatmap.creator}
                     </div>
-                    
+
                     <div class="osu-beatmap-stats">
                         <div class="stat-item">
                             <i class="fa-solid fa-star"></i>
@@ -46,19 +51,13 @@
                         </#if>
                     </div>
                 </div>
-                
+
                 <!-- Action Buttons -->
                 <div class="osu-beatmap-actions">
-                    <a href="/b/${beatmap.id?c}" 
-                       class="osu-action-btn osu-view-btn" 
-                       title="View Beatmap"
-                       onmouseover="this.style.background='rgba(52,152,219,0.3)'; this.style.borderColor='#3498db';"
-                       onmouseout="this.style.background='rgba(255,255,255,0.1)'; this.style.borderColor='rgba(255,255,255,0.2)';">
-                        <i class="fas fa-eye"></i>
-                    </a>
-                    <a download href="https://catboy.best/d/${beatmap.set_id?c}" 
-                       class="osu-action-btn osu-download-btn" 
+                    <a download href="<#if (beatmap.set_id >= 1073741824)>https://c.taksiegra.ovh/d/${beatmap.set_id?c}<#else>https://catboy.best/d/${beatmap.set_id?c}</#if>"
+                       class="osu-action-btn osu-download-btn"
                        title="Download Beatmap"
+                       onclick="event.stopPropagation();"
                        onmouseover="this.style.background='rgba(46,204,113,0.3)'; this.style.borderColor='#2ecc71';"
                        onmouseout="this.style.background='rgba(255,255,255,0.1)'; this.style.borderColor='rgba(255,255,255,0.2)';">
                         <i class="fas fa-download"></i>
@@ -67,4 +66,5 @@
             </div>
         </div>
     </div>
+
 </div>

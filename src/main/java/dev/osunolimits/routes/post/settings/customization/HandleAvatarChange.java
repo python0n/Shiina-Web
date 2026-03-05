@@ -36,7 +36,7 @@ public class HandleAvatarChange extends Shiina {
 
         if (!shiina.loggedIn) {
             res.redirect("/login?path=/settings/customization");
-            return notFound(res, shiina);
+            return "";
         }
 
         int userId = shiina.user.id;
@@ -47,40 +47,50 @@ public class HandleAvatarChange extends Shiina {
                 var part = req.raw().getPart("avatar");
                 if (part != null) {
                     String fileName = part.getSubmittedFileName();
+                    String lower = (fileName == null) ? "" : fileName.toLowerCase();
 
-                    if (fileName != null
-                            && (fileName.toLowerCase().endsWith(".png") || fileName.toLowerCase().endsWith(".gif"))
-                            && part.getSize() <= MAX_FILE_SIZE) {
+                    boolean allowedExt =
+                            lower.endsWith(".png") ||
+                            lower.endsWith(".jpg") ||
+                            lower.endsWith(".jpeg") ||
+                            lower.endsWith(".gif");
+
+                    if (fileName != null && allowedExt && part.getSize() <= MAX_FILE_SIZE) {
                         File avatarDir = new File(AVATAR_DIR);
                         if (!avatarDir.exists()) {
                             avatarDir.mkdirs();
                         }
 
-                        // Ensure all old avatar files (PNG, JPG, GIF) are deleted
-                        for (File file : avatarDir.listFiles()) {
-                            if (file.getName().matches(userId + "\\.(png|jpg|gif)")) {
-                                file.delete();
+                        // Ensure all old avatar files (PNG, JPG, JPEG, GIF) are deleted
+                        File[] files = avatarDir.listFiles();
+                        if (files != null) {
+                            for (File file : files) {
+                                if (file.getName().matches(userId + "\\.(png|jpg|jpeg|gif)")) {
+                                    file.delete();
+                                }
                             }
                         }
 
-                        Path finalAvatarPath = Path.of(AVATAR_DIR,
-                                userId + (fileName.toLowerCase().endsWith(".gif") ? ".gif" : ".png"));
+                        if (lower.endsWith(".gif")) {
+                            // GIF only for supporters
+                            if (!PermissionHelper.hasPrivileges(shiina.user.priv, PermissionHelper.Privileges.SUPPORTER)) {
+                                res.redirect("/settings/customization?error=You need to be a supporter to use GIFs.");
+                                return notFound(res, shiina);
+                            }
 
-                        if (fileName.toLowerCase().endsWith(".gif") && PermissionHelper.hasPrivileges(shiina.user.priv,
-                                PermissionHelper.Privileges.SUPPORTER)) {
+                            Path finalAvatarPath = Path.of(AVATAR_DIR, userId + ".gif");
                             try (InputStream input = part.getInputStream()) {
                                 Files.copy(input, finalAvatarPath, StandardCopyOption.REPLACE_EXISTING);
                             }
-                        } else if (fileName.toLowerCase().endsWith(".png")) {
+                        } else {
+                            // PNG/JPG/JPEG -> always save as PNG
+                            Path finalAvatarPath = Path.of(AVATAR_DIR, userId + ".png");
                             try (InputStream input = part.getInputStream()) {
                                 Thumbnails.of(input)
                                         .size(500, 500)
                                         .outputFormat("png")
                                         .toFile(finalAvatarPath.toFile());
                             }
-                        } else {
-                            res.redirect("/settings/customization?error=You need to be a supporter to use GIFs.");
-                            return notFound(res, shiina);
                         }
 
                         res.header("Cache-Control", "no-cache, no-store, must-revalidate");
@@ -100,6 +110,6 @@ public class HandleAvatarChange extends Shiina {
             res.redirect("/settings/customization?error=Error processing the upload: " + e.getMessage());
         }
 
-        return notFound(res, shiina);
+        return "";
     }
 }

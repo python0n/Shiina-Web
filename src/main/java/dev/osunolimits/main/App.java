@@ -87,18 +87,25 @@ import dev.osunolimits.routes.get.Leaderboard;
 import dev.osunolimits.routes.get.OnBoarding;
 import dev.osunolimits.routes.get.User;
 import dev.osunolimits.routes.get.UserScore;
+import dev.osunolimits.routes.get.MultiplayerMatch;
+import dev.osunolimits.routes.get.MatchView;
+import dev.osunolimits.routes.get.Analyzer;
+import dev.osunolimits.routes.get.MatchList;
 import dev.osunolimits.routes.get.auth.Login;
 import dev.osunolimits.routes.get.auth.Register;
 import dev.osunolimits.routes.get.clans.Clan;
 import dev.osunolimits.routes.get.clans.Clans;
 import dev.osunolimits.routes.get.clans.ManageClan;
 import dev.osunolimits.routes.get.errors.NotFound;
+import dev.osunolimits.routes.get.errors.InternalError;
+import dev.osunolimits.routes.get.errors.Forbidden;
 import dev.osunolimits.routes.get.modular.Home;
 import dev.osunolimits.routes.get.modular.ModuleRegister;
 import dev.osunolimits.routes.get.modular.ShiinaModule;
 import dev.osunolimits.routes.get.modular.home.BigHeader;
 import dev.osunolimits.routes.get.modular.home.MoreInfos;
 import dev.osunolimits.routes.get.redirect.BeatmapSetRedirect;
+import dev.osunolimits.routes.get.redirect.MpRedirect;
 import dev.osunolimits.routes.get.settings.Authentication;
 import dev.osunolimits.routes.get.settings.Customization;
 import dev.osunolimits.routes.get.settings.Data;
@@ -125,6 +132,11 @@ import dev.osunolimits.utils.Auth;
 import io.github.cdimascio.dotenv.Dotenv;
 import okhttp3.OkHttpClient;
 import redis.clients.jedis.JedisPooled;
+import dev.osunolimits.routes.get.ReplayList;
+import dev.osunolimits.routes.post.HandleReplaySubmit;
+import dev.osunolimits.routes.ap.get.ApReplayList;
+import dev.osunolimits.routes.ap.get.ApReplayDownload;
+import dev.osunolimits.routes.ap.post.HandleReplayAction;
 
 /**
  * shiina - a modern osu! private server frontend for the web
@@ -197,7 +209,7 @@ public class App {
         } catch (Exception e) {
             System.out.println("[WARN] ShiinaDocs disabled: " + e);
         }
-// shiinaDocs.initializeDocs();
+shiinaDocs.initializeDocs();
 
         ShiinaAchievementsSorter.initialize();
 
@@ -221,6 +233,27 @@ public class App {
         WebServer.get("/b/:id", new Beatmap());
         WebServer.get("/u/1", new Bot());
         WebServer.get("/u/:id", new User());
+
+        WebServer.get("/matches", new MatchList());
+        WebServer.get("/analyzer", new Analyzer());
+        WebServer.get("/analyzer/:score_id", new Analyzer());
+        WebServer.get("/matches/:id", new MatchView());
+        WebServer.get("/mp/:id", new MpRedirect());
+
+        WebServer.get("/replays", new ReplayList());
+        WebServer.post("/replays/submit", new HandleReplaySubmit());
+        WebServer.get("/ap/replays", new ApReplayList());
+        WebServer.get("/ap/replays/download", new ApReplayDownload());
+        WebServer.post("/ap/replays/action", new HandleReplayAction());
+
+        // Support osu-style /mp<id> URLs (no slash)
+        WebServer.before("/mp*", (req, res) -> {
+            String pth = req.pathInfo();
+            if (pth != null && pth.matches("^/mp\\d+$")) {
+                res.redirect("/matches/" + pth.substring(3));
+                spark.Spark.halt();
+            }
+        });
 
         WebServer.get("/settings", new Settings());
 
@@ -255,6 +288,7 @@ public class App {
 
         WebServer.post("/post/comment", new HandleComment());
         WebServer.notFound(new NotFound());
+        WebServer.internalServerError(new InternalError());
 
         WebServer.get("/api/v1/get_ap_players", new GetLastDayPlayerAdmin());
         WebServer.get("/api/v1/get_comments", new GetComments());

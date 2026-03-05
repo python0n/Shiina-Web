@@ -1,0 +1,134 @@
+<#include "../assets/base.html">
+<div class="container mb-4">
+  <div class="card rounded mb-4">
+    <div class="bg-gradient rounded-top position-relative"
+      style="background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);">
+      <div class="p-4 text-white">
+        <h4 class="fw-bold mb-1"><i class="fa-solid fa-magnifying-glass-chart me-2"></i>Replay Analyzer</h4>
+        <p class="mb-0 opacity-75">Wybierz score z listy aby zobaczyć szczegółową analizę timingu, aima i wzorców gry.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- wyszukiwarka -->
+  <div class="card rounded mb-3">
+    <div class="card-body py-3">
+      <div class="input-group">
+        <span class="input-group-text bg-body border-end-0"><i class="fa-solid fa-magnifying-glass text-muted"></i></span>
+        <input type="text" id="scoreSearch" class="form-control border-start-0 bg-body" placeholder="Szukaj po nazwie mapy, artyście lub diffie...">
+      </div>
+      <div id="searchResults" class="mt-2" style="display:none;"></div>
+    </div>
+  </div>
+
+  <div class="card rounded">
+    <div class="card-header bg-body border-bottom px-4 py-3">
+      <h6 class="mb-0 fw-semibold"><i class="fa-solid fa-clock-rotate-left me-2"></i>Ostatnie 50 scorów</h6>
+    </div>
+    <div class="card-body p-0">
+      <#if scores?size == 0>
+        <div class="text-center text-muted py-5">
+          <i class="fa-solid fa-inbox" style="font-size: 3rem; opacity: 0.3;"></i>
+          <p class="mt-3">Brak scorów do analizy.</p>
+        </div>
+      <#else>
+        <div class="table-responsive">
+          <table class="table table-hover mb-0">
+            <thead class="table-dark">
+              <tr>
+                <th class="ps-4">Mapa</th>
+                <th>Wynik</th>
+                <th>Acc</th>
+                <th>PP</th>
+                <th>Grade</th>
+                <th>Data</th>
+                <th class="pe-4">Replay</th>
+              </tr>
+            </thead>
+            <tbody>
+              <#list scores as s>
+              <#if s.hasReplay>
+              <tr style="cursor:pointer;" onclick="Turbo.visit('/analyzer/${s.id?c}')">
+              <#else>
+              <tr class="opacity-50">
+              </#if>
+                <td class="ps-4">
+                  <div class="fw-semibold">${s.artist} - ${s.title}</div>
+                  <div class="text-muted small">[${s.version}] ★ ${s.diff}</div>
+                </td>
+                <td>${s.score?string(",##0")}</td>
+                <td>${s.acc}%</td>
+                <td>${s.pp}pp</td>
+                <td>
+                  <#if s.grade != "F">
+                    <img src="/img/ranking/ranking-${s.grade}.png" alt="${s.grade}" style="height:24px;">
+                  <#else>
+                    <span class="text-danger fw-bold">F</span>
+                  </#if>
+                </td>
+                <td class="text-muted small" data-timestamp-format="relative">${s.play_time}</td>
+                <td class="pe-4">
+                  <#if s.hasReplay>
+                    <span class="badge bg-success"><i class="fa-solid fa-check me-1"></i>Dostępny</span>
+                  <#else>
+                    <span class="badge bg-secondary">Brak</span>
+                  </#if>
+                </td>
+              </tr>
+              </#list>
+            </tbody>
+          </table>
+        </div>
+      </#if>
+    </div>
+  </div>
+</div>
+<script>
+(function() {
+  var input = document.getElementById("scoreSearch");
+  var resultsDiv = document.getElementById("searchResults");
+  var timer = null;
+
+  function renderResults(scores) {
+    if (!scores.length) {
+      resultsDiv.innerHTML = "<div class=\"text-muted small px-1 py-2\">Brak wynikow.</div>";
+      return;
+    }
+    var html = "";
+    for (var i = 0; i < scores.length; i++) {
+      var s = scores[i];
+      var style = s.hasReplay ? "cursor:pointer;" : "opacity:0.5;";
+      var click = s.hasReplay ? " onclick=\"Turbo.visit('/analyzer/" + s.id + "')\"" : "";
+      html += "<div class=\"d-flex align-items-center gap-3 p-2 rounded border mb-1\" style=\"" + style + "\"" + click + ">";
+      html += "<img src=\"https://assets.ppy.sh/beatmaps/" + s.set_id + "/covers/list.jpg\" style=\"width:48px;height:48px;object-fit:cover;border-radius:4px;flex-shrink:0;\" onerror=\"this.style.display='none'\">";
+      html += "<div class=\"flex-grow-1\">";
+      html += "<div class=\"fw-semibold small\">" + s.artist + " - " + s.title + "</div>";
+      html += "<div class=\"text-muted\" style=\"font-size:0.75rem;\">[" + s.version + "] &#9733;" + s.diff + "</div>";
+      html += "<div class=\"text-muted\" style=\"font-size:0.72rem;\">";
+      html += s.acc + "% &nbsp;&bull;&nbsp; " + s.pp + "pp &nbsp;&bull;&nbsp; ";
+      html += "<span class=\"text-warning\">100: " + s.n100 + "</span> &nbsp;&bull;&nbsp; ";
+      html += "<span class=\"text-info\">50: " + s.n50 + "</span> &nbsp;&bull;&nbsp; ";
+      html += "<span class=\"text-danger\">miss: " + s.nmiss + "</span> &nbsp;&bull;&nbsp; ";
+      html += s.play_time + "</div></div>";
+      html += s.hasReplay ? "<span class=\"badge bg-success\">Dostepny</span>" : "<span class=\"badge bg-secondary\">Brak</span>";
+      html += "</div>";
+    }
+    resultsDiv.innerHTML = html;
+  }
+
+  input.addEventListener("input", function() {
+    var q = this.value.trim();
+    clearTimeout(timer);
+    if (q.length < 2) { resultsDiv.style.display = "none"; return; }
+    resultsDiv.style.display = "block";
+    resultsDiv.innerHTML = "<div class=\"text-muted small px-1 py-2\">Szukam...</div>";
+    timer = setTimeout(function() {
+      fetch("/analyzer/search?q=" + encodeURIComponent(q), {credentials: "same-origin"})
+        .then(function(r) { return r.json(); })
+        .then(renderResults)
+        .catch(function() { resultsDiv.innerHTML = "<div class=\"text-danger small\">Blad wyszukiwania.</div>"; });
+    }, 300);
+  });
+})();
+</script>
+<#include "../assets/footer.html">

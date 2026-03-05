@@ -212,7 +212,7 @@ public class Beatmap extends Shiina {
         while (scoreQuery.next()) {
             FullBeatmap.BeatmapScore score = new FullBeatmap().new BeatmapScore();
             score.setId(scoreQuery.getInt("id"));
-            score.setPp(scoreQuery.getInt("pp"));
+            score.setPp(scoreQuery.getFloat("pp"));
             score.setScore(scoreQuery.getLong("score"));
             score.setGrade(scoreQuery.getString("grade"));
             score.setPlayTime(scoreQuery.getString("play_time"));
