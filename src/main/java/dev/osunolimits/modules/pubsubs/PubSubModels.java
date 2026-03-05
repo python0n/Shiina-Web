@@ -9,6 +9,8 @@ public class PubSubModels {
         public int beatmap_id;
         public int status;
         public boolean frozen;
+        public int user_id;
+        public String user_name;
     }
 
     @Data

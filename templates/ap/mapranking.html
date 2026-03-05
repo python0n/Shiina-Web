@@ -104,11 +104,11 @@
           <form id="rankingForm" class="d-flex w-100" action="/ap/mapranking" method="post">
             <select class="form-select me-2 w-100" name="rankingStatus">
               <option value="" selected>Select a ranking status</option>
+              <option value="0">Unranked</option>
               <option value="2">Ranked</option>
               <option value="3">Approved</option>
               <option value="4">Qualified</option>
               <option value="5">Loved</option>
-              <option value="1">Pending</option>
             </select>
             <input type="hidden" name="setId" value="${map.getSetId()?c}">
             <button type="submit" class="btn btn-outline-primary">Update selected</button>

@@ -132,7 +132,7 @@ public class SyncedAction {
         sleepQuietly(500);
     }
 
-    public static void changeBeatmapRankStatus(Beatmap beatmap, int newStatus, boolean newFrozenStatus) {
+    public static void changeBeatmapRankStatus(Beatmap beatmap, int newStatus, boolean newFrozenStatus, int userId, String userName) {
         int beatmapId;
         try (MySQL mysql = Database.getConnection()) {
             beatmapId = beatmap.getId();
@@ -149,6 +149,10 @@ public class SyncedAction {
         rankOutput.setBeatmap_id(beatmapId);
         rankOutput.setStatus(newStatus);
         rankOutput.setFrozen(newFrozenStatus);
+        rankOutput.setUser_id(userId);
+        rankOutput.setUser_name(userName);
+        rankOutput.setUser_id(userId);
+        rankOutput.setUser_name(userName);
 
         App.jedisPool.publish("rank", gson.toJson(rankOutput));
         sleepQuietly(500);

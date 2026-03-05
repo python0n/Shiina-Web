@@ -55,7 +55,12 @@ public class ShiinaRoute {
         request.data.put("apiUrl", App.env.get("APIURL"));
         request.data.put("c", App.customization);
         request.data.put("turnstilePublic", App.env.get("TURNSTILE_KEY"));
-        request.data.put("avatarServer", App.env.get("AVATARSRV"));
+        String asrv = App.env.get("AVATARSRV");
+        if (asrv == null || asrv.isBlank()) {
+            asrv = "https://a.taksiegra.ovh/avatars";
+        }
+        request.data.put("avatarServer", asrv);
+
         request.data.put("loggedIn", request.loggedIn);
         return request;
     }

@@ -86,8 +86,9 @@ public class ShiinaDocs {
                     App.log.warn("File docs/" + file.getName() + " does not contain comments");
                     continue;
                 }
-
-                Node document = parser.parse(sb);
+                String[] sbLines = sb.split("\n", -1);
+                String sbContent = String.join("\n", java.util.Arrays.copyOfRange(sbLines, 8, sbLines.length));
+                Node document = parser.parse(sbContent);
                 HtmlRenderer renderer = HtmlRenderer.builder().build();
 
                 model.content = renderer.render(document);

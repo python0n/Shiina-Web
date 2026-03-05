@@ -44,7 +44,7 @@ public class HandleMapStatusUpdate extends Shiina {
             Beatmap beatmap = new Beatmap();
             beatmap.setId(Integer.parseInt(string));
             beatmap.setStatus(Integer.parseInt(rankingStatus));
-            SyncedAction.changeBeatmapRankStatus(beatmap, beatmap.getStatus(), true);
+            SyncedAction.changeBeatmapRankStatus(beatmap, beatmap.getStatus(), true, shiina.user.id, shiina.user.name);
         }
 
         AuditLogger auditLogger = new AuditLogger(shiina.mysql, MessageType.RANK);
