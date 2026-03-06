@@ -18,10 +18,6 @@ public class Recover extends Shiina {
         ShiinaRequest shiina = new ShiinaRoute().handle(req, res);
         shiina.data.put("actNav", 0);
 
-        if(shiina.loggedIn == true) {
-            return redirect(res, shiina, "/");
-        }
-
         String token = req.queryParams("token");
         if(token == null) {
             return redirect(res, shiina, "/");
