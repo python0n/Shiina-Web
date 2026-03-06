@@ -23,6 +23,7 @@ public class HandleLogout extends Shiina {
         }
     
         shiina.data.put("info", "You have been logged out");
+        shiina.data.put("modules", dev.osunolimits.routes.get.modular.ModuleRegister.getModulesRawForPage("login", req, res, shiina));
         return renderTemplate("login.html", shiina, res, req);
     }
 

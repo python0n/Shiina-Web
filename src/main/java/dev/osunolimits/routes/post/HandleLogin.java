@@ -85,12 +85,6 @@ public class HandleLogin extends Shiina {
             return renderTemplate("login.html", shiina, res, req);
         }
 
-        // Lazy migration: re-hash without MD5 for users who had the old format
-        if (pwResult.needsRehash) {
-            shiina.mysql.Exec("UPDATE users SET pw_bcrypt = ? WHERE id = ?", pwResult.newHash, userId);
-            App.log.info("Password hash migrated (MD5+bcrypt → bcrypt) for user id=" + userId);
-        }
-        
         UserInfoCache.reloadUserIfNotPresent(userId);
 
         if (rememberMe) {

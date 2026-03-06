@@ -100,6 +100,7 @@ public class HandleReplayAction extends Shiina {
             try {
                 String urlStr = BANCHO_API +
                         "?id=" + beatmapId +
+                        "&n300=" + n300 +
                         "&ngeki=" + ngeki +
                         "&nkatu=" + nkatu +
                         "&n100=" + n100 +
