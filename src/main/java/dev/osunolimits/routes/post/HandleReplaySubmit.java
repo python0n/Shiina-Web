@@ -25,6 +25,10 @@ public class HandleReplaySubmit extends Shiina {
     public Object handle(Request req, Response res) throws Exception {
         ShiinaRequest shiina = new ShiinaRoute().handle(req, res);
 
+        shiina.data.put("submitted", false);
+        shiina.data.put("replays", new java.util.ArrayList<>());
+        shiina.data.put("actNav", 0);
+
         if (!shiina.loggedIn) {
             return redirect(res, shiina, "/login?path=/replays");
         }
