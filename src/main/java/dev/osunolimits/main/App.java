@@ -137,6 +137,7 @@ import dev.osunolimits.routes.post.HandleReplaySubmit;
 import dev.osunolimits.routes.ap.get.ApReplayList;
 import dev.osunolimits.routes.ap.get.ApReplayDownload;
 import dev.osunolimits.routes.ap.post.HandleReplayAction;
+import dev.osunolimits.routes.ap.post.ToggleMatchHidden;
 
 /**
  * shiina - a modern osu! private server frontend for the web
@@ -245,6 +246,7 @@ shiinaDocs.initializeDocs();
         WebServer.get("/ap/replays", new ApReplayList());
         WebServer.get("/ap/replays/download", new ApReplayDownload());
         WebServer.post("/ap/replays/action", new HandleReplayAction());
+        WebServer.post("/ap/match/hide", new ToggleMatchHidden());
 
         // Support osu-style /mp<id> URLs (no slash)
         WebServer.before("/mp*", (req, res) -> {
