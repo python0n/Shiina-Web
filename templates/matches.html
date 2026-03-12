@@ -1,13 +1,13 @@
 <#include "assets/base.html">
-
 <div class="container mb-4">
     <div class="card mb-3">
         <div class="card-body d-flex align-items-center justify-content-between">
             <h1 class="h4 mb-0"><i class="fa-solid fa-gamepad me-2"></i>Multiplayer Matches</h1>
-            <button class="btn btn-sm btn-outline-secondary" onclick="toggleOld()" id="toggleBtn">Show old matches</button>
+            <div class="d-flex gap-2">
+                <button class="btn btn-sm btn-outline-secondary" onclick="toggleHidden()" id="hiddenBtn">Show hidden matches</button>
+            </div>
         </div>
     </div>
-
     <div class="card">
         <div class="card-body p-0">
             <#if matches?? && matches?size gt 0>
@@ -21,11 +21,12 @@
                                 <th>Maps played</th>
                                 <th>Created</th>
                                 <th>Status</th>
+                                <#if isAdmin?? && isAdmin><th></th></#if>
                             </tr>
                         </thead>
                         <tbody>
                             <#list matches as m>
-                                <tr style="cursor:pointer;${(m.id?number < 52)?then(' display:none;', '')}" class="${(m.id?number < 52)?then('old-match', '')}" onclick="window.location.href='/matches/${m.id?c}'">
+                                <tr style="cursor:pointer;" class="${m.hidden?then('hidden-match', '')}" onclick="window.location.href='/matches/${m.id?c}'">
                                     <td class="text-muted">#${m.id?c}</td>
                                     <td class="fw-semibold">${m.name}</td>
                                     <td>${m.creator_name!"-"}</td>
@@ -40,10 +41,21 @@
                                             <span class="badge bg-success">Live</span>
                                         </#if>
                                     </td>
+                                    <#if isAdmin?? && isAdmin>
+                                    <td onclick="event.stopPropagation()">
+                                        <button class="btn btn-sm ${m.hidden?then('btn-outline-success', 'btn-outline-danger')}"
+                                            onclick="toggleMatch(${m.id?c}, this)">
+                                            ${m.hidden?then('Unhide', 'Hide')}
+                                        </button>
+                                    </td>
+                                    </#if>
                                 </tr>
                             </#list>
                         </tbody>
                     </table>
+                </div>
+                <div class="text-center p-3" id="showMoreContainer" style="display:none;">
+                    <button class="btn btn-sm btn-outline-secondary" onclick="showMore()">Show more</button>
                 </div>
             <#else>
                 <div class="p-4 text-center text-muted">
@@ -54,14 +66,61 @@
         </div>
     </div>
 </div>
-
 <script>
-function toggleOld() {
-    const rows = document.querySelectorAll(".old-match");
-    const btn = document.getElementById("toggleBtn");
-    const hidden = rows[0] && rows[0].style.display === "none";
-    rows.forEach(r => r.style.display = hidden ? "" : "none");
-    btn.textContent = hidden ? "Hide old matches" : "Show old matches";
+const PAGE_SIZE = 20;
+let showing = PAGE_SIZE;
+let showHidden = false;
+
+function applyFilters() {
+    const allRows = Array.from(document.querySelectorAll("tbody tr"));
+    const eligible = allRows.filter(row => {
+        const hidden = row.classList.contains("hidden-match");
+        return showHidden || !hidden;
+    });
+    allRows.forEach(r => r.style.display = "none");
+    eligible.slice(0, showing).forEach(r => r.style.display = "");
+    document.getElementById("showMoreContainer").style.display = eligible.length > showing ? "" : "none";
 }
+
+function toggleHidden() {
+    showHidden = !showHidden;
+    showing = PAGE_SIZE;
+    document.getElementById("hiddenBtn").textContent = showHidden ? "Hide hidden matches" : "Show hidden matches";
+    applyFilters();
+}
+
+function showMore() {
+    showing += PAGE_SIZE;
+    applyFilters();
+}
+
+let hideQueue = Promise.resolve();
+
+function toggleMatch(id, btn) {
+    btn.disabled = true;
+    hideQueue = hideQueue.then(async () => {
+        try {
+            const res = await fetch("/ap/match/hide?id=" + id, { method: "POST" });
+            if (res.ok) {
+                const row = btn.closest("tr");
+                const isHidden = row.classList.contains("hidden-match");
+                if (isHidden) {
+                    row.classList.remove("hidden-match");
+                    btn.textContent = "Hide";
+                    btn.className = "btn btn-sm btn-outline-danger";
+                } else {
+                    row.classList.add("hidden-match");
+                    btn.textContent = "Unhide";
+                    btn.className = "btn btn-sm btn-outline-success";
+                }
+                applyFilters();
+            }
+        } finally {
+            btn.disabled = false;
+        }
+    });
+}
+
+applyFilters();
 </script>
 <#include "assets/footer.html">
