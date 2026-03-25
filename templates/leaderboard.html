@@ -79,7 +79,7 @@
                                     
                                     <!-- Avatar (hidden on small screens) -->
                                     <div class="me-3 d-none d-sm-block">
-                                        <img src="${avatarServer}/${player.playerId?c}" 
+                                        <img src="${avatarServer}/${player.playerId?c}?v=${.now?long?c}" 
                                              alt="Avatar" 
                                              class="rounded" 
                                              width="40" height="40">
@@ -110,7 +110,7 @@
                                             
                                             <!-- Mobile: Show avatar and country flag -->
                                             <div class="d-flex d-sm-none mt-2 gap-2">
-                                                <img src="${avatarServer}/${player.playerId?c}" 
+                                                <img src="${avatarServer}/${player.playerId?c}?v=${.now?long?c}" 
                                                      alt="Avatar" 
                                                      class="rounded" 
                                                      width="24" height="24">

@@ -27,7 +27,7 @@
           <div class="card-body p-4">
             <div class="d-flex align-items-center mb-4">
               <div class="position-relative me-3">
-                <img src="${avatarServer}/${id}" alt="${aname} avatar" class="border" style="width: 80px; height: 80px; object-fit: cover;" />
+                <img src="${avatarServer}/${id}?v=${.now?long?c}" alt="${aname} avatar" class="border" style="width: 80px; height: 80px; object-fit: cover;" />
                
               </div>
               <div class="flex-grow-1">
@@ -66,7 +66,7 @@
             <ul class="list-group">
               <#list standings as standing>
                 <li class="list-group-item">
-                  <img src="${avatarServer}/${standing.userId?c}" class="img-fluid" width="20">
+                  <img src="${avatarServer}/${standing.userId?c}?v=${.now?long?c}" class="img-fluid" width="20">
                   <a href="/ap/user?id=${standing.userId?c}">${standing.userName}</a>
                   <#if standing.action=="RESTRICT">
                     restricted
@@ -77,7 +77,7 @@
                         <#elseif standing.action=="RMPB">
                           removed profile picture of
                   </#if>
-                  <img src="${avatarServer}/${standing.targetId?c}" class="img-fluid" width="20">
+                  <img src="${avatarServer}/${standing.targetId?c}?v=${.now?long?c}" class="img-fluid" width="20">
                   <a href="/ap/user?id=${standing.targetId?c}">${standing.targetName}</a>
                   for
                   "${standing.reason}"
@@ -100,10 +100,10 @@
             <ul class="list-group">
               <#list detections as detection>
                 <li class="list-group-item">
-                  <img src="${avatarServer}/${detection.user1?c}" class="img-fluid" width="20">
+                  <img src="${avatarServer}/${detection.user1?c}?v=${.now?long?c}" class="img-fluid" width="20">
                   <a href="/ap/user?id=${detection.user1?c}">${detection.user1_name}</a>
                   with account
-                  <img src="${avatarServer}/${detection.user2?c}" class="img-fluid" width="20">
+                  <img src="${avatarServer}/${detection.user2?c}?v=${.now?long?c}" class="img-fluid" width="20">
                   <a href="/ap/user?id=${detection.user2?c}">${detection.user2_name}</a>
                   Level (${detection.level})
                 </li>

@@ -96,7 +96,7 @@
       <div class="d-flex mt-3 my-lg-0">
         <#if user??>
           <button class="btn btn-secondary dropdown-toggle" style="background-color: transparent; color: white; padding: 5px; padding-left: 10px; padding-right: 5px;" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-            <img class="me-2 rounded" src="${avatarServer}/${user.id?c}" alt="Profile Image" width="28" height="28">${user.name}
+            <img class="me-2 rounded" src="${avatarServer}/${user.id?c}?v=${.now?long?c}" alt="Profile Image" width="28" height="28">${user.name}
           </button>
 
           <ul class="dropdown-menu dropdown-menu-lg-end">
