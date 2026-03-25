@@ -14,7 +14,7 @@
             <!-- Avatar Preview -->
             <div class="col-12 col-sm-3 col-md-2 text-center mb-3 mb-sm-0">
                 <div class="position-relative d-inline-block">
-                    <img id="avatar-preview" src="${avatarServer}/${user.id?c}" class="img-fluid rounded shadow-sm"
+                    <img id="avatar-preview" src="${avatarServer}/${user.id?c}?v=${.now?long?c}" class="img-fluid rounded shadow-sm"
                         alt="Avatar" style="max-width: 120px; border: 3px solid var(--bs-border-color);">
 
                 </div>

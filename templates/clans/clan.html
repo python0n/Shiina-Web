@@ -20,10 +20,10 @@
                         <div class="d-grid user-collage user-collage-lg rounded overflow-hidden"
                              style="width: 150px; height: 150px;">
                             <#assign count=0>
-                            <img src="${avatarServer}/${clan.owner?c}" class="w-100 h-100 object-fit-cover" alt="Owner">
+                            <img src="${avatarServer}/${clan.owner?c}?v=${.now?long?c}" class="w-100 h-100 object-fit-cover" alt="Owner">
                             <#list members as collage>
                                 <#assign count=count + 1>
-                                <img src="${avatarServer}/${collage.id?c}" class="w-100 h-100 object-fit-cover" alt="Member">
+                                <img src="${avatarServer}/${collage.id?c}?v=${.now?long?c}" class="w-100 h-100 object-fit-cover" alt="Member">
                                 <#if count==3><#break></#if>
                             </#list>
                             <#if count==0>
@@ -216,7 +216,7 @@
                                     <!-- Avatar -->
                                     <div class="me-3">
                                         <div class="position-relative">
-                                            <img src="${avatarServer}/${u.id?c}" 
+                                            <img src="${avatarServer}/${u.id?c}?v=${.now?long?c}" 
                                                  alt="${u.name}" 
                                                  class="rounded shadow-sm" 
                                                  width="50" 

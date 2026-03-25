@@ -65,7 +65,7 @@
                                             <#assign count=0>
                                                 <#list clan.userCollage as collage>
                                                     <#assign count=count + 1>
-                                                        <img src="${avatarServer}/${collage?c}"
+                                                        <img src="${avatarServer}/${collage?c}?v=${.now?long?c}"
                                                             class="w-100 h-100 object-fit-cover"
                                                             alt="User collage image">
                                                 </#list>

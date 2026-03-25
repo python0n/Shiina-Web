@@ -63,7 +63,7 @@
                 <tr>
                     <td>
                         <div class="d-flex align-items-center">
-                            <img src="${avatarServer}/${log.userId?c}" class="img-fluid me-2" width="20" height="20">
+                            <img src="${avatarServer}/${log.userId?c}?v=${.now?long?c}" class="img-fluid me-2" width="20" height="20">
                             <a href="/ap/user?id=${log.userId}" class="text-decoration-none fw-medium">${log.userName}</a>
                         </div>
                     </td>
@@ -97,7 +97,7 @@
                     <td>
                         <#if log.targetId?? && log.targetName?? && log.targetName != "NULL">
                             <div class="d-flex align-items-center">
-                                <img src="${avatarServer}/${log.targetId?c}" class="img-fluid me-2" width="20" height="20">
+                                <img src="${avatarServer}/${log.targetId?c}?v=${.now?long?c}" class="img-fluid me-2" width="20" height="20">
                                 <a href="/ap/user?id=${log.targetId?c}" class="text-decoration-none">${log.targetName}</a>
                             </div>
                         <#elseif log.action == "ALERT_ALL">

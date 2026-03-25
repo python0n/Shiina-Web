@@ -2,7 +2,7 @@
     <#if isActivity??>
     <div class="row p-2 align-items-center">
         <div class="col-auto">
-            <img class="flag" src="${avatarServer}/${score.id?c}" alt="">
+            <img class="flag" src="${avatarServer}/${score.id?c}?v=${.now?long?c}" alt="">
         </div>
         <div class="col-auto d-flex align-items-center">
             <span class="h6">
