@@ -37,10 +37,10 @@
          <tr>
         
           <td>
-            <img src="${avatarServer}/${chat.from_id?c}" class="img-fluid" width="20">
+            <img src="${avatarServer}/${chat.from_id?c}?v=${.now?long?c}" class="img-fluid" width="20">
             <a href="/ap/user?id=${chat.from_id?c}">${chat.from_name}</a> 
             wrote "${chat.msg}" to
-            <img src="${avatarServer}/${chat.to_id?c}" class="img-fluid" width="20">
+            <img src="${avatarServer}/${chat.to_id?c}?v=${.now?long?c}" class="img-fluid" width="20">
             <a href="/ap/user?id=${chat.to_id?c}">${chat.to_name}</a> 
           </td>
 

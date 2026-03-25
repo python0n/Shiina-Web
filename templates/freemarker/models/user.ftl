@@ -2,7 +2,7 @@
     <a href="/u/${u.id?c}<#if u.mode??>?mode=${u.mode}</#if>"
         class="list-group-item border rounded list-group-item-action d-flex align-items-center py-3">
         <div class="me-3">
-            <img src="${avatarServer}/${u.id?c}" alt="${u.name}" class="rounded" width="40" height="40">
+            <img src="${avatarServer}/${u.id?c}?v=${.now?long?c}" alt="${u.name}" class="rounded" width="40" height="40">
         </div>
 
         <#if u.country??>
