@@ -159,11 +159,26 @@ public class User extends Shiina {
 
         shiina.data.put("follower", follower);
 
-        if(userPriv.contains(PermissionHelper.Privileges.SUPPORTER)) {
+        ResultSet customBadgeRs = shiina.mysql.Query("SELECT `custom_badge_name`, `custom_badge_icon` FROM `users` WHERE `id` = ?", id);
+        boolean hasCustomBadge = false;
+        if (customBadgeRs.next()) {
+            String badgeName = customBadgeRs.getString("custom_badge_name");
+            String badgeIcon = customBadgeRs.getString("custom_badge_icon");
+            if (badgeName != null && !badgeName.isEmpty()) {
+                Group customGroup = new Group();
+                customGroup.name = badgeName;
+                customGroup.emoji = badgeIcon != null ? badgeIcon : "";
+                groups.add(customGroup);
+                hasCustomBadge = true;
+            }
+        }
+        
+        if(userPriv.contains(PermissionHelper.Privileges.SUPPORTER) && !hasCustomBadge) {
             groups.add(ShiinaSupporterBadge.getInstance().getGroup());
         }
 
-        shiina.data.put("groups", userInfo.getGroups());
+
+        shiina.data.put("groups", groups);
         shiina.data.put("achievements", achievements);
         shiina.data.put("achievementGroups", ShiinaAchievementsSorter.achievements);
         

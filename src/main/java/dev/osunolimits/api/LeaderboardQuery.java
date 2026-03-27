@@ -17,6 +17,10 @@ import lombok.Data;
 import okhttp3.Request;
 import okhttp3.Response;
 
+import dev.osunolimits.common.Database;
+import dev.osunolimits.common.MySQL;
+import java.sql.ResultSet;
+
 public class LeaderboardQuery extends APIQueryGson {
 
     @Data
@@ -106,20 +110,33 @@ public class LeaderboardQuery extends APIQueryGson {
             Response response = client.newCall(request).execute();
             JsonElement element = JsonParser.parseString(response.body().string());
             LeaderboardResponse leaderboardResponse = gson.fromJson(element, LeaderboardResponse.class);
-            for (LeaderboardItem item : leaderboardResponse.getLeaderboard()) {
-                UserInfoObject userInfo = new UserInfoObject(item.getPlayerId());
-                if (userInfo != null) {
-                    item.setGroups(userInfo.getGroups());
+            try (MySQL mysql = Database.getConnection()) {
+                for (LeaderboardItem item : leaderboardResponse.getLeaderboard()) {
+                    UserInfoObject userInfo = new UserInfoObject(item.getPlayerId());
+                    if (userInfo != null) {
+                        item.setGroups(userInfo.getGroups());
+                    }
+                    item.setAccuracy((double) Math.round(item.getAccuracy() * 100) / 100);
+                    boolean hasCustomBadge = false;
+                    ResultSet customBadgeRs = mysql.Query("SELECT `custom_badge_name`, `custom_badge_icon` FROM `users` WHERE `id` = ?", item.getPlayerId());
+                    if (customBadgeRs.next()) {
+                        String badgeName = customBadgeRs.getString("custom_badge_name");
+                        String badgeIcon = customBadgeRs.getString("custom_badge_icon");
+                        if (badgeName != null && !badgeName.isEmpty()) {
+                            Group customGroup = new Group();
+                            customGroup.name = badgeName;
+                            customGroup.emoji = badgeIcon != null ? badgeIcon : "";
+                            item.getGroups().add(customGroup);
+                            hasCustomBadge = true;
+                        }
+                    }
+                    if (PermissionHelper.hasPrivileges(userInfo.priv, PermissionHelper.Privileges.SUPPORTER) && !hasCustomBadge) {
+                        item.getGroups().add(ShiinaSupporterBadge.getInstance().getGroup());
+                        item.setSupporter(true);
+                    }
                 }
-                item.setAccuracy((double) Math.round(item.getAccuracy() * 100) / 100);
-                if (PermissionHelper.hasPrivileges(userInfo.priv, PermissionHelper.Privileges.SUPPORTER)) {
-                    userInfo.groups.add(ShiinaSupporterBadge.getInstance().getGroup());
-                    item.setSupporter(true);
-                }
-
             }
             return leaderboardResponse;
-
         } catch (Exception e) {
             App.log.error("Failed to get Leaderboard", e);
             return null;
