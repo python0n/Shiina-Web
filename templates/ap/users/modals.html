@@ -101,12 +101,16 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <div class="mb-3">
-                    <label for="" class="form-label">Duration</label>
-                    <input type="text" maxlength="5" class="form-control" id="durationInput" aria-describedby="helpId"
-                        placeholder="Duration in format (1w/1d/1m)" />
-                    <small id="helpId" class="form-text text-muted">⚠️ The user will be given donator for the specified
-                        duration</small>
+		<div class="mb-3">
+    			 <label for="" class="form-label">Duration</label>
+    			 <select class="form-control" id="durationInput" aria-describedby="helpId">
+        		     <option value="1d">1 dzień</option>
+                             <option value="7d">1 tydzień</option>
+                             <option value="30d">1 miesiąc</option>
+                             <option value="365d">1 rok</option>
+                         </select>
+    	                 <small id="helpId" class="form-text text-muted">⚠️ The user will be given donator for the specified
+        	             duration</small>
                 </div>
             </div>
             <div class="modal-footer">
