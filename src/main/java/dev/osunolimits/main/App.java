@@ -218,7 +218,7 @@ shiinaDocs.initializeDocs();
         cron.registerTimedTask(30, new DatabaseCleanUpTask());
         cron.registerTimedTask(30, new CountryLeaderboardTask());
         cron.registerTimedTask(30, new DonatorCleanUpTask());
-        cron.registerTimedTask(3, new ShiinaRankCache());
+        cron.registerFixedRateTask(9, 59, new ShiinaRankCache());
         cron.registerTaskEach15Minutes(new ServerStatsCollectorTask());
 
         WebServer.get("/health", new Health());
