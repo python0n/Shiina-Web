@@ -96,14 +96,48 @@ public class MatchView extends Shiina {
                 score.put("user_id", scoresRs.getInt("user_id"));
                 score.put("username", scoresRs.getString("username"));
                 score.put("score", scoresRs.getLong("score"));
-                score.put("acc", String.format("%.2f", scoresRs.getFloat("acc")));
+                float acc = scoresRs.getFloat("acc");
+                if (acc == 0) {
+                    System.err.println("DEBUG acc=0 for user " + scoresRs.getInt("user_id") + " n300=" + scoresRs.getInt("n300"));
+                    int n300 = scoresRs.getInt("n300");
+                    int n100 = scoresRs.getInt("n100");
+                    int n50 = scoresRs.getInt("n50");
+                    int nmiss = scoresRs.getInt("nmiss");
+                    int total = n300 + n100 + n50 + nmiss;
+                    if (total > 0) {
+                        acc = (float)(300 * n300 + 100 * n100 + 50 * n50) / (300f * total) * 100f;
+                    }
+                }
+                System.err.println("DEBUG acc_result=" + String.format("%.2f", acc) + " for user " + scoresRs.getInt("user_id"));
+                score.put("acc", String.format("%.2f", acc));
                 score.put("max_combo", scoresRs.getInt("max_combo"));
                 score.put("mods", OsuConverter.convertMods(scoresRs.getInt("mods")));
                 score.put("n300", scoresRs.getInt("n300"));
                 score.put("n100", scoresRs.getInt("n100"));
                 score.put("n50", scoresRs.getInt("n50"));
                 score.put("nmiss", scoresRs.getInt("nmiss"));
-                score.put("grade", scoresRs.getString("grade"));
+                String grade = scoresRs.getString("grade");
+                if (grade.equals("N") && (scoresRs.getInt("n300") + scoresRs.getInt("n100") + scoresRs.getInt("n50") + scoresRs.getInt("nmiss")) > 0) {
+                    boolean passed2 = scoresRs.getInt("passed") == 1;
+                    if (!passed2) {
+                        grade = "F";
+                    } else {
+                        int n300g = scoresRs.getInt("n300");
+                        int n100g = scoresRs.getInt("n100");
+                        int n50g  = scoresRs.getInt("n50");
+                        int nmissg = scoresRs.getInt("nmiss");
+                        int totalg = n300g + n100g + n50g + nmissg;
+                        float ratio300 = (float) n300g / totalg;
+                        float ratio50  = (float) n50g  / totalg;
+                        if (ratio300 == 1.0f) grade = "X";
+                        else if (ratio300 > 0.9f && ratio50 <= 0.01f && nmissg == 0) grade = "S";
+                        else if (ratio300 > 0.8f && nmissg == 0 || ratio300 > 0.9f) grade = "A";
+                        else if (ratio300 > 0.7f && nmissg == 0 || ratio300 > 0.8f) grade = "B";
+                        else if (ratio300 > 0.6f) grade = "C";
+                        else grade = "D";
+                    }
+                }
+                score.put("grade", grade);
                 score.put("passed", scoresRs.getInt("passed") == 1);
                 score.put("team", scoresRs.getInt("team"));
                 scores.add(score);
