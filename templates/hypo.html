@@ -1,0 +1,245 @@
+<#include "assets/base.html">
+<div class="container mb-5">
+
+    <div class="card mb-4">
+        <div class="card-body">
+            <div class="d-flex align-items-center gap-3 flex-wrap">
+                <div>
+                    <h4 class="mb-1">
+                        <i class="fa-solid fa-flask me-2 text-primary"></i>PP Era Hypo
+                    </h4>
+                    <p class="text-muted mb-0" style="font-size:.9rem;">
+                        Przelicz PP i rankingi wszystkich graczy według wybranej ery systemu PP osu!
+                    </p>
+                </div>
+                <div class="ms-auto d-flex align-items-center gap-2 flex-wrap">
+                    <select id="versionSelect" class="form-select form-select-sm" style="width:auto;min-width:270px;">
+                        <option value="">Ładowanie er...</option>
+                    </select>
+                    <button id="calcBtn" class="btn btn-primary btn-sm" onclick="calculate()">
+                        <i class="fa-solid fa-calculator me-1"></i>Oblicz
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="statusBar" class="d-none mb-3">
+        <div class="alert alert-secondary mb-0 d-flex align-items-center gap-2" id="statusMsg">
+            <span class="spinner-border spinner-border-sm text-primary" id="loadingSpinner"></span>
+            <span id="statusText">Obliczam...</span>
+        </div>
+    </div>
+
+    <div id="summaryRow" class="row g-3 mb-4 d-none">
+        <div class="col-6 col-md-3">
+            <div class="card text-center h-100">
+                <div class="card-body py-3">
+                    <div class="small text-muted mb-1">Era</div>
+                    <div id="sumEra" class="fw-bold text-primary" style="font-size:.85rem;"></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card text-center h-100">
+                <div class="card-body py-3">
+                    <div class="small text-muted mb-1">Gracze</div>
+                    <div id="sumPlayers" class="fw-bold h5 mb-0 text-info"></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card text-center h-100">
+                <div class="card-body py-3">
+                    <div class="small text-muted mb-1">Avg. zmiana PP</div>
+                    <div id="sumAvgDiff" class="fw-bold h5 mb-0"></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card text-center h-100">
+                <div class="card-body py-3">
+                    <div class="small text-muted mb-1">#1 nowa era</div>
+                    <div id="sumTop" class="fw-bold text-warning" style="font-size:.85rem;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="resultCard" class="card d-none">
+        <div class="list-group list-group-flush" id="leaderboardList"></div>
+    </div>
+
+    <div id="placeholder" class="card">
+        <div class="card-body text-center py-5 text-muted">
+            <i class="fa-solid fa-circle-question fa-3x mb-3 opacity-25"></i>
+            <p class="mb-0">Wybierz erę PP i kliknij <strong>Oblicz</strong>.</p>
+            <p class="small mt-1 opacity-50">Przeliczenie może zająć kilka minut.</p>
+        </div>
+    </div>
+
+</div>
+
+<style>
+.hypo-diff-pos { color: var(--bs-success); font-weight: 600; }
+.hypo-diff-neg { color: var(--bs-danger); font-weight: 600; }
+.hypo-diff-neu { color: var(--bs-secondary-color); }
+.hypo-scores-collapse { display: none; }
+.hypo-scores-collapse.open { display: block; }
+.hypo-user-row { cursor: pointer; user-select: none; }
+.hypo-user-row .toggle-icon { transition: transform .2s ease; }
+.hypo-user-row.expanded .toggle-icon { transform: rotate(90deg); }
+.hypo-scores-table td, .hypo-scores-table th { font-size: .84rem; vertical-align: middle; }
+.mod-badge { font-size:.72rem; font-weight:700; font-family:monospace; padding:1px 5px; border-radius:4px; background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.15); }
+#calcBtn:disabled { opacity:.5; cursor:not-allowed; }
+</style>
+
+<#noparse>
+<script>
+var API_BASE = '/hypo/api';
+var MOD_MAP = {1:'NF',2:'EZ',8:'HD',16:'HR',32:'SD',64:'DT',128:'RX',256:'HT',576:'NC',1024:'FL',4096:'SO',8192:'AP'};
+
+function modStr(bits) {
+    if (!bits) return '';
+    return Object.keys(MOD_MAP).filter(function(k){ return (bits & Number(k)) > 0; }).map(function(k){ return MOD_MAP[k]; }).join('');
+}
+
+function diffHtml(d) {
+    if (d === 0) return '<span class="hypo-diff-neu">\u00b10pp</span>';
+    var cls = d > 0 ? 'hypo-diff-pos' : 'hypo-diff-neg';
+    var sign = d > 0 ? '+' : '';
+    return '<span class="' + cls + '">' + sign + d.toFixed(0) + 'pp</span>';
+}
+
+function esc(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+async function loadVersions() {
+    try {
+        var data = await fetch(API_BASE + '/versions').then(function(r){ return r.json(); });
+        var sel = document.getElementById('versionSelect');
+        sel.innerHTML = '';
+        for (var k in data) {
+            var o = document.createElement('option');
+            o.value = k;
+            o.textContent = data[k];
+            if (k === 'osu_2022') o.selected = true;
+            sel.appendChild(o);
+        }
+    } catch(e) {
+        document.getElementById('versionSelect').innerHTML = '<option value="osu_2022">Sep 2022 - Oct 2024</option>';
+    }
+}
+
+async function calculate() {
+    var version = document.getElementById('versionSelect').value;
+    if (!version) return;
+    var btn = document.getElementById('calcBtn');
+    btn.disabled = true;
+    ['placeholder','resultCard','summaryRow'].forEach(function(id){ document.getElementById(id).classList.add('d-none'); });
+    var bar = document.getElementById('statusBar');
+    var txt = document.getElementById('statusText');
+    var spin = document.getElementById('loadingSpinner');
+    var msg = document.getElementById('statusMsg');
+    bar.classList.remove('d-none');
+    spin.classList.remove('d-none');
+    msg.className = 'alert alert-secondary mb-0 d-flex align-items-center gap-2';
+    txt.textContent = 'Obliczam PP dla wszystkich graczy... (moze potrzec kilka minut)';
+    try {
+        var r = await fetch(API_BASE + '/calculate?version=' + encodeURIComponent(version));
+        if (!r.ok) { var err = await r.json(); throw new Error(err.error || 'Blad serwera'); }
+        var data = await r.json();
+        renderResults(data);
+        spin.classList.add('d-none');
+        txt.textContent = 'Gotowe - przeliczono ' + data.users.length + ' graczy | ' + data.version_label;
+    } catch(e) {
+        spin.classList.add('d-none');
+        msg.className = 'alert alert-danger mb-0 d-flex align-items-center gap-2';
+        txt.textContent = 'Blad: ' + e.message;
+        document.getElementById('placeholder').classList.remove('d-none');
+    }
+    btn.disabled = false;
+}
+
+function renderResults(data) {
+    var users = data.users;
+    if (!users || !users.length) { document.getElementById('placeholder').classList.remove('d-none'); return; }
+
+    var avg = users.reduce(function(s,u){ return s + u.diff_pp; }, 0) / users.length;
+    document.getElementById('sumEra').textContent = data.version_label;
+    document.getElementById('sumPlayers').textContent = users.length;
+    document.getElementById('sumAvgDiff').innerHTML = diffHtml(avg);
+    document.getElementById('sumTop').textContent = users[0].name + ' (' + users[0].new_pp.toFixed(0) + 'pp)';
+    document.getElementById('summaryRow').classList.remove('d-none');
+
+    var list = document.getElementById('leaderboardList');
+    list.innerHTML = '';
+
+    users.forEach(function(user) {
+        var row = document.createElement('div');
+        row.className = 'list-group-item list-group-item-action hypo-user-row px-3 py-2';
+        row.innerHTML =
+            '<div class="d-flex align-items-center gap-2 gap-md-3">' +
+            '<div class="d-none d-sm-block text-end text-muted fw-bold" style="min-width:44px;">#' + user.rank + '</div>' +
+            '<div class="d-none d-sm-block flex-shrink-0">' +
+            '<img src="' + avatarServer + '/' + user.id + '" alt="" class="rounded" width="36" height="36" onerror="this.src=\'/img/default.png\'">' +
+            '</div>' +
+            '<div class="flex-grow-1"><span class="fw-medium">' + esc(user.name) + '</span></div>' +
+            '<div class="d-none d-lg-block text-end" style="min-width:80px;">' +
+            '<div class="small text-muted">Stare PP</div>' +
+            '<div class="fw-semibold">' + user.old_pp.toFixed(0) + '<small class="text-muted ms-1">pp</small></div>' +
+            '</div>' +
+            '<div class="text-end" style="min-width:90px;">' +
+            '<div class="small text-muted d-none d-md-block">Nowe PP</div>' +
+            '<div class="h6 mb-0 text-primary fw-bold">' + user.new_pp.toFixed(0) + '<small class="text-muted ms-1 fw-normal">pp</small></div>' +
+            '</div>' +
+            '<div class="d-none d-md-block text-end" style="min-width:70px;">' + diffHtml(user.diff_pp) + '</div>' +
+            '<div class="ms-1 text-muted"><i class="fa-solid fa-chevron-right toggle-icon" style="font-size:.8rem;"></i></div>' +
+            '</div>';
+
+        var scores = document.createElement('div');
+        scores.className = 'hypo-scores-collapse px-1 pb-2';
+
+        if (user.scores && user.scores.length) {
+            var rows = user.scores.slice(0, 100).map(function(s, i) {
+                var m = modStr(s.mods);
+                return '<tr>' +
+                    '<td class="text-muted" style="width:28px;">' + (i+1) + '</td>' +
+                    '<td><a href="https://osu.ppy.sh/beatmapsets/' + s.set_id + '#osu/' + s.map_id + '" target="_blank" rel="noopener" class="no-a">' + esc(s.title) + '</a>' +
+                    (m ? '<span class="mod-badge ms-1">' + m + '</span>' : '') + '</td>' +
+                    '<td class="text-end text-muted">' + s.acc.toFixed(2) + '%</td>' +
+                    '<td class="text-end" style="color:var(--bs-secondary-color);">' + s.old_pp.toFixed(0) + 'pp</td>' +
+                    '<td class="text-end text-primary fw-semibold">' + s.new_pp.toFixed(0) + 'pp</td>' +
+                    '<td class="text-end">' + diffHtml(s.diff_pp) + '</td>' +
+                    '<td class="text-end text-muted">' + s.stars.toFixed(2) + '\u2605</td>' +
+                    '</tr>';
+            }).join('');
+            scores.innerHTML =
+                '<div class="table-responsive mt-1">' +
+                '<table class="table table-sm table-borderless mb-0 hypo-scores-table">' +
+                '<thead><tr class="text-muted" style="font-size:.75rem;">' +
+                '<th>#</th><th>Mapa</th><th class="text-end">Acc</th>' +
+                '<th class="text-end">Stare PP</th><th class="text-end">Nowe PP</th>' +
+                '<th class="text-end">Roznica</th><th class="text-end">Gwiazdki</th>' +
+                '</tr></thead><tbody>' + rows + '</tbody></table></div>';
+        } else {
+            scores.innerHTML = '<p class="text-muted small py-2 px-2 mb-0">Brak scorow.</p>';
+        }
+
+        row.addEventListener('click', function() {
+            scores.classList.toggle('open');
+            row.classList.toggle('expanded');
+        });
+        list.appendChild(row);
+        list.appendChild(scores);
+    });
+
+    document.getElementById('resultCard').classList.remove('d-none');
+}
+
+loadVersions();
+</script>
+</#noparse>
+
+<#include "assets/footer.html">
