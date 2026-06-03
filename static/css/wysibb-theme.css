@@ -1,99 +1,130 @@
+/* Osu!-inspired WYSIBB theme */
+:root {
+  --osu-bg-1: hsl(333, 10%, 10%);
+  --osu-bg-2: hsl(333, 10%, 15%);
+  --osu-bg-3: hsl(333, 10%, 20%);
+  --osu-bg-4: hsl(333, 10%, 25%);
+  --osu-accent: hsl(333, 100%, 70%);       /* różowy #f6a */
+  --osu-accent-dark: hsl(333, 50%, 45%);
+  --osu-text: hsl(333, 40%, 100%);
+  --osu-text-muted: hsl(333, 10%, 60%);
+  --osu-border: hsl(333, 10%, 25%);
+  --osu-hover: hsl(333, 10%, 30%);
+}
 
+.wysibb {
+  background-color: var(--osu-bg-2);
+  border: 1px solid var(--osu-border);
+  border-radius: 4px;
+  color: var(--osu-text);
+  font-family: Torus, Inter, "Helvetica Neue", sans-serif;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+}
 
-  .wysibb {
-    background-color: var(--bs-tertiary-bg);
-    border: 1px solid var(--bs-gray-700);
-    color: var(--bs-light);
-  }
-  
-  .wysibb .wysibb-toolbar {
-    background-color: hsla(var(--bs-secondary-hsl),var(--bs-bg-opacity))!important;
-    border-bottom: 1px solid var(--bs-gray-700);
-  }
-  
-  .wysibb .wysibb-toolbar .wysibb-toolbar-container .wysibb-toolbar-btn {
-    color: hsla(var(--bs-white-hsl), 1%)!important;
-    border-color: transparent;
-  }
+.wysibb .wysibb-toolbar {
+  background-color: var(--osu-bg-3) !important;
+  border-bottom: 1px solid var(--osu-border);
+}
 
-  .wbbm-title .wbbm-title-text {
-    color: var(--bs-white)!important;
-  }
+.wysibb .wysibb-toolbar .wysibb-toolbar-container .wysibb-toolbar-btn {
+  color: var(--osu-text-muted) !important;
+  border-color: transparent;
+  border-radius: 4px;
+  transition: background-color 80ms linear, color 80ms linear;
+}
 
-  .wbbm-content {
-    background-color:hsla(var(--bs-secondary-hsl),255)!important
-  }
+.wysibb .wysibb-toolbar .wysibb-toolbar-container .wysibb-toolbar-btn:hover {
+  background-color: var(--osu-hover) !important;
+  color: var(--osu-text) !important;
+}
 
-  .wysibb .wysibb-toolbar-btn .fonticon {
-        color: var(--bs-text);
-  }
+.wysibb .wysibb-toolbar .wysibb-toolbar-container .wysibb-toolbar-btn.on,
+.wysibb .wysibb-toolbar .wysibb-toolbar-container .wysibb-toolbar-btn:active {
+  background-color: var(--osu-accent-dark) !important;
+  color: var(--osu-text) !important;
+}
 
-  .wbbm-inp-row label {
-    color: var(--bs-white);
-  }
-  
-  .wysibb .wysibb-toolbar .wysibb-toolbar-container .wysibb-toolbar-btn:hover {
-    background-color:hsla(var(--bs-secondary-hsl),var(--bs-bg-opacity))!important
-  }
-  
-  .wysibb .wysibb-toolbar .wysibb-toolbar-container .wysibb-toolbar-btn.on,
-  .wysibb .wysibb-toolbar .wysibb-toolbar-container .wysibb-toolbar-btn:active {
-    background-color: var(--bs-primary);
-    color: var(--bs-text);
-  }
-  
-  .wysibb .wysibb-text-editor {
-    background-color: var(--bs-tertiary-bg);
-    color: var(--bs-light);
-  }
-  
-  #wbbmodal {
-    background-color: hsla(var(--bs-secondary-hsl),var(--bs-bg-opacity))!important;
-  }
-  
-  #wbbmodal .wbbm {
-    background-color: hsla(var(--bs-secondary-hsl),var(--bs-bg-opacity))!important;
-    border: 1px solid var(--bs-tertiary-bg);
-    color: var(--bs-light);
-  }
-  
-  #wbbmodal .wbbm-title {
-    background-color: var(--bs-tertiary-bg);
-    border-bottom: 1px solid var(--bs-tertiary-bg);
-  }
+.wysibb .wysibb-toolbar .wysibb-toolbar-container .wysibb-toolbar-btn .fonticon {
+  color: var(--osu-text-muted) !important;
+  text-shadow: none !important;
+}
 
-  .wysibb-text-editor {
-    color:var(--bs-white)!important;
-  }
-  
-  #wbbmodal button {
-    background-color: var(--bs-tertiary-bg);
-    color: var(--bs-light);
-    border: 1px solid var(--bs-tertiary-bg);
-  }
-  
-  #wbbmodal .wbb-button {
-    background-color: var(--bs-primary);
-    border-color: var(--bs-primary);
-  }
+.wysibb .wysibb-toolbar .wysibb-toolbar-container .wysibb-toolbar-btn.on .fonticon {
+  color: var(--osu-text) !important;
+}
 
-  .wysibb .wysibb-toolbar .wysibb-toolbar-container .wysibb-toolbar-btn .fonticon {
-    color: var(--bs-tertiary-bg-color)!important;
-    text-shadow: 0 0px 0 #fff!important;
+.wysibb .wysibb-toolbar .wysibb-toolbar-container .wysibb-toolbar-btn.wbb-dropdown:hover {
+  background-color: var(--osu-hover) !important;
+  color: var(--osu-text) !important;
+}
 
-  }
-  
-  
-  .wysibb .wysibb-toolbar .wysibb-toolbar-container .wysibb-toolbar-btn.on .fonticon {
-    background-color: var(--bs-primary)!important;
-    color: white!important;
-  }
+.wysibb .wysibb-text-editor,
+.wysibb-text-editor {
+  background-color: var(--osu-bg-2);
+  color: var(--osu-text) !important;
+  font-family: Torus, Inter, "Helvetica Neue", sans-serif;
+}
 
-  .wysibb .wysibb-toolbar .wysibb-toolbar-container .wysibb-toolbar-btn.wbb-dropdown:hover {
-    background-color: var(--bs-primary)!important;
-    color: white!important;
-  }
+/* Modal */
+#wbbmodal {
+  background-color: rgba(0, 0, 0, 0.75) !important;
+}
 
-  .wbbm-inperr {
-    font-size: 20px!important;
-  }
+#wbbmodal .wbbm {
+  background-color: var(--osu-bg-3) !important;
+  border: 1px solid var(--osu-border);
+  border-radius: 6px;
+  color: var(--osu-text);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+}
+
+.wbbm-title .wbbm-title-text {
+  color: var(--osu-text) !important;
+}
+
+#wbbmodal .wbbm-title {
+  background-color: var(--osu-bg-4);
+  border-bottom: 1px solid var(--osu-border);
+  border-radius: 6px 6px 0 0;
+}
+
+.wbbm-content {
+  background-color: var(--osu-bg-3) !important;
+}
+
+.wbbm-inp-row label {
+  color: var(--osu-text-muted);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+#wbbmodal button {
+  background-color: var(--osu-bg-4);
+  color: var(--osu-text);
+  border: 1px solid var(--osu-border);
+  border-radius: 4px;
+  transition: background-color 80ms linear;
+}
+
+#wbbmodal button:hover {
+  background-color: var(--osu-hover);
+}
+
+#wbbmodal .wbb-button {
+  background-color: var(--osu-accent-dark);
+  border-color: var(--osu-accent-dark);
+  color: var(--osu-text);
+  border-radius: 10000px;
+  padding: 5px 20px;
+  font-weight: 600;
+}
+
+#wbbmodal .wbb-button:hover {
+  background-color: var(--osu-accent);
+  border-color: var(--osu-accent);
+}
+
+.wbbm-inperr {
+  font-size: 12px !important;
+  color: hsl(360, 100%, 70%);
+}
