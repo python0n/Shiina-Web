@@ -446,6 +446,7 @@ function loadUserPage() {
         loadedNew.value = 'false';
          // Load score panel first
         loadFirstPlaces(reqUrl);
+        if (document.getElementById('pinnedScores')) loadPinnedScores(reqUrlScores);
         loadBestScores(reqUrlScores);
         loadLastScores(reqUrlScores);
     }
@@ -630,6 +631,16 @@ function loadScorePanel(
     weight = 0,
     weight_pp = 0
 ) {
+    let pinButton = ``;
+    if (typeof loggedUserId !== "undefined" && loggedUserId > 0 && score.user_id === loggedUserId && typeof score.pinned !== "undefined") {
+        const isPinned = score.pinned == 1;
+        pinButton = `<a onclick="event.stopPropagation(); togglePinCard(${scoreId}, ${isPinned ? 1 : 0});"
+           class="osu-action-btn"
+           title="${isPinned ? 'Unpin Score' : 'Pin Score'}"
+           style="cursor:pointer;${isPinned ? 'background:rgba(241,196,15,0.35);border-color:#f1c40f;' : ''}">
+            <i class="fas fa-thumbtack"></i>
+        </a>`;
+    }
     const beatmapImg = `https://assets.ppy.sh/beatmaps/${setId}/covers/cover.jpg?1650681317`;
     const sanitizedName = name.replace('.osu', '');
 
@@ -666,7 +677,7 @@ function loadScorePanel(
     }
 
    return `
-    <div class="osu-score-card mb-3" role="link" tabindex="0" style="cursor:pointer;" onclick="window.location='/scores/${scoreId}'" onmousedown="if(event.button===1){event.preventDefault();window.open('/scores/${scoreId}','_blank');}" onkeydown="if(event.key==='Enter'||event.key===' ') { event.preventDefault(); window.location='/scores/${scoreId}'; }">
+    <div class="osu-score-card mb-3" data-score-id="${scoreId}" role="link" tabindex="0" style="cursor:pointer;" onclick="window.location='/scores/${scoreId}'" onmousedown="if(event.button===1){event.preventDefault();window.open('/scores/${scoreId}','_blank');}" onkeydown="if(event.key==='Enter'||event.key===' ') { event.preventDefault(); window.location='/scores/${scoreId}'; }">
         <div class="osu-score-container">
             <!-- Beatmap Background -->
             <div class="osu-beatmap-bg" style="background-image: url('${beatmapImg}')"></div>
@@ -697,7 +708,7 @@ function loadScorePanel(
 
                 <!-- Action Buttons -->
                 <div class="osu-action-buttons">
-                    ${downloadButton}
+                    ${pinButton}${downloadButton}
                 </div>
             </div>
         </div>
@@ -824,4 +835,110 @@ function handleClanLeave(clanid) {
         .then(response => {
             Turbo.visit(window.location.href);
         });
+}
+
+function loadPinnedScores(apiUrl, firstLoad = true) {
+    let offset = document.getElementById('offsetPinnedScores');
+    if (!offset) return;
+    if (firstLoad) offset.value = 0;
+    fetch(apiUrl + offset.value + '&scope=pinned')
+        .then(response => response.json())
+        .then(data => {
+            let section = document.getElementById('pinnedScoresSection');
+            let container = document.getElementById('pinnedScores');
+            let btn = document.getElementById('pinnedScoresButton');
+            if (firstLoad) container.innerHTML = '';
+            if (data.hasNextPage) btn.classList.remove('disabled'); else btn.classList.add('disabled');
+            if (firstLoad && data.scores.length === 0) { section.style.display = 'none'; return; }
+            section.style.display = '';
+            initPinnedSortable();
+            data.scores.forEach(s => {
+                let element = document.createElement('div');
+                element.innerHTML = loadScorePanel(s.grade, s.map_id, s, s.pp, s.acc, s.max_combo, s.play_time, s.map_name, s.map_set_id, s.score_id, s.mods);
+                container.appendChild(element);
+            });
+            updateTooltips();
+        })
+        .catch(error => console.error('Error:', error));
+}
+
+function loadMoreScoresPinned() {
+    let button = document.getElementById('pinnedScoresButton');
+    let originalText = button.innerHTML;
+    addLoader(button);
+    let offset = document.getElementById('offsetPinnedScores');
+    offset.value = parseInt(offset.value) + 5;
+    setTimeout(() => {
+        loadPinnedScores(reqUrlScores, false);
+        removeLoader(button, originalText);
+    }, 500);
+}
+
+function togglePinCard(scoreId, currentlyPinned) {
+    fetch('/api/v1/pin_score?id=' + scoreId + '&action=' + (currentlyPinned ? 'unpin' : 'pin'), { method: 'POST' })
+        .then(r => r.json())
+        .then(data => {
+            if (data.status !== 'success') { alert(data.message || 'Error'); return; }
+            if (typeof reqUrlScores !== 'undefined') {
+                loadPinnedScores(reqUrlScores, true);
+                loadBestScores(reqUrlScores, true);
+            }
+        })
+        .catch(error => console.error('Error:', error));
+}
+
+function togglePinScore(scoreId, btn) {
+    const pinned = btn.dataset.pinned === '1';
+    fetch('/api/v1/pin_score?id=' + scoreId + '&action=' + (pinned ? 'unpin' : 'pin'), { method: 'POST' })
+        .then(r => r.json())
+        .then(data => {
+            if (data.status !== 'success') { alert(data.message || 'Error'); return; }
+            btn.dataset.pinned = pinned ? '0' : '1';
+            btn.innerHTML = '<i class="fa-solid fa-thumbtack me-2"></i>' + (pinned ? 'Pin Score' : 'Unpin Score');
+        })
+        .catch(error => console.error('Error:', error));
+}
+
+function ensureSortable(cb) {
+    if (window.Sortable) { cb(); return; }
+    const s = document.createElement('script');
+    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.6/Sortable.min.js';
+    s.onload = cb;
+    document.head.appendChild(s);
+}
+
+function savePinnedOrder() {
+    const ids = [...document.querySelectorAll('#pinnedScores [data-score-id]')].map(el => el.dataset.scoreId);
+    if (!ids.length) return;
+    fetch('/api/v1/pin_order?order=' + ids.join(','), { method: 'POST' })
+        .then(r => r.json())
+        .then(data => { if (data.status !== 'success') alert(data.message || 'Error'); })
+        .catch(error => console.error('Error:', error));
+}
+
+function initPinnedSortable() {
+    if (window._pinnedSortableInit) return;
+    if (typeof loggedUserId === 'undefined' || loggedUserId <= 0) return;
+    const m = typeof reqUrlScores !== 'undefined' ? reqUrlScores.match(/id=(\d+)/) : null;
+    if (!m || parseInt(m[1]) !== loggedUserId) return;
+    const container = document.getElementById('pinnedScores');
+    if (!container) return;
+    window._pinnedSortableInit = true;
+    container.addEventListener('click', function (e) {
+        if (window._pinJustDragged) { e.stopPropagation(); e.preventDefault(); }
+    }, true);
+    ensureSortable(() => {
+        new Sortable(container, {
+            animation: 150,
+            delay: 120,
+            delayOnTouchOnly: false,
+            filter: 'a',
+            preventOnFilter: false,
+            onEnd: () => {
+                window._pinJustDragged = true;
+                setTimeout(() => { window._pinJustDragged = false; }, 200);
+                savePinnedOrder();
+            }
+        });
+    });
 }
