@@ -46,6 +46,13 @@
                         <a download href="${apiUrlPub}/v1/get_replay?id=${score.id?c}" class="btn btn-light btn-lg">
                             <i class="fa-solid fa-download me-2"></i>Download Replay
                         </a>
+                        <#if canPin?? && canPin>
+                        <button type="button" class="btn btn-outline-light btn-lg"
+                                data-pinned="<#if scorePinned?? && scorePinned>1<#else>0</#if>"
+                                onclick="togglePinScore(${score.id?c}, this)">
+                            <i class="fa-solid fa-thumbtack me-2"></i><#if scorePinned?? && scorePinned>Unpin Score<#else>Pin Score</#if>
+                        </button>
+                        </#if>
                         <!-- TODO: Reports 
                         <#if user??>
                         <button type="button" class="btn btn-outline-light btn-lg">

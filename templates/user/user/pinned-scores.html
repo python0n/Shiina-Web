@@ -1,0 +1,18 @@
+<div id="pinnedScoresSection" style="display: none;">
+    <div class="d-flex align-items-center mx-1 mx-md-4 my-2 mt-2 mb-3">
+        <h5 class="mb-0 me-3 text-muted text-uppercase fw-bold" style="font-size: 0.9rem; letter-spacing: 0.05em;">
+            <i class="fas fa-thumbtack me-2 text-warning"></i>
+            Pinned Scores
+        </h5>
+        <div class="flex-grow-1"
+            style="height: 1px; background: linear-gradient(90deg, rgba(255,255,255,0.2) 0%, transparent 100%);"></div>
+    </div>
+    <div class="row mx-1 mx-md-2">
+        <div id="pinnedScores"></div>
+        <div>
+            <button onclick="loadMoreScoresPinned()" id="pinnedScoresButton" class="btn btn-primary btn-lg">Load
+                More</button>
+        </div>
+    </div>
+    <input type="hidden" id="offsetPinnedScores" value="0">
+</div>

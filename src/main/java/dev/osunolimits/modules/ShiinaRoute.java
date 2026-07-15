@@ -29,6 +29,7 @@ public class ShiinaRoute {
     public ShiinaRequest handle(Request req, Response res) throws Exception {
         ShiinaRequest request = new ShiinaRequest();
         request.mysql = Database.getConnection();
+        request.data.put("loggedUserId", 0);
         if (req.cookie("shiina") != null) {
             String userJson = App.appCache.get("shiina:auth:" + req.cookie("shiina"));
 
@@ -47,6 +48,7 @@ public class ShiinaRoute {
                 request.user = referenceUser;
                 request.data.put("user", referenceUser);
                 request.data.put("userPriv", PermissionHelper.Privileges.fromInt(referenceUser.priv));
+                request.data.put("loggedUserId", referenceUser.id);
             }
         }
         request.data.put("currentTheme", ThemeLoader.currentTheme);

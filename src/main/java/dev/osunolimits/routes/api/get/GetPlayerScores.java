@@ -16,7 +16,7 @@ public class GetPlayerScores extends MySQLRoute {
     private final String GET_PLAYER_SCORES_RECENT =
         "SELECT s.id AS score_id, s.userid, s.map_md5, m.id AS map_id, " +
         "m.set_id AS map_set_id, m.filename AS map_name, s.score AS max_score, " +
-        "s.pp, s.acc, s.mods, s.grade, s.play_time " +
+        "s.pp, s.acc, s.mods, s.grade, s.play_time, s.pinned " +
         "FROM scores s " +
         "JOIN maps m ON s.map_md5 = m.md5 " +
         "WHERE s.userid = ? AND s.mode = ? " +
@@ -25,13 +25,21 @@ public class GetPlayerScores extends MySQLRoute {
     private final String GET_PLAYER_SCORES_BEST =
         "SELECT s.id AS score_id, s.userid, s.map_md5, m.id AS map_id, " +
         "m.set_id AS map_set_id, m.filename AS map_name, s.score AS max_score, " +
-        "s.pp, s.acc, s.mods, s.grade, s.play_time " +
+        "s.pp, s.acc, s.mods, s.grade, s.play_time, s.pinned " +
         "FROM scores s " +
         "JOIN maps m ON s.map_md5 = m.md5 " +
         "WHERE s.userid = ? AND s.mode = ? AND s.status = 2 AND m.status = 2 " + 
         "ORDER BY s.pp DESC LIMIT ? OFFSET ?;";
     
 
+    private final String GET_PLAYER_SCORES_PINNED =
+        "SELECT s.id AS score_id, s.userid, s.map_md5, m.id AS map_id, " +
+        "m.set_id AS map_set_id, m.filename AS map_name, s.score AS max_score, " +
+        "s.pp, s.acc, s.mods, s.grade, s.play_time, s.pinned " +
+        "FROM scores s " +
+        "JOIN maps m ON s.map_md5 = m.md5 " +
+        "WHERE s.userid = ? AND s.mode = ? AND s.pinned = 1 " +
+        "ORDER BY s.pin_order ASC, s.pp DESC LIMIT ? OFFSET ?;";
     @Override
     public Object handle(Request req, Response res) throws Exception {
         ShiinaRequest shiina = getRequest();
@@ -42,7 +50,7 @@ public class GetPlayerScores extends MySQLRoute {
             shiinaAPIHandler.addRequiredParameter("scope", "string", "missing");
         }
 
-        if(scope == null || (!scope.equals("recent") && !scope.equals("best"))) {
+        if(scope == null || (!scope.equals("recent") && !scope.equals("best") && !scope.equals("pinned"))) {
             shiinaAPIHandler.addRequiredParameter("scope", "string", "invalid");
         }
 
@@ -70,7 +78,7 @@ public class GetPlayerScores extends MySQLRoute {
             return shiinaAPIHandler.renderIssues(shiina, res);
         }
 
-        String getScoresQuery = scope.equals("recent") ? GET_PLAYER_SCORES_RECENT : GET_PLAYER_SCORES_BEST;
+        String getScoresQuery = scope.equals("recent") ? GET_PLAYER_SCORES_RECENT : (scope.equals("pinned") ? GET_PLAYER_SCORES_PINNED : GET_PLAYER_SCORES_BEST);
 
         ArrayList<PlayerScore> playerScores = new ArrayList<>();
         PlayerScoresResponse response = new PlayerScoresResponse();
@@ -99,6 +107,7 @@ public class GetPlayerScores extends MySQLRoute {
             score.setMods(OsuConverter.convertMods(scoresQuery.getInt("mods")));  // Parse mods
             score.setGrade(scoresQuery.getString("grade"));
             score.setPlay_time(scoresQuery.getString("play_time"));
+            score.setPinned(scoresQuery.getInt("pinned"));
             playerScores.add(score);
             iteration++;
         }
@@ -138,5 +147,6 @@ public class GetPlayerScores extends MySQLRoute {
         private String[] mods;
         private String grade;
         private String play_time;
+        private int pinned;
     }
 }
