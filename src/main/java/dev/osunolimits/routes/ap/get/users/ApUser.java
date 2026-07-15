@@ -175,6 +175,18 @@ public class ApUser extends Shiina {
         shiina.data.put("clan_name", user.getString("clan_name"));
         shiina.data.put("clan_tag", user.getString("clan_tag"));
         shiina.data.put("clan_priv", user.getString("clan_priv"));
+        java.util.List<dev.osunolimits.models.UserBadge> badgeList = new java.util.ArrayList<>();
+        java.sql.ResultSet badgeRs = shiina.mysql.Query("SELECT id, image, caption, awarded_date, link FROM user_badges WHERE userid = ? ORDER BY sort_order ASC, id ASC", userId);
+        while (badgeRs.next()) {
+            dev.osunolimits.models.UserBadge b = new dev.osunolimits.models.UserBadge();
+            b.setId(badgeRs.getInt("id"));
+            b.setImage(badgeRs.getString("image"));
+            b.setCaption(badgeRs.getString("caption"));
+            b.setAwardedDate(badgeRs.getString("awarded_date"));
+            b.setLink(badgeRs.getString("link"));
+            badgeList.add(b);
+        }
+        shiina.data.put("badges", badgeList);
         return renderTemplate("ap/users/user.html", shiina, res, req);
     }
 

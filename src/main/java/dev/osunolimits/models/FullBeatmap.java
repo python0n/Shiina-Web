@@ -42,6 +42,7 @@ public class FullBeatmap {
         private String country;
         private UserInfoObject user;
         private boolean supporter = false;
+        private long scorev3;
     }
 
     @Data

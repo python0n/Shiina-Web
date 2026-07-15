@@ -1,0 +1,24 @@
+<#if badges?? && (badges?size > 0)>
+<div class="mx-1 mx-md-4 my-3">
+    <div class="d-flex flex-wrap gap-2">
+        <#list badges as badge>
+            <#assign cap = badge.caption>
+            <#if badge.awardedDate?? && badge.awardedDate?has_content><#assign cap = cap + " • " + badge.awardedDate></#if>
+            <#if badge.link?? && badge.link?has_content>
+            <a href="${badge.link}" target="_blank" rel="noopener" class="shiina-badge-tile" title="${cap}" data-bs-toggle="tooltip">
+                <img src="/badge/img/${badge.image}" alt="badge" loading="lazy">
+            </a>
+            <#else>
+            <span class="shiina-badge-tile" title="${cap}" data-bs-toggle="tooltip">
+                <img src="/badge/img/${badge.image}" alt="badge" loading="lazy">
+            </span>
+            </#if>
+        </#list>
+    </div>
+</div>
+<style>
+.shiina-badge-tile{display:inline-flex;align-items:center;justify-content:center;width:132px;height:60px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:8px;overflow:hidden;transition:transform .12s,border-color .12s;}
+.shiina-badge-tile:hover{transform:translateY(-2px);border-color:rgba(255,255,255,0.25);}
+.shiina-badge-tile img{max-width:100%;max-height:100%;object-fit:contain;}
+</style>
+</#if>

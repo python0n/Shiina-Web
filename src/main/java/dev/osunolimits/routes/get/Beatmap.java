@@ -17,6 +17,7 @@ import dev.osunolimits.modules.utils.SEOBuilder;
 import dev.osunolimits.modules.utils.ShiinaSupporterBadge;
 import dev.osunolimits.utils.Validation;
 import dev.osunolimits.utils.osu.OsuConverter;
+import dev.osunolimits.utils.osu.LazerScoreV3;
 import dev.osunolimits.utils.osu.PermissionHelper;
 import spark.Request;
 import spark.Response;
@@ -115,7 +116,7 @@ public class Beatmap extends Shiina {
 
         if(req.queryParams("sort") != null) {
             String sortParam = req.queryParams("sort").toLowerCase();
-            if (sortParam.equals("pp") || sortParam.equals("score") || sortParam.equals("scorev2")) {
+            if (sortParam.equals("pp") || sortParam.equals("score") || sortParam.equals("scorev2") || sortParam.equals("scorev3")) {
                 sort = sortParam;
             }
         }
@@ -189,6 +190,23 @@ public class Beatmap extends Shiina {
         }
         List<FullBeatmap.BeatmapScore> scores = new ArrayList<>();
         
+        if (sort.equals("scorev3")) {
+            List<FullBeatmap.BeatmapScore> all = new ArrayList<>();
+            try (ResultSet scoreQuery = shiina.mysql.Query(query, fullBeatmap.getMd5(), mode)) {
+                if (scoreQuery != null) { processScoreResults(scoreQuery, all); }
+            }
+            java.util.LinkedHashMap<Integer, FullBeatmap.BeatmapScore> best = new java.util.LinkedHashMap<>();
+            for (FullBeatmap.BeatmapScore sc : all) {
+                FullBeatmap.BeatmapScore cur = best.get(sc.getUserId());
+                if (cur == null || sc.getScorev3() > cur.getScorev3()) { best.put(sc.getUserId(), sc); }
+            }
+            List<FullBeatmap.BeatmapScore> sorted = new ArrayList<>(best.values());
+            sorted.sort((a, b) -> Long.compare(b.getScorev3(), a.getScorev3()));
+            int from = (page - 1) * pageSize;
+            int to = Math.min(from + pageSize + 1, sorted.size());
+            if (from < sorted.size()) { scores.addAll(sorted.subList(from, to)); }
+            return scores;
+        }
         if (sort.equals("scorev2")) {
             // ScoreV2 query only needs 4 parameters
             try (ResultSet scoreQuery = shiina.mysql.Query(query, fullBeatmap.getMd5(), mode, pageSize + 1, ((page - 1) * pageSize))) {
@@ -216,7 +234,11 @@ public class Beatmap extends Shiina {
             score.setScore(scoreQuery.getLong("score"));
             score.setGrade(scoreQuery.getString("grade"));
             score.setPlayTime(scoreQuery.getString("play_time"));
-            score.setMods(OsuConverter.convertMods(scoreQuery.getInt("mods")));
+            int rawMods = scoreQuery.getInt("mods");
+            score.setMods(OsuConverter.convertMods(rawMods));
+            try {
+                score.setScorev3(LazerScoreV3.compute(scoreQuery.getInt("n300"), scoreQuery.getInt("n100"), scoreQuery.getInt("n50"), scoreQuery.getInt("nmiss"), rawMods));
+            } catch (Exception ignore) {}
             score.setUserId(scoreQuery.getInt("userid"));
             score.setName(scoreQuery.getString("name"));
             score.setCountry(scoreQuery.getString("country"));
@@ -288,6 +310,15 @@ public class Beatmap extends Shiina {
                         LIMIT ? OFFSET ?
                         """;
 
+            case "scorev3":
+                return """
+                        SELECT s.id, s.pp, s.score, s.grade, s.play_time, s.userid, s.mods,
+                               s.n300, s.n100, s.n50, s.nmiss,
+                               u.name, u.country, u.priv
+                        FROM scores AS s
+                        LEFT JOIN users AS u ON s.userid = u.id
+                        WHERE s.map_md5 = ? AND s.status = 2 AND s.mode = ?
+                        """;
             default:
                 // Default to PP leaderboard if sort parameter is invalid
                 return """

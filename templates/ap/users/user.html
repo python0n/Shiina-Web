@@ -246,4 +246,49 @@
     </div>
   </div>
 
+<div class="card mb-3">
+  <div class="card-header fw-bold"><i class="fas fa-award me-2"></i>Badges</div>
+  <div class="card-body">
+    <form action="/ap/user/badge/add" method="post" enctype="multipart/form-data" class="row g-2 mb-3">
+      <input type="hidden" name="userid" value="${id}">
+      <div class="col-md-3"><input type="file" name="badge" accept="image/png" class="form-control" required></div>
+      <div class="col-md-3"><input type="text" name="caption" class="form-control" placeholder="Nazwa turnieju" maxlength="160" required></div>
+      <div class="col-md-2"><input type="text" name="awarded_date" class="form-control" placeholder="Data" maxlength="48"></div>
+      <div class="col-md-2"><input type="text" name="link" class="form-control" placeholder="Link (opc.)" maxlength="255"></div>
+      <div class="col-md-2 d-grid"><button class="btn btn-primary" type="submit">Dodaj</button></div>
+    </form>
+    <div class="d-flex flex-wrap gap-2">
+      <#if badges?? && (badges?size > 0)>
+        <#list badges as badge>
+          <div class="border rounded p-2 text-center" style="width:150px;">
+            <img src="/badge/img/${badge.image}" style="width:120px;height:54px;object-fit:contain;" alt="badge">
+            <small class="d-block text-truncate mt-1" title="${badge.caption}">${badge.caption}</small>
+            <#if badge.awardedDate?? && badge.awardedDate?has_content><small class="text-muted d-block">${badge.awardedDate}</small></#if>
+            <div class="btn-group btn-group-sm mt-1" role="group">
+              <form action="/ap/user/badge/move" method="post" class="d-inline">
+                <input type="hidden" name="badge_id" value="${badge.id?c}">
+                <input type="hidden" name="userid" value="${id}">
+                <input type="hidden" name="dir" value="up">
+                <button class="btn btn-sm btn-outline-secondary" type="submit" title="W lewo">&larr;</button>
+              </form>
+              <form action="/ap/user/badge/move" method="post" class="d-inline">
+                <input type="hidden" name="badge_id" value="${badge.id?c}">
+                <input type="hidden" name="userid" value="${id}">
+                <input type="hidden" name="dir" value="down">
+                <button class="btn btn-sm btn-outline-secondary" type="submit" title="W prawo">&rarr;</button>
+              </form>
+            </div>
+            <form action="/ap/user/badge/delete" method="post" class="mt-1">
+              <input type="hidden" name="badge_id" value="${badge.id?c}">
+              <input type="hidden" name="userid" value="${id}">
+              <button class="btn btn-sm btn-outline-danger" type="submit">Usuń</button>
+            </form>
+          </div>
+        </#list>
+      <#else>
+        <span class="text-muted">Brak badge.</span>
+      </#if>
+    </div>
+  </div>
+</div>
   <#include "/ap/users/modals.html">

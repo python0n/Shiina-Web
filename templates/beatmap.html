@@ -202,6 +202,9 @@
             <li class="nav-item">
             <button class="nav-link <#if sort = 'scorev2'>active</#if>" onclick="selectParam('sort', 'scorev2')" href="#">Score v2</button>
             </li>
+            <li class="nav-item">
+            <button class="nav-link <#if sort = 'scorev3'>active</#if>" onclick="selectParam('sort', 'scorev3')" href="#">Score v3</button>
+            </li>
         </ul>
         <div class="col col-12">
             <div class="row">
@@ -291,12 +294,16 @@
                                 ${score.score}
                             <#elseif sort == 'scorev2'>
                                 ${score.score}
+                            <#elseif sort == 'scorev3'>
+                                ${score.scorev3}
                             </#if>
                         </div>
                         <#if sort == 'score'>
                             <small class="text-muted">Score</small>
                         <#elseif sort == 'scorev2'>
                             <small class="text-muted">Score v2</small>
+                        <#elseif sort == 'scorev3'>
+                            <small class="text-muted">Score v3 (lazer)</small>
                         </#if>
                         
                         <!-- Mobile: Show grade -->

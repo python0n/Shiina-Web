@@ -212,6 +212,18 @@ public class User extends Shiina {
         shiina.data.put("status", userStatus);
         SEOBuilder seo = new SEOBuilder("Profile of " + userInfo.getName(), App.customization.get("homeDescription").toString(), App.env.get("AVATARSRV") + "/" + id);
         shiina.data.put("seo", seo);
+        java.util.List<dev.osunolimits.models.UserBadge> badgeList = new java.util.ArrayList<>();
+        java.sql.ResultSet badgeRs = shiina.mysql.Query("SELECT id, image, caption, awarded_date, link FROM user_badges WHERE userid = ? ORDER BY sort_order ASC, id ASC", id);
+        while (badgeRs.next()) {
+            dev.osunolimits.models.UserBadge b = new dev.osunolimits.models.UserBadge();
+            b.setId(badgeRs.getInt("id"));
+            b.setImage(badgeRs.getString("image"));
+            b.setCaption(badgeRs.getString("caption"));
+            b.setAwardedDate(badgeRs.getString("awarded_date"));
+            b.setLink(badgeRs.getString("link"));
+            badgeList.add(b);
+        }
+        shiina.data.put("badges", badgeList);
         return renderTemplate("user/user.html", shiina, res, req);
     }
 
