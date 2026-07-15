@@ -85,6 +85,8 @@
 
             <#include "user/userpage.html">
 
+            <#include "user/pinned-scores.html">
+
             <#include "user/best-scores.html">
 
             <#include "user/last-scores.html">
@@ -115,6 +117,7 @@
     var apiUrl = "${apiUrlPub}";
     var reqUrl = "/api/v1/get_first_places?id=${id?c}&mode=${mode?c}&sort=desc&offset=";
     var reqUrlScores = "/api/v1/get_player_scores?id=${id?c}&mode=${mode?c}&offset=";
+    var loggedUserId = ${loggedUserId?c};
     var playCountGraphUrl = "/api/v1/get_playcount_graph?id=${id?c}&mode=${mode?c}";
     var rankGraphUrl = "/api/v1/get_rank_cache?id=${id?c}&mode=${mode?c}";
 </script>

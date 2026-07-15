@@ -35,6 +35,13 @@ public class UserScore extends Shiina {
         }
 
         shiina.data.put("score", s);
+        if (shiina.loggedIn && shiina.user.id == s.getUserId()) {
+            shiina.data.put("canPin", true);
+            java.sql.ResultSet pinRs = shiina.mysql.Query("SELECT pinned FROM scores WHERE id = ?", id);
+            if (pinRs.next()) {
+                shiina.data.put("scorePinned", pinRs.getInt("pinned") == 1);
+            }
+        }
 
         if(s.getBeatmap().getFilename() != null) shiina.data.put("seo", new SEOBuilder(s.getUsername() + " on " + s.getBeatmap().getFilename().replace(".osu", ""),  App.customization.get("homeDescription").toString()));
         

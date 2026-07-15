@@ -50,6 +50,15 @@ public class User extends Shiina {
             id = Integer.parseInt(req.params("id"));
         }
 
+        if (id == null && req.params("id") != null) {
+            String rawName = java.net.URLDecoder.decode(req.params("id"), "UTF-8");
+            if (rawName.startsWith("@")) rawName = rawName.substring(1);
+            String safeName = rawName.toLowerCase().replace(" ", "_");
+            ResultSet nameRs = shiina.mysql.Query("SELECT id FROM users WHERE safe_name = ?", safeName);
+            if (nameRs.next()) {
+                id = nameRs.getInt("id");
+            }
+        }
         Integer mode = null;
         if (OsuConverter.checkForValidMode(req.queryParams("mode"))) {
             mode = Integer.parseInt(req.queryParams("mode"));

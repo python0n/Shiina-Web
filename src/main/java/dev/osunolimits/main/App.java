@@ -236,6 +236,7 @@ shiinaDocs.initializeDocs();
         WebServer.get("/b/:id", new Beatmap());
         WebServer.get("/u/1", new Bot());
         WebServer.get("/u/:id", new User());
+        WebServer.get("/users/:id", new dev.osunolimits.routes.get.redirect.UserRedirect());
 
         WebServer.get("/matches", new MatchList());
         WebServer.get("/analyzer", new Analyzer());
@@ -291,6 +292,8 @@ shiinaDocs.initializeDocs();
         WebServer.post("/register", new HandleRegister());
 
         WebServer.post("/post/comment", new HandleComment());
+        WebServer.post("/api/v1/pin_score", new dev.osunolimits.routes.post.HandlePinScore());
+        WebServer.post("/api/v1/pin_order", new dev.osunolimits.routes.post.HandlePinOrder());
         WebServer.notFound(new NotFound());
         WebServer.internalServerError(new InternalError());
 
