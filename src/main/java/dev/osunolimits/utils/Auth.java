@@ -67,20 +67,20 @@ public class Auth {
 
     /**
      * Lazy migration password check.
-     * 1. Try bcrypt(raw) directly – new format (no MD5).
-     * 2. If that fails, try bcrypt(md5(raw)) – old format.
-     *    On match: signals that the hash should be re-stored without MD5.
+     * 1. Try bcrypt(md5(raw)) directly – correct format, compatible with the game client (bancho-py-ex).
+     * 2. If that fails, try bcrypt(raw) – legacy/broken format from the old registration bug.
+     *    On match: signals that the hash should be re-stored as bcrypt(md5(raw)).
      */
     public static PwCheckResult checkPwLazy(String raw, String bcrypt) {
         try {
-            // New format first (no MD5)
-            if (BCrypt.checkpw(raw, bcrypt)) {
+            String md5Hash = md5(raw);
+            // Correct format first – compatible with game client login
+            if (md5Hash != null && BCrypt.checkpw(md5Hash, bcrypt)) {
                 return new PwCheckResult(true, false, null);
             }
-            // Old format fallback (MD5 + bcrypt) – lazy migration
-            String md5Hash = md5(raw);
-            if (md5Hash != null && BCrypt.checkpw(md5Hash, bcrypt)) {
-                return new PwCheckResult(true, true, Auth.bcrypt(raw));
+            // Legacy broken format (no MD5) – lazy migration to correct format
+            if (BCrypt.checkpw(raw, bcrypt)) {
+                return new PwCheckResult(true, true, Auth.bcryptMd5(raw));
             }
             return new PwCheckResult(false, false, null);
         } catch (Exception e) {
@@ -112,5 +112,10 @@ public class Auth {
 
     public static String bcrypt(String input) {
         return BCrypt.hashpw(input, BCrypt.gensalt());
+    }
+
+    /** Correct registration/reset format – bcrypt(md5(raw)), compatible with the game client. */
+    public static String bcryptMd5(String input) {
+        return BCrypt.hashpw(md5(input), BCrypt.gensalt());
     }
 }
