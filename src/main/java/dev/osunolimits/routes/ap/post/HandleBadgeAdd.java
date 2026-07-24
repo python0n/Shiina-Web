@@ -31,25 +31,22 @@ public class HandleBadgeAdd extends Shiina {
     @Override
     public Object handle(Request req, Response res) throws Exception {
         ShiinaRequest shiina = new ShiinaRoute().handle(req, res);
-        if (!shiina.loggedIn) { res.redirect("/login"); return notFound(res, shiina); }
-        if (!PermissionHelper.hasPrivileges(shiina.user.priv, PermissionHelper.Privileges.MODERATOR)) {
-            res.redirect("/"); return notFound(res, shiina);
-        }
-        req.raw().setAttribute("org.eclipse.jetty.multipartConfig", cfg);
-        String userId = req.raw().getParameter("userid");
-        String caption = req.raw().getParameter("caption");
-        String date = req.raw().getParameter("awarded_date");
-        String link = req.raw().getParameter("link");
-        if (userId == null || !Validation.isNumeric(userId) || caption == null || caption.isBlank()) {
-            res.redirect("/ap/user?id=" + (userId == null ? "" : userId) + "&error=Brak userid/caption");
-            return notFound(res, shiina);
-        }
         try {
+            if (!shiina.loggedIn) { res.redirect("/login"); return ""; }
+            if (!PermissionHelper.hasPrivileges(shiina.user.priv, PermissionHelper.Privileges.MODERATOR)) { res.redirect("/"); return ""; }
+            req.raw().setAttribute("org.eclipse.jetty.multipartConfig", cfg);
+            String userId = req.raw().getParameter("userid");
+            String caption = req.raw().getParameter("caption");
+            String date = req.raw().getParameter("awarded_date");
+            String link = req.raw().getParameter("link");
+            if (userId == null || !Validation.isNumeric(userId) || caption == null || caption.isBlank()) {
+                res.redirect("/ap/user?id=" + (userId == null ? "" : userId) + "&error=Brak userid/caption");
+                return "";
+            }
             var part = req.raw().getPart("badge");
-            if (part == null || part.getSubmittedFileName() == null
-                    || !part.getSubmittedFileName().toLowerCase().endsWith(".png")) {
+            if (part == null || part.getSubmittedFileName() == null || !part.getSubmittedFileName().toLowerCase().endsWith(".png")) {
                 res.redirect("/ap/user?id=" + userId + "&error=Wgraj plik .png");
-                return notFound(res, shiina);
+                return "";
             }
             String fileName = UUID.randomUUID().toString().replace("-", "") + ".png";
             Path dest = Path.of(BADGE_DIR, fileName);
@@ -63,9 +60,12 @@ public class HandleBadgeAdd extends Shiina {
                 "VALUES (?, ?, ?, ?, ?, (SELECT COALESCE(MAX(t.sort_order),0)+1 FROM (SELECT sort_order FROM user_badges WHERE userid = ?) t))",
                 Integer.parseInt(userId), fileName, caption.trim(), safeDate, safeLink, Integer.parseInt(userId));
             res.redirect("/ap/user?id=" + userId + "&info=Badge dodany");
+            return "";
         } catch (Exception e) {
-            res.redirect("/ap/user?id=" + userId + "&error=Blad uploadu: " + e.getMessage());
+            res.redirect("/ap/user?error=" + e.getMessage());
+            return "";
+        } finally {
+            if (shiina.mysql != null) shiina.mysql.close();
         }
-        return notFound(res, shiina);
     }
 }
