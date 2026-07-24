@@ -1,6 +1,5 @@
 # **Shiina-Web** — taksiegra.ovh fork
 
-![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/python0n/Shiina-Web/maven.yml?branch=dev&label=Tests&color=1783a3)
 ![GitHub last commit](https://img.shields.io/github/last-commit/python0n/Shiina-Web/dev?label=Last%20commit&color=1783a3)
 ![GitHub License](https://img.shields.io/github/license/python0n/Shiina-Web?label=License&color=1783a3)
 ![Static Badge](https://img.shields.io/badge/upstream-osu--NoLimits%2FShiina--Web-1783a3)
