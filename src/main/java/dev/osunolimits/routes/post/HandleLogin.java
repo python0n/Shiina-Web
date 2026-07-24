@@ -85,6 +85,10 @@ public class HandleLogin extends Shiina {
             return renderTemplate("login.html", shiina, res, req);
         }
 
+        if (pwResult.needsRehash) {
+            shiina.mysql.Exec("UPDATE `users` SET `pw_bcrypt` = ? WHERE `id` = ?", pwResult.newHash, userId);
+        }
+
         UserInfoCache.reloadUserIfNotPresent(userId);
 
         if (rememberMe) {
