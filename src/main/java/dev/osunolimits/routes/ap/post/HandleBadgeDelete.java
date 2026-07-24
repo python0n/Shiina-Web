@@ -16,26 +16,26 @@ public class HandleBadgeDelete extends Shiina {
     @Override
     public Object handle(Request req, Response res) throws Exception {
         ShiinaRequest shiina = new ShiinaRoute().handle(req, res);
-        if (!shiina.loggedIn) { res.redirect("/login"); return notFound(res, shiina); }
-        if (!PermissionHelper.hasPrivileges(shiina.user.priv, PermissionHelper.Privileges.MODERATOR)) {
-            res.redirect("/"); return notFound(res, shiina);
-        }
-        String badgeId = req.queryParams("badge_id");
-        String userId = req.queryParams("userid");
-        if (badgeId == null || !Validation.isNumeric(badgeId)) {
-            res.redirect("/ap/user?id=" + (userId == null ? "" : userId)); return notFound(res, shiina);
-        }
-        ResultSet rs = shiina.mysql.Query("SELECT image, userid FROM user_badges WHERE id = ?", badgeId);
-        if (rs.next()) {
-            String image = rs.getString("image");
-            if (userId == null) userId = String.valueOf(rs.getInt("userid"));
-            if (image != null && image.matches("[a-zA-Z0-9_.-]{1,80}")) {
-                File f = new File(BADGE_DIR, image);
-                if (f.exists()) f.delete();
+        try {
+            if (!shiina.loggedIn) { res.redirect("/login"); return ""; }
+            if (!PermissionHelper.hasPrivileges(shiina.user.priv, PermissionHelper.Privileges.MODERATOR)) { res.redirect("/"); return ""; }
+            String badgeId = req.queryParams("badge_id");
+            String userId = req.queryParams("userid");
+            if (badgeId == null || !Validation.isNumeric(badgeId)) { res.redirect("/ap/user?id=" + (userId == null ? "" : userId)); return ""; }
+            ResultSet rs = shiina.mysql.Query("SELECT image, userid FROM user_badges WHERE id = ?", badgeId);
+            if (rs.next()) {
+                String image = rs.getString("image");
+                if (userId == null) userId = String.valueOf(rs.getInt("userid"));
+                if (image != null && image.matches("[a-zA-Z0-9_.-]{1,80}")) {
+                    File f = new File(BADGE_DIR, image);
+                    if (f.exists()) f.delete();
+                }
+                shiina.mysql.Exec("DELETE FROM user_badges WHERE id = ?", badgeId);
             }
-            shiina.mysql.Exec("DELETE FROM user_badges WHERE id = ?", badgeId);
+            res.redirect("/ap/user?id=" + userId);
+            return "";
+        } finally {
+            if (shiina.mysql != null) shiina.mysql.close();
         }
-        res.redirect("/ap/user?id=" + userId + "&info=Badge usuniety");
-        return notFound(res, shiina);
     }
 }
