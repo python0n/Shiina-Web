@@ -79,3 +79,5 @@ todo.txt
 Thumbs.db
 *.swp
 *.swo
+*.bak
+*.bak.*
