@@ -708,6 +708,7 @@ function loadScorePanel(
     weight_pp = 0
 ) {
     let pinButton = ``;
+    let dragHandle = ``;
     if (typeof loggedUserId !== "undefined" && loggedUserId > 0 && score.user_id === loggedUserId && typeof score.pinned !== "undefined") {
         const isPinned = score.pinned == 1;
         pinButton = `<a onclick="event.stopPropagation(); togglePinCard(${scoreId}, ${isPinned ? 1 : 0});"
@@ -716,6 +717,12 @@ function loadScorePanel(
            style="cursor:pointer;${isPinned ? 'background:rgba(241,196,15,0.35);border-color:#f1c40f;' : ''}">
             <i class="fas fa-thumbtack"></i>
         </a>`;
+        if (isPinned) {
+            dragHandle = `<span class="osu-action-btn pin-drag-handle" title="Drag to reorder"
+               style="cursor:grab;" onclick="event.stopPropagation();" onmousedown="event.stopPropagation();">
+                <i class="fas fa-grip-vertical"></i>
+            </span>`;
+        }
     }
     const beatmapImg = `https://assets.ppy.sh/beatmaps/${setId}/covers/cover.jpg?1650681317`;
     const sanitizedName = name.replace('.osu', '');
@@ -784,7 +791,7 @@ function loadScorePanel(
 
                 <!-- Action Buttons -->
                 <div class="osu-action-buttons">
-                    ${pinButton}${downloadButton}
+                    ${dragHandle}${pinButton}${downloadButton}
                 </div>
             </div>
         </div>
@@ -1000,21 +1007,11 @@ function initPinnedSortable() {
     const container = document.getElementById('pinnedScores');
     if (!container) return;
     window._pinnedSortableInit = true;
-    container.addEventListener('click', function (e) {
-        if (window._pinJustDragged) { e.stopPropagation(); e.preventDefault(); }
-    }, true);
     ensureSortable(() => {
         new Sortable(container, {
             animation: 150,
-            delay: 120,
-            delayOnTouchOnly: false,
-            filter: 'a',
-            preventOnFilter: false,
-            onEnd: () => {
-                window._pinJustDragged = true;
-                setTimeout(() => { window._pinJustDragged = false; }, 200);
-                savePinnedOrder();
-            }
+            handle: '.pin-drag-handle',
+            onEnd: () => savePinnedOrder()
         });
     });
 }
