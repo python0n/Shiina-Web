@@ -70,15 +70,11 @@
                 <td>${r.score?string.number}</td>
                 <td>${r.acc}%</td>
                 <td>
-                  <span class="badge
-                    <#if r.grade == 'X' || r.grade == 'XH'>bg-warning text-dark
-                    <#elseif r.grade == 'S' || r.grade == 'SH'>bg-success
-                    <#elseif r.grade == 'A'>bg-primary
-                    <#elseif r.grade == 'B'>bg-info text-dark
-                    <#elseif r.grade == 'C'>bg-secondary
-                    <#else>bg-danger</#if>">
-                    ${r.grade}
-                  </span>
+                  <#if ['XH','X','SH','S','A','B','C','D']?seq_contains(r.grade)>
+                    <img src="/img/ranking/ranking-${r.grade}.png" alt="${r.grade}" title="${r.grade}" style="height:24px;">
+                  <#else>
+                    <span class="text-danger fw-bold">F</span>
+                  </#if>
                 </td>
                 <td>
                   <#if r.status == 0>
