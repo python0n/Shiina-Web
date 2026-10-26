@@ -54,7 +54,7 @@
 
                 <!-- Action Buttons -->
                 <div class="osu-beatmap-actions">
-                    <a download href="<#if (beatmap.set_id >= 1073741824)>https://c.taksiegra.ovh/d/${beatmap.set_id?c}<#else>https://catboy.best/d/${beatmap.set_id?c}</#if>"
+                    <a download href="<#if (beatmap.set_id >= 1073741824)>https://c.taksiegra.ovh/d/${beatmap.set_id?c}<#else>https://osu.direct/api/d/${beatmap.set_id?c}</#if>"
                        class="osu-action-btn osu-download-btn"
                        title="Download Beatmap"
                        onclick="event.stopPropagation();"
