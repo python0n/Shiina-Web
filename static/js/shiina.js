@@ -809,9 +809,11 @@ function loadScorePanel(
 }
 
 function getBsPrimaryColor() {
+    // theme primary colour; does not depend on any .bg-primary element being on the page
+    const fromVar = getComputedStyle(document.documentElement).getPropertyValue('--bs-primary').trim();
+    if (fromVar) return fromVar;
     const element = document.getElementsByClassName('bg-primary')[0];
-    const computedStyle = window.getComputedStyle(element);
-    return computedStyle.backgroundColor;
+    return element ? getComputedStyle(element).backgroundColor : '#0d6efd';
 }
 
 function getBootstrapTextColor() {
