@@ -47,7 +47,7 @@ function searchShiina(val, page = 1, append = false) {
             if (error.name !== 'AbortError') {
                 console.error('Error:', error);
                 if (!append && val === currentSearchQuery) {
-                    shiinaSearch.innerHTML = '<div class="alert alert-danger m-2">Search failed. Please try again.</div>';
+                    shiinaSearch.innerHTML = '<div class="alert alert-danger m-2">' + tr('js.search_failed', 'Search failed. Please try again.') + '</div>';
                 }
             }
         })
@@ -124,7 +124,7 @@ function renderSearchResults(data, append = false) {
             title.classList.add('mb-1', 'fw-semibold');
 
             const typeLabel = document.createElement('small');
-            typeLabel.textContent = capitalizeFirstLetter(item.source_table);
+            typeLabel.textContent = tr('js.search_type.' + item.source_table, capitalizeFirstLetter(item.source_table));
             typeLabel.classList.add('text-muted');
 
             contentDiv.appendChild(title);
@@ -142,7 +142,7 @@ function renderSearchResults(data, append = false) {
     } else if (!append) {
         const noResults = document.createElement('div');
         noResults.classList.add('text-center', 'py-5', 'text-muted');
-        noResults.innerHTML = '<i class="fas fa-search fa-2x mb-3"></i><br><h6>No results found</h6><small>Try adjusting your search terms</small>';
+        noResults.innerHTML = '<i class="fas fa-search fa-2x mb-3"></i><br><h6>' + tr('js.no_results', 'No results found') + '</h6><small>' + tr('js.adjust_search', 'Try adjusting your search terms') + '</small>';
         resultsContainer.appendChild(noResults);
     }
 
@@ -174,7 +174,7 @@ function showLoadingIndicator() {
         <div class="spinner-border spinner-border-sm me-2" role="status">
             <span class="visually-hidden">Loading...</span>
         </div>
-        <small class="text-muted">Searching...</small>
+        <small class="text-muted">${tr('js.searching', 'Searching...')}</small>
     `;
     
     shiinaSearch.appendChild(loadingDiv);
@@ -188,11 +188,11 @@ function createPaginationControls(currentPageNum, hasNext) {
     if (hasNext) {
         const loadMoreButton = document.createElement('button');
         loadMoreButton.classList.add('btn', 'btn-primary', 'btn-sm');
-        loadMoreButton.innerHTML = '<i class="fas fa-plus me-2"></i>Load More Results';
+        loadMoreButton.innerHTML = '<i class="fas fa-plus me-2"></i>' + tr('js.load_more_results', 'Load More Results');
         
         loadMoreButton.onclick = () => {
             loadMoreButton.disabled = true;
-            loadMoreButton.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Loading...';
+            loadMoreButton.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>' + tr('js.loading', 'Loading...');
             searchShiina(currentSearchQuery, currentPageNum + 1, true);
         };
 
@@ -201,7 +201,7 @@ function createPaginationControls(currentPageNum, hasNext) {
         // Show end message
         const endMessage = document.createElement('small');
         endMessage.classList.add('text-muted', 'text-center');
-        endMessage.innerHTML = '<i class="fas fa-check me-1"></i>All results loaded';
+        endMessage.innerHTML = '<i class="fas fa-check me-1"></i>' + tr('js.all_loaded', 'All results loaded');
         paginationContainer.appendChild(endMessage);
     }
 

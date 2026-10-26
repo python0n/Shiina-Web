@@ -20,7 +20,7 @@
                 <div class="col-12 col-md-9 d-flex flex-column justify-content-center text-white">
                     <div class="mb-2">
                         <h1 class="display-4 fw-bold mb-2 shiina-player-name <#if score.supporter>supporter</#if>">
-                            ${score.username}'s Score
+                            ${t["score.title"]?html?replace("{name}", score.username?html)}
                         </h1>
                         <div class="d-flex flex-wrap gap-3 mt-2 mb-2">
                             <div class="d-flex align-items-center bg-dark bg-opacity-20 rounded px-3 py-2">
@@ -44,13 +44,13 @@
                     <!-- Action Buttons -->
                     <div class="d-flex gap-2 flex-wrap">
                         <a download href="${apiUrlPub}/v1/get_replay?id=${score.id?c}" class="btn btn-light btn-lg">
-                            <i class="fa-solid fa-download me-2"></i>Download Replay
+                            <i class="fa-solid fa-download me-2"></i>${t["score.download_replay"]?html}
                         </a>
                         <#if canPin?? && canPin>
                         <button type="button" class="btn btn-outline-light btn-lg"
                                 data-pinned="<#if scorePinned?? && scorePinned>1<#else>0</#if>"
                                 onclick="togglePinScore(${score.id?c}, this)">
-                            <i class="fa-solid fa-thumbtack me-2"></i><#if scorePinned?? && scorePinned>Unpin Score<#else>Pin Score</#if>
+                            <i class="fa-solid fa-thumbtack me-2"></i><#if scorePinned?? && scorePinned>${t["score.unpin"]?html}<#else>${t["score.pin"]?html}</#if>
                         </button>
                         </#if>
                         <!-- TODO: Reports 
@@ -71,25 +71,25 @@
                 <div class="col-md-3 col-6">
                     <div class="text-center p-3 bg-primary bg-opacity-10 rounded border border-primary border-opacity-25">
                         <div class="h2 fw-bold text-primary mb-1"><span title="${score.pp?string("0.000")}pp">${score.pp?round}<small class="fs-6 text-muted">pp</small></span></div>
-                        <div class="text-muted small">Performance Points</div>
+                        <div class="text-muted small">${t["score.performance_points"]?html}</div>
                     </div>
                 </div>
                 <div class="col-md-3 col-6">
                     <div class="text-center p-3 bg-success bg-opacity-10 rounded border border-success border-opacity-25">
                         <div class="h2 fw-bold text-success mb-1">${score.acc?string("0.00")}<small class="fs-6 text-muted">%</small></div>
-                        <div class="text-muted small">Accuracy</div>
+                        <div class="text-muted small">${t["stats.accuracy"]?html}</div>
                     </div>
                 </div>
                 <div class="col-md-3 col-6">
                     <div class="text-center p-3 bg-info bg-opacity-10 rounded border border-info border-opacity-25">
                         <div class="h2 fw-bold text-info mb-1">${score.score}</div>
-                        <div class="text-muted small">Score</div>
+                        <div class="text-muted small">${t["stats.score"]?html}</div>
                     </div>
                 </div>
                 <div class="col-md-3 col-6">
                     <div class="text-center p-3 bg-warning bg-opacity-10 rounded border border-warning border-opacity-25">
                         <div class="h2 fw-bold text-warning mb-1">${score.maxCombo}<small class="fs-6 text-muted">x</small></div>
-                        <div class="text-muted small">Max Combo</div>
+                        <div class="text-muted small">${t["stats.max_combo"]?html}</div>
                     </div>
                 </div>
             </div>
@@ -117,7 +117,7 @@
                                 <div class="col-6">
                                     <div class="text-center p-2 bg-info bg-opacity-10 rounded border border-info border-opacity-25">
                                         <div class="fw-bold text-info">${score.ngeki}</div>
-                                        <div class="small text-muted">Gekis</div>
+                                        <div class="small text-muted">${t["score.gekis"]?html}</div>
                                     </div>
                                 </div>
                                 <div class="col-6">
@@ -129,7 +129,7 @@
                                 <div class="col-6">
                                     <div class="text-center p-2 bg-warning bg-opacity-10 rounded border border-warning border-opacity-25">
                                         <div class="fw-bold text-warning">${score.nkatu}</div>
-                                        <div class="small text-muted">Katus</div>
+                                        <div class="small text-muted">${t["score.katus"]?html}</div>
                                     </div>
                                 </div>
                                 <div class="col-6">
@@ -141,7 +141,7 @@
                                 <div class="col-6">
                                     <div class="text-center p-2 bg-danger bg-opacity-10 rounded border border-danger border-opacity-25">
                                         <div class="fw-bold text-danger">${score.nmiss}</div>
-                                        <div class="small text-muted">Misses</div>
+                                        <div class="small text-muted">${t["score.misses"]?html}</div>
                                     </div>
                                 </div>
                             </div>
@@ -158,12 +158,12 @@
                         <div class="card-body">
                             <div class="d-flex flex-column gap-3">
                                 <div class="d-flex justify-content-between align-items-center p-2 bg-light bg-opacity-10 rounded">
-                                    <span class="fw-medium">Play Time:</span>
+                                    <span class="fw-medium">${t["score.play_time"]?html}</span>
                                     <span>${score.playTime}</span>
                                 </div>
                                 <#if score.status??>
                                 <div class="d-flex justify-content-between align-items-center p-2 bg-light bg-opacity-10 rounded">
-                                    <span class="fw-medium">Status:</span>
+                                    <span class="fw-medium">${t["score.status"]?html}</span>
                                     <span>${convertScoreStatus(score.status)}</span>
                                 </div>
                                 </#if>
@@ -193,7 +193,7 @@
                                     
                                     <div class="flex-grow-1">
                                         <div class="fw-bold <#if score.supporter>supporter</#if>">${score.username}</div>
-                                        <div class="text-muted small">Played <span data-timestamp-format="date" data-timestamp="${score.playTime}">${score.playTime}</span></div>
+                                        <div class="text-muted small">${t["score.played"]?html} <span data-timestamp-format="date" data-timestamp="${score.playTime}">${score.playTime}</span></div>
                                     </div>
                                     <div class="text-white">
                                         <i class="fa fa-arrow-right"></i>

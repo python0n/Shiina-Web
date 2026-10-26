@@ -8,14 +8,13 @@
                         class="my-2 col-12 col-md-auto my-lg-0 col col-auto d-flex align-items-center justify-content-center">
                         <div class="btn-group flex-wrap" role="group" aria-label="Sort Options">
                             <button type="button" onclick="selectParam('sort', 'totalpp')"
-                                class="btn btn-<#if sort == 'totalpp'>primary<#else>secondary</#if>">Total PP</button>
+                                class="btn btn-<#if sort == 'totalpp'>primary<#else>secondary</#if>">${t["clans.total_pp"]?html}</button>
                             <button type="button" onclick="selectParam('sort', 'avgpp')"
-                                class="btn btn-<#if sort == 'avgpp'>primary<#else>secondary</#if>">Average PP</button>
+                                class="btn btn-<#if sort == 'avgpp'>primary<#else>secondary</#if>">${t["clans.avg_pp"]?html}</button>
                             <button type="button" onclick="selectParam('sort', 'rankedscore')"
-                                class="btn btn-<#if sort == 'rankedscore'>primary<#else>secondary</#if>">Ranked
-                                Score</button>
+                                class="btn btn-<#if sort == 'rankedscore'>primary<#else>secondary</#if>">${t["stats.ranked_score"]?html}</button>
                             <button type="button" onclick="selectParam('sort', 'acc')"
-                                class="btn btn-<#if sort == 'acc'>primary<#else>secondary</#if>">Accuracy</button>
+                                class="btn btn-<#if sort == 'acc'>primary<#else>secondary</#if>">${t["stats.accuracy"]?html}</button>
                         </div>
                     </div>
 
@@ -105,7 +104,7 @@
                                     <!-- Members Count (hidden on mobile) -->
                                     <div class="me-3 d-none d-md-flex">
                                         <div class="text-center">
-                                            <div class="small text-muted">Members</div>
+                                            <div class="small text-muted">${t["clans.members"]?html}</div>
                                             <div class="fw-bold text-info">
                                                 <i class="fas fa-users me-1"></i>${clan.members}
                                             </div>
@@ -119,7 +118,7 @@
                                                 <#switch sort>
                                                     <#case "totalpp">pp<#break>
                                                             <#case "avgpp">pp<#break>
-                                                                    <#case "rankedscore">Score<#break>
+                                                                    <#case "rankedscore">${t["stats.score"]?html}<#break>
                                                                             <#case "acc">%<#break>
                                                 </#switch>
                                             </small>
@@ -127,7 +126,7 @@
                                         <!-- Mobile: Show member count -->
                                         <div class="d-md-none">
                                             <small class="text-muted">
-                                                <i class="fas fa-users me-1"></i>${clan.members} members
+                                                <i class="fas fa-users me-1"></i>${clan.members} ${t["clans.members_lc"]?html}
                                             </small>
                                         </div>
                                     </div>

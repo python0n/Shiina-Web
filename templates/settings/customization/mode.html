@@ -3,7 +3,7 @@
     <div class="card-header bg-transparent">
         <h5 class="mb-0">
             <i class="fa-solid fa-heart-circle-plus me-2"></i>
-            Favorite mode
+            ${t["settings.fav_mode"]?html}
         </h5>
     </div>
     <div class="card-body">
@@ -16,7 +16,7 @@
                     </option>
                 </#list>
             </select>
-            <button type="submit" class="btn btn-primary mt-2">Change Favorite Mode</button>
+            <button type="submit" class="btn btn-primary mt-2">${t["settings.change_fav_mode"]?html}</button>
         </form>
     </div>
 </div>

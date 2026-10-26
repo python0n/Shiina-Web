@@ -6,12 +6,12 @@
         <div class="flex-grow-1">
             <h6 class="alert-heading mb-2">
                 <i class="fas fa-star me-1"></i>
-                Supporter Feature Required
+                ${t["settings.sp_title"]?html}
             </h6>
-            <p class="mb-2">You need to be a <span class="supporter fw-bold">Supporter</span> to ${spalert}</p>
+            <p class="mb-2">${t["settings.sp_text"]?html?replace("{feature}", spalert?html)?replace("{supporter}", "<span class=\"supporter fw-bold\">" + t["profile.supporter"]?html + "</span>")}</p>
             <a href="/donate" class="btn btn-secondary btn-sm">
                 <i class="fas fa-heart me-1"></i>
-                Become a Supporter
+                ${t["settings.sp_become"]?html}
             </a>
         </div>
     </div>

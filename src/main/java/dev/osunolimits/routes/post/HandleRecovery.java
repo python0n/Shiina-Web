@@ -31,25 +31,25 @@ public class HandleRecovery extends Shiina {
         // Validate captcha
         if (captchaResponse == null || captchaResponse.isEmpty()) {
             shiina.data.put("error", "Invalid Captcha");
-            return renderTemplate("recovery.html", shiina, res, req);
+            return renderTemplate("recover.html", shiina, res, req);
         }
     
         CaptchaProvider captchaProvider = ShiinaRegistry.getCaptchaProvider();
         if (!captchaProvider.verifyCaptcha(captchaResponse).success) {
             shiina.data.put("error", "Invalid Captcha");
-            return renderTemplate("recovery.html", shiina, res, req);
+            return renderTemplate("recover.html", shiina, res, req);
         }
     
         // Validate form input
         if (token == null || token.isEmpty() || token == null || token.isEmpty() || password == null || password.isEmpty()) {
             shiina.data.put("error", "Missing required fields");
-            return renderTemplate("recovery.html", shiina, res, req);
+            return renderTemplate("recover.html", shiina, res, req);
         }
     
         // Validate password strength (between 8-32 characters, at least 3 unique characters)
         if (password.length() < 8 || password.length() > 32 || password.chars().distinct().count() < 3) {
             shiina.data.put("error", "Password must be between 8-32 characters and have at least 3 unique characters");
-            return renderTemplate("recovery.html", shiina, res, req);
+            return renderTemplate("recover.html", shiina, res, req);
         }
 
         String pwMd5 = Auth.md5(password);
@@ -58,7 +58,7 @@ public class HandleRecovery extends Shiina {
         ResultSet recoveryRs = shiina.mysql.Query("SELECT * FROM `sh_recovery` WHERE `token` = ?", token);
         if (!recoveryRs.next()) {
             shiina.data.put("error", "Invalid token");
-            return renderTemplate("recovery.html", shiina, res, req);
+            return renderTemplate("recover.html", shiina, res, req);
         }
 
         int userId = recoveryRs.getInt("user");

@@ -3,18 +3,18 @@
     <div class="card-header bg-transparent">
         <h5 class="mb-0">
             <i class="fas fa-file-alt me-2"></i>
-            Userpage
+            ${t["profile.userpage"]?html}
         </h5>
     </div>
     <div class="card-body">
         <form action="/settings/userpage" method="post">
             <div class="mb-3">
                 <textarea name="userpage" id="editor" class="form-control" style="height: 250px;"
-                    placeholder="Write something about yourself..."><#if curUserpage??>${curUserpage}</#if></textarea>
+                    placeholder="${t["settings.userpage_placeholder"]?html}"><#if curUserpage??>${curUserpage?html}</#if></textarea>
             </div>
             <button type="submit" class="btn btn-primary">
                 <i class="fas fa-save me-2"></i>
-                Update Userpage
+                ${t["settings.update_userpage"]?html}
             </button>
         </form>
     </div>

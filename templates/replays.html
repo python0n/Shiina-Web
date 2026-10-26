@@ -3,13 +3,13 @@
 
   <#if submitted>
   <div class="alert alert-success" role="alert">
-    <i class="fa-solid fa-check-circle me-2"></i>Replay submitted and awaiting review.
+    <i class="fa-solid fa-check-circle me-2"></i>${t["replays.submitted_notice"]?html}
   </div>
   </#if>
 
   <#if error??>
   <div class="alert alert-danger" role="alert">
-    <i class="fa-solid fa-triangle-exclamation me-2"></i>${error}
+    <i class="fa-solid fa-triangle-exclamation me-2"></i>${msg(error)?html}
   </div>
   </#if>
 
@@ -18,19 +18,19 @@
     <div class="bg-gradient rounded-top position-relative"
       style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
       <div class="p-4 text-white">
-        <h4 class="fw-bold mb-1"><i class="fa-solid fa-upload me-2"></i>Submit Replay</h4>
-        <p class="mb-0 opacity-75">If your score was not saved (e.g. you played on local ranking), you can submit it here for manual review.</p>
+        <h4 class="fw-bold mb-1"><i class="fa-solid fa-upload me-2"></i>${t["replays.title"]?html}</h4>
+        <p class="mb-0 opacity-75">${t["replays.intro"]?html}</p>
       </div>
     </div>
     <div class="card-body bg-body px-4 py-3">
       <form data-turbo="false" method="post" action="/replays/submit" enctype="multipart/form-data">
         <div class="mb-3">
-          <label class="form-label fw-semibold">Replay file (.osr)</label>
+          <label class="form-label fw-semibold">${t["replays.file"]?html}</label>
           <input type="file" name="replay" accept=".osr" class="form-control" required>
-          <div class="form-text">Max size: 10MB. Only .osr files from osu!</div>
+          <div class="form-text">${t["replays.file_hint"]?html}</div>
         </div>
         <button type="submit" class="btn btn-primary">
-          <i class="fa-solid fa-paper-plane me-1"></i>Submit for review
+          <i class="fa-solid fa-paper-plane me-1"></i>${t["replays.submit"]?html}
         </button>
       </form>
     </div>
@@ -39,25 +39,25 @@
   <!-- Lista replayów -->
   <div class="card rounded">
     <div class="card-header bg-body d-flex justify-content-between align-items-center py-3">
-      <span class="fw-bold"><i class="fa-solid fa-list me-2"></i>My replays</span>
+      <span class="fw-bold"><i class="fa-solid fa-list me-2"></i>${t["replays.mine"]?html}</span>
     </div>
     <div class="card-body bg-body p-0">
       <#if replays?size == 0>
         <div class="text-center py-5 text-muted">
           <i class="fa-solid fa-inbox fa-2x mb-3 d-block"></i>
-          You haven't submitted any replays yet.
+          ${t["replays.none"]?html}
         </div>
       <#else>
         <div class="table-responsive">
           <table class="table table-hover mb-0">
             <thead>
               <tr>
-                <th>Map</th>
-                <th>Score</th>
-                <th>Acc</th>
-                <th>Grade</th>
-                <th>Status</th>
-                <th>Submitted</th>
+                <th>${t["replays.map"]?html}</th>
+                <th>${t["stats.score"]?html}</th>
+                <th>${t["stats.acc_short"]?html}</th>
+                <th>${t["match.grade"]?html}</th>
+                <th>${t["matches.status"]?html}</th>
+                <th>${t["replays.submitted"]?html}</th>
               </tr>
             </thead>
             <tbody>
@@ -78,11 +78,11 @@
                 </td>
                 <td>
                   <#if r.status == 0>
-                    <span class="badge bg-warning text-dark"><i class="fa-solid fa-clock me-1"></i>Pending</span>
+                    <span class="badge bg-warning text-dark"><i class="fa-solid fa-clock me-1"></i>${t["replays.pending"]?html}</span>
                   <#elseif r.status == 1>
-                    <span class="badge bg-success"><i class="fa-solid fa-check me-1"></i>Accepted</span>
+                    <span class="badge bg-success"><i class="fa-solid fa-check me-1"></i>${t["replays.accepted"]?html}</span>
                   <#else>
-                    <span class="badge bg-danger"><i class="fa-solid fa-xmark me-1"></i>Rejected</span>
+                    <span class="badge bg-danger"><i class="fa-solid fa-xmark me-1"></i>${t["replays.rejected"]?html}</span>
                   </#if>
                 </td>
                 <td>

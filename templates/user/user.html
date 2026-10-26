@@ -10,14 +10,13 @@
 
         <#if restricted && !self>
             <div class="alert alert-danger mt-4" role="alert">
-                This user is in restricted mode and not present in our ranking. You can see this user's profile because
-                you are a staff member.
+                ${t["profile.restricted_staff"]?html}
             </div>
         </#if>
         <#if restricted && self>
             <div class="alert alert-danger mt-4" role="alert">
-                You are in restricted mode and not present in our ranking.
-                <#if (c.discordUrl!"")?has_content>Visit our <a href="${c.discordUrl}">Discord</a> for further information.<#else>Contact the server admin for further information.</#if>
+                ${t["profile.restricted_self"]?html}
+                <#if (c.discordUrl!"")?has_content>${t["profile.restricted_visit"]?html} <a href="${c.discordUrl}">Discord</a>.<#else>${t["profile.restricted_contact"]?html}</#if>
             </div>
         </#if>
 
@@ -57,9 +56,9 @@
                                 class="d-flex align-items-center bg-gradient bg-opacity-20 rounded-pill px-3 py-2 w-fit">
                                 <div class="bg-success rounded-circle me-2" style="width: 8px; height: 8px;"></div>
                                 <span class="fw-medium">
-                                    <#if status.player_status.status.action==0>Idle
-                                        <#elseif status.player_status.status.action==1>Online
-                                            <#else>Playing ${status.player_status.status.info_text}
+                                    <#if status.player_status.status.action==0>${t["profile.idle"]?html}
+                                        <#elseif status.player_status.status.action==1>${t["profile.online"]?html}
+                                            <#else>${t["profile.playing"]?html} ${status.player_status.status.info_text}
                                     </#if>
                                 </span>
                             </div>

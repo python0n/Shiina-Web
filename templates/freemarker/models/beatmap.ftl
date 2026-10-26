@@ -25,7 +25,7 @@
                         ${beatmap.artist} - ${beatmap.title}
                     </div>
                     <div class="osu-beatmap-creator">
-                        mapped by ${beatmap.creator}
+                        ${t["beatmap.mapped_by"]?html?replace("{creator}", beatmap.creator?html)}
                     </div>
 
                     <div class="osu-beatmap-stats">
@@ -56,7 +56,7 @@
                 <div class="osu-beatmap-actions">
                     <a download href="<#if (beatmap.set_id >= 1073741824)>https://c.taksiegra.ovh/d/${beatmap.set_id?c}<#else>https://osu.direct/api/d/${beatmap.set_id?c}</#if>"
                        class="osu-action-btn osu-download-btn"
-                       title="Download Beatmap"
+                       title="${t["beatmap.download"]?html}"
                        onclick="event.stopPropagation();"
                        onmouseover="this.style.background='rgba(46,204,113,0.3)'; this.style.borderColor='#2ecc71';"
                        onmouseout="this.style.background='rgba(255,255,255,0.1)'; this.style.borderColor='rgba(255,255,255,0.2)';">

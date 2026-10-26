@@ -4,12 +4,12 @@
             <div class=" py-4 px-2 rounded">
                 <div class="row justify-content-center align-items-center">
                     <div class="col-12 col-md-6 d-flex flex-column align-items-center">
-                        <small>Rank</small>
+                        <small>${t["profile.rank"]?html}</small>
                         <h2>#<#if u.player.stats[mode?string].rank==0>-<#else>${u.player.stats[mode?string].rank}</#if>
                         </h2>
                     </div>
                     <div class="col-12 col-md-6 d-flex flex-column align-items-center">
-                        <small>Country Rank <img data-bs-toggle="tooltip" data-bs-placement="top"
+                        <small>${t["profile.country_rank"]?html} <img data-bs-toggle="tooltip" data-bs-placement="top"
                                 aria-label="${ucountry}" data-bs-original-title="${ucountry}" class="rounded ms-2"
                                 width="20" height="15" src="/img/flags/${u.player.info.country}.svg" alt=""></small>
                         <h2>#<#if u.player.stats[mode?string].country_rank==0>-<#else>${u.player.stats[mode?string].country_rank}</#if>
@@ -60,59 +60,59 @@
                 <table class="w-100">
                     <tbody>
                         <tr>
-                            <td>Joined:</td>
+                            <td>${t["profile.joined"]?html}</td>
                             <td data-timestamp-format="unix" data-timestamp="${u.player.info.creation_time?c}">
                                 ${u.player.info.creation_time?c}</td>
                         </tr>
                         <tr>
-                            <td>Last Activity:</td>
+                            <td>${t["profile.last_activity"]?html}</td>
                             <td data-timestamp-format="unix" data-timestamp="${u.player.info.latest_activity?c}">
                                 ${u.player.info.latest_activity?c}</td>
                         </tr>
                         <tr>
-                            <td>PP:</td>
+                            <td>${t["profile.pp"]?html}</td>
                             <td>${u.player.stats[mode?string].pp}</td>
                         </tr>
                         <tr>
-                            <td>Playcount:</td>
+                            <td>${t["profile.playcount"]?html}</td>
                             <td>${u.player.stats[mode?string].plays}</td>
                         </tr>
                         <tr>
-                            <td>Replay views:</td>
+                            <td>${t["profile.replay_views"]?html}</td>
                             <td>${u.player.stats[mode?string].replay_views}</td>
                         </tr>
                         <tr>
-                            <td>Total Score:</td>
+                            <td>${t["profile.total_score"]?html}</td>
                             <td>${u.player.stats[mode?string].tscore}</td>
                         </tr>
                         <tr>
-                            <td>Ranked Score:</td>
+                            <td>${t["profile.ranked_score"]?html}</td>
                             <td>${u.player.stats[mode?string].rscore}</td>
                         </tr>
                         <tr>
-                            <td>Max Combo:</td>
+                            <td>${t["profile.max_combo"]?html}</td>
                             <td>${u.player.stats[mode?string].max_combo}</td>
                         </tr>
                         <tr>
-                            <td>Total Hits:</td>
+                            <td>${t["profile.total_hits"]?html}</td>
                             <td>${u.player.stats[mode?string].total_hits}</td>
                         </tr>
                         <tr>
-                            <td>Accuracy:</td>
+                            <td>${t["profile.accuracy"]?html}</td>
                             <td>${u.player.stats[mode?string].acc?string("0.00")}%</td>
                         </tr>
                     </tbody>
                 </table>
                 <div class="shiina-playtime-show">
                     <#assign playTime=u.player.stats[mode?string].playtime>
-                        <small class="mt-4">Played for:
+                        <small class="mt-4">${t["profile.played_for"]?html}
                             <#list convertPlaytime(playTime)?keys as key>
                                 <span class="shiina-playtime-value">${convertPlaytime(playTime)[key]}</span>
-                                <span class="shiina-playtime-type">${key}</span>
+                                <span class="shiina-playtime-type">${t["time." + key]}</span>
 
                                 <#else>
                                     <span class="shiina-playtime-value">0</span>
-                                    <span class="shiina-playtime-type">minutes</span>
+                                    <span class="shiina-playtime-type">${t["time.minutes"]?html}</span>
                             </#list>
                         </small>
                 </div>
@@ -126,16 +126,16 @@
             <#if relationship=="mutual">
                 <a class="btn shiina-btn-follow btn-danger" data-user="${id?c}" data-shiina-call="relationship"
                     role="button">
-                    <i class="fa-solid fa-heart-crack"></i> Unmutual
+                    <i class="fa-solid fa-heart-crack"></i> ${t["profile.unmutual"]?html}
                 </a>
                 <#elseif relationship=="known">
                     <a class="btn shiina-btn-follow btn-primary" data-user="${id?c}" data-shiina-call="relationship"
                         role="button">
-                        <i class="fa-solid fa-circle-xmark"></i> Unfollow
+                        <i class="fa-solid fa-circle-xmark"></i> ${t["profile.unfollow"]?html}
                     </a>
                     <#else>
                         <a class="btn shiina-btn-follow btn-success" role="button" data-user="${id?c}"
-                            data-shiina-call="relationship"><i class="fa-solid fa-user-plus"></i> Follow</a>
+                            data-shiina-call="relationship"><i class="fa-solid fa-user-plus"></i> ${t["profile.follow"]?html}</a>
             </#if>
 
         </#if>
@@ -144,7 +144,7 @@
                 <i class="fa-solid fa-user"></i>
             </div>
             <div class="shiina-follower-count-body">
-                ${follower} Followers
+                ${follower} ${t["profile.followers"]?html}
             </div>
 
         </span>
@@ -155,7 +155,7 @@
                     <i class="fa-solid fa-heart supporterColor"></i>
                 </div>
                 <div class="shiina-follower-count-body">
-                    Supporter
+                    ${t["profile.supporter"]?html}
                 </div>
 
             </span>
@@ -172,9 +172,9 @@
             </a>
         </#if>
         <#if discordName??>
-            <span class="shiina-follower-count ms-1" role="button" title="Discord - click to copy"
-                data-copy="${discordName?html}"
-                onclick="navigator.clipboard.writeText(this.dataset.copy).then(() => { const b = this.querySelector('.shiina-follower-count-body'); const t = b.textContent; b.textContent = 'Copied!'; setTimeout(() => b.textContent = t, 1200); })">
+            <span class="shiina-follower-count ms-1" role="button" title="${t["profile.discord_copy"]?html}"
+                data-copy="${discordName?html}" data-copied="${t["common.copied"]?html}"
+                onclick="navigator.clipboard.writeText(this.dataset.copy).then(() => { const b = this.querySelector('.shiina-follower-count-body'); const t = b.textContent; b.textContent = this.dataset.copied; setTimeout(() => b.textContent = t, 1200); })">
                 <div class="shiina-follower-count-icon">
                     <i class="fa-brands fa-discord"></i>
                 </div>

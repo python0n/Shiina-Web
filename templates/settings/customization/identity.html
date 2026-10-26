@@ -3,11 +3,11 @@
     <div class="card-header bg-transparent">
         <h5 class="mb-0">
             <i class="fas fa-id-card me-2"></i>
-            Identity Change
+            ${t["settings.identity"]?html}
         </h5>
     </div>
     <div class="card-body mb-0">
-        <#assign spalert = "change your country flag and username">
+        <#assign spalert = t["settings.sp_identity"]>
         <#if !userPriv?seq_contains("SUPPORTER")>
             <#include "supporter-modal.html">
         <#else>
@@ -15,7 +15,7 @@
             <div class="mb-4">
                 <h6 class="mb-3">
                     <i class="fas fa-flag me-2"></i>
-                    Country Flag
+                    ${t["settings.country_flag"]?html}
                 </h6>
                 <form id="countryForm" action="/settings/country" method="post" class="w-100">
                     <div class="mb-3">
@@ -34,7 +34,7 @@
                     </div>
                     <button type="submit" class="btn btn-primary">
                         <i class="fas fa-flag me-2"></i>
-                        Change Flag
+                        ${t["settings.change_flag"]?html}
                     </button>
                 </form>
             </div>
@@ -45,7 +45,7 @@
             <div class="">
                 <h6 class="mb-3">
                     <i class="fas fa-user-edit me-2"></i>
-                    Username
+                    ${t["auth.username"]?html}
                 </h6>
                 <form id="nameForm" action="/settings/name" method="post" class="w-100">
                     <div class="mb-3">
@@ -53,13 +53,13 @@
                                 class="form-control" 
                                 name="newname" 
                                 id="newname"
-                                placeholder="Enter new username"
+                                placeholder="${t["settings.new_username_placeholder"]?html}"
                                 maxlength="15" required>
-                        <div class="form-text">Username must be 3-15 characters long</div>
+                        <div class="form-text">${t["settings.username_hint"]?html}</div>
                     </div>
                     <button type="submit" class="btn btn-primary">
                         <i class="fas fa-user-edit me-2"></i>
-                        Change Username
+                        ${t["settings.change_username"]?html}
                     </button>
                 </form>
             </div>

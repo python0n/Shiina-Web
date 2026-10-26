@@ -50,7 +50,7 @@
                         
                         <!-- Creator Info -->
                         <p class="osu-beatmap-creator mb-3">
-                            <i class="fa-solid fa-user me-2"></i>Mapped by ${beatmap.creator}
+                            <i class="fa-solid fa-user me-2"></i>${t["beatmap.mapped_by_cap"]?html?replace("{creator}", beatmap.creator?html)}
                         </p>
                     </div>
                     
@@ -70,11 +70,11 @@
                         </div>
                         <div class="stat-item">
                             <i class="fa-solid fa-play"></i>
-                            <span>${beatmap.plays} plays</span>
+                            <span>${beatmap.plays} ${t["beatmap.plays_lc"]?html}</span>
                         </div>
                         <div class="stat-item">
                             <i class="fa-solid fa-circle-check"></i>
-                            <span>${beatmap.passes} passes</span>
+                            <span>${beatmap.passes} ${t["beatmap.passes_lc"]?html}</span>
                         </div>
                         <#if beatmap.plays gt 0>
                         <div class="stat-item">
@@ -92,13 +92,13 @@
                             <input type="hidden" name="id" value="${id?c}">
                             <button type="submit" class="btn btn-outline-light btn-sm">
                                 <i class="<#if favorite>fa-solid fa-heart text-danger<#else>fa-regular fa-heart</#if> me-1"></i>
-                                <#if favorite>Unfavorite<#else>Favorite</#if>
+                                <#if favorite>${t["beatmap.unfavorite"]?html}<#else>${t["beatmap.favorite"]?html}</#if>
                             </button>
                         </form>
                         </#if>
                         <small class="text-white-50 d-flex align-items-center">
                             <i class="fa-solid fa-clock me-1"></i>
-                            Updated<span class="ms-1" data-timestamp-format="date" data-timestamp="${beatmap.lastUpdate}"> ${beatmap.lastUpdate}</span>
+                            ${t["beatmap.updated"]?html}<span class="ms-1" data-timestamp-format="date" data-timestamp="${beatmap.lastUpdate}"> ${beatmap.lastUpdate}</span>
                         </small>
                     </div>
                 </div>
@@ -114,25 +114,25 @@
                         <div class="col-6 col-lg-3">
                             <div class="text-center p-3 rounded ">
                                 <div class="h5 mb-1 text-primary">${beatmap.cs}</div>
-                                <small class="text-muted">Circle Size</small>
+                                <small class="text-muted">${t["beatmap.cs"]?html}</small>
                             </div>
                         </div>
                         <div class="col-6 col-lg-3">
                             <div class="text-center p-3 rounded ">
                                 <div class="h5 mb-1 text-success">${beatmap.hp}</div>
-                                <small class="text-muted">HP Drain</small>
+                                <small class="text-muted">${t["beatmap.hp"]?html}</small>
                             </div>
                         </div>
                         <div class="col-6 col-lg-3">
                             <div class="text-center p-3 rounded ">
                                 <div class="h5 mb-1 text-warning">${beatmap.od}</div>
-                                <small class="text-muted">Overall Difficulty</small>
+                                <small class="text-muted">${t["beatmap.od"]?html}</small>
                             </div>
                         </div>
                         <div class="col-6 col-lg-3">
                             <div class="text-center p-3 rounded ">
                                 <div class="h5 mb-1 text-info">${beatmap.ar}</div>
-                                <small class="text-muted">Approach Rate</small>
+                                <small class="text-muted">${t["beatmap.ar"]?html}</small>
                             </div>
                         </div>
                     </div>
@@ -148,7 +148,7 @@
                                 </div>
                                 <div>
                                     <div class="fw-bold">${beatmap.plays}</div>
-                                    <small class="text-muted">Total Plays</small>
+                                    <small class="text-muted">${t["beatmap.total_plays"]?html}</small>
                                 </div>
                             </div>
                         </div>
@@ -159,7 +159,7 @@
                                 </div>
                                 <div>
                                     <div class="fw-bold">${beatmap.passes}</div>
-                                    <small class="text-muted">Passes</small>
+                                    <small class="text-muted">${t["beatmap.passes"]?html}</small>
                                 </div>
                             </div>
                         </div>
@@ -177,13 +177,13 @@
                 <a target="_blank" 
                    href="https://osu.ppy.sh/beatmapsets/${beatmap.setId?c}#${convertModeBack(beatmap.mode)}/${id?c}" 
                    class="btn btn-outline-primary">
-                    <i class="fa-regular fa-circle me-2"></i>View on osu!
+                    <i class="fa-regular fa-circle me-2"></i>${t["beatmap.view_on_osu"]?html}
                 </a>
                 <a href="osu://dl/${beatmap.setId?c}" class="btn btn-primary">
-                    <i class="fa-solid fa-download me-2"></i>Download with osu!direct
+                    <i class="fa-solid fa-download me-2"></i>${t["beatmap.download_direct"]?html}
                 </a>
                 <a href="<#if (beatmap.setId >= 1073741824)>https://c.taksiegra.ovh/d/${beatmap.setId?c}<#else>https://osu.direct/api/d/${beatmap.setId?c}</#if>" class="btn btn-outline-secondary">
-                    <i class="fa-solid fa-floppy-disk me-2"></i>Download beatmap
+                    <i class="fa-solid fa-floppy-disk me-2"></i>${t["beatmap.download_file"]?html}
                 </a>
             </div>
         </div>
@@ -194,10 +194,10 @@
         <!-- Nav-fill -->
         <ul class="nav border rounded nav-pills nav-fill mb-1">
             <li class="nav-item">
-            <button class="nav-link <#if sort = 'pp'>active</#if>" onclick="removeParam('sort')" href="#">Performance</button>
+            <button class="nav-link <#if sort = 'pp'>active</#if>" onclick="removeParam('sort')" href="#">${t["beatmap.sort_performance"]?html}</button>
             </li>
             <li class="nav-item">
-            <button class="nav-link <#if sort = 'score'>active</#if>" onclick="selectParam('sort', 'score')" href="#">Score</button>
+            <button class="nav-link <#if sort = 'score'>active</#if>" onclick="selectParam('sort', 'score')" href="#">${t["stats.score"]?html}</button>
             </li>
             <li class="nav-item">
             <button class="nav-link <#if sort = 'scorev2'>active</#if>" onclick="selectParam('sort', 'scorev2')" href="#">Score v2</button>
@@ -299,7 +299,7 @@
                             </#if>
                         </div>
                         <#if sort == 'score'>
-                            <small class="text-muted">Score</small>
+                            <small class="text-muted">${t["stats.score"]?html}</small>
                         <#elseif sort == 'scorev2'>
                             <small class="text-muted">Score v2</small>
                         <#elseif sort == 'scorev3'>
@@ -318,8 +318,8 @@
                 <div class="card">
                     <div class="card-body text-center py-5">
                         <i class="fa-solid fa-circle-exclamation text-primary mb-3" style="font-size: 3rem;"></i>
-                        <h1 class="card-title">No scores set on this beatmap</h1>
-                        <p class="card-text text-muted">Be the first to set a record on this beatmap!</p>
+                        <h1 class="card-title">${t["beatmap.no_scores_title"]?html}</h1>
+                        <p class="card-text text-muted">${t["beatmap.no_scores_text"]?html}</p>
                     </div>
                 </div>
             </#list>

@@ -3,17 +3,17 @@
     <div class="card-header bg-transparent">
         <h5 class="mb-0">
             <i class="fa-solid fa-file-export me-2"></i>
-            Delete Data
+            ${t["settings.delete_data"]?html}
         </h5>
     </div>
     <div class="card-body">
         <form data-turbo-method="POST" data-turbo-confirm action="/settings/data/delete" method="post"> 
             <button type="submit" class="btn btn-danger">
                 <i class="fas fa-save me-2"></i>
-                Delete your account
+                ${t["settings.delete_account"]?html}
             </button>
             <div class="form-text">
-                This will delete all account data including your profile information, beatmaps, and other relevant data. This action is irreversible and will permanently remove all your data from the system.
+                ${t["settings.delete_account_hint"]?html}
             </div> 
         </form>
     </div>

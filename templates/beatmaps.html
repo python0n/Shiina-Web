@@ -6,17 +6,17 @@
                 <div class="col col-12 col-md-auto my-2 my-lg-0 d-flex align-items-center justify-content-center ">
                     <div class="btn-group flex-wrap" role="group" aria-label="Mixed example">
                         <button type="button" onclick="selectParam('status', 999)"
-                            class="btn btn-<#if status == 999>primary<#else>secondary</#if>">No Filter</button>
+                            class="btn btn-<#if status == 999>primary<#else>secondary</#if>">${t["beatmaps.no_filter"]?html}</button>
                         <button type="button" onclick="selectParam('status', 2)"
-                            class="btn btn-<#if status == 2>primary<#else>secondary</#if>">Ranked</button>
+                            class="btn btn-<#if status == 2>primary<#else>secondary</#if>">${t["status.ranked"]?html}</button>
                         <button type="button" onclick="selectParam('status', 1)"
-                            class="btn btn-<#if status == 1>primary<#else>secondary</#if>">Pending</button>
+                            class="btn btn-<#if status == 1>primary<#else>secondary</#if>">${t["status.pending"]?html}</button>
                         <button type="button" onclick="selectParam('status', 3)"
-                            class="btn btn-<#if status == 3>primary<#else>secondary</#if>">Approved</button>
+                            class="btn btn-<#if status == 3>primary<#else>secondary</#if>">${t["status.approved"]?html}</button>
                         <button type="button" onclick="selectParam('status', 5)"
-                            class="btn btn-<#if status == 5>primary<#else>secondary</#if>">Loved</button>
+                            class="btn btn-<#if status == 5>primary<#else>secondary</#if>">${t["status.loved"]?html}</button>
                         <button type="button" onclick="selectParam('status', 4)"
-                            class="btn btn-<#if status == 4>primary<#else>secondary</#if>">Qualified</button>
+                            class="btn btn-<#if status == 4>primary<#else>secondary</#if>">${t["status.qualified"]?html}</button>
                     </div>
 
                 </div>
@@ -24,7 +24,7 @@
                     <div class="btn-group my-auto input-group shiina-beatmaps-input" role="group" aria-label="Mixed example">
                         <span class="input-group-text" id="add-on-1"><i class="fa-solid fa-user"></i></span>
                         <input id="artist" onfocusout="checkForArtist()" type="text" class="form-control"
-                            value="<#if artist??>${artist}</#if>" placeholder="Artist" aria-label="Artist"
+                            value="<#if artist??>${artist}</#if>" placeholder="${t["beatmaps.artist"]?html}" aria-label="${t["beatmaps.artist"]?html}"
                             aria-describedby="Artist">
                     </div>
                 </div>
@@ -32,14 +32,14 @@
                     <div class="btn-group my-auto input-group shiina-beatmaps-input" role="group" aria-label="Mixed example">
                         <span class="input-group-text" id="add-on-1"><i class="fa-solid fa-user"></i></span>
                         <input id="creator" onfocusout="checkForCreator()" type="text" class="form-control"
-                            value="<#if creator??>${creator}</#if>" placeholder="Creator" aria-label="Creator"
+                            value="<#if creator??>${creator}</#if>" placeholder="${t["beatmaps.creator"]?html}" aria-label="${t["beatmaps.creator"]?html}"
                             aria-describedby="Creator">
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="mt-2 shiina-def-cursor">Found <span class="text-primary">${entries}</span> entries</div>
+        <div class="mt-2 shiina-def-cursor">${t["beatmaps.found"]?html} <span class="text-primary">${entries}</span> ${t["beatmaps.entries"]?html}</div>
         
         <#include "/freemarker/flowing_pagination.ftl">
 

@@ -225,6 +225,7 @@ shiinaDocs.initializeDocs();
         WebServer.get("/health", new Health());
 
         WebServer.get("/", new Home());
+        WebServer.get("/lang/:code", dev.osunolimits.modules.utils.I18n::handleSwitch);
         WebServer.get("/beatmaps", new Beatmaps());
         WebServer.get("/leaderboard", new Leaderboard());
         WebServer.get("/hypo", new Hypo());

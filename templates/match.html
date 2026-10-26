@@ -7,8 +7,7 @@
     <div class="alert alert-warning d-flex align-items-center gap-2 mb-3">
         <i class="fa-solid fa-triangle-exclamation fa-lg"></i>
         <div>
-            This match was created before the match history system was implemented.
-            Events and scores are not available for matches prior to <strong>#52</strong>.
+            ${t["match.old_notice"]?html} <strong>#52</strong>.
         </div>
     </div>
     </#if>
@@ -19,7 +18,7 @@
             <div>
                 <h1 class="h4 mb-1"><i class="fa-solid fa-gamepad me-2"></i>${match.name}</h1>
                 <div class="text-muted small">
-                    Created by <a href="/u/${match.creator_id?c}">${match.creator_name!match.creator_id?c}</a>
+                    ${t["match.created_by"]?html} <a href="/u/${match.creator_id?c}">${match.creator_name!match.creator_id?c}</a>
                     &nbsp;•&nbsp;
                     <span data-timestamp-format="date" data-timestamp="${match.created_at}">${match.created_at}</span>
                     <#if match.ended_at??>
@@ -30,9 +29,9 @@
             </div>
             <div>
                 <#if isLive>
-                    <span class="badge bg-success fs-6">LIVE</span>
+                    <span class="badge bg-success fs-6">${t["matches.live"]?upper_case}</span>
                 <#else>
-                    <span class="badge bg-secondary fs-6">ENDED</span>
+                    <span class="badge bg-secondary fs-6">${t["matches.ended"]?upper_case}</span>
                 </#if>
             </div>
         </div>
@@ -44,7 +43,7 @@
         <div class="col-lg-4">
             <div class="card h-100">
                 <div class="card-header fw-semibold">
-                    <i class="fa-solid fa-list me-1"></i> Match Events
+                    <i class="fa-solid fa-list me-1"></i> ${t["match.events"]?html}
                 </div>
                 <div class="card-body p-0">
                     <#if events?? && events?size gt 0>
@@ -54,15 +53,15 @@
                                     <#if ev.type == "join">
                                         <span class="text-success"><i class="fa-solid fa-right-to-bracket"></i></span>
                                         <span class="text-muted small">${ev.created_at?substring(11,19)}</span>
-                                        <span><a href="/u/${ev.user_id?c}">${ev.username!ev.user_id?c}</a> joined</span>
+                                        <span><a href="/u/${ev.user_id?c}">${ev.username!ev.user_id?c}</a> ${t["match.ev_joined"]?html}</span>
                                     <#elseif ev.type == "leave">
                                         <span class="text-danger"><i class="fa-solid fa-right-from-bracket"></i></span>
                                         <span class="text-muted small">${ev.created_at?substring(11,19)}</span>
-                                        <span><a href="/u/${ev.user_id?c}">${ev.username!ev.user_id?c}</a> left</span>
+                                        <span><a href="/u/${ev.user_id?c}">${ev.username!ev.user_id?c}</a> ${t["match.ev_left"]?html}</span>
                                     <#elseif ev.type == "host_change">
                                         <span class="text-warning"><i class="fa-solid fa-crown"></i></span>
                                         <span class="text-muted small">${ev.created_at?substring(11,19)}</span>
-                                        <span><a href="/u/${ev.user_id?c}">${ev.username!ev.user_id?c}</a> became host</span>
+                                        <span><a href="/u/${ev.user_id?c}">${ev.username!ev.user_id?c}</a> ${t["match.ev_host"]?html}</span>
                                     <#else>
                                         <span class="text-muted"><i class="fa-solid fa-circle-info"></i></span>
                                         <span class="text-muted small">${ev.created_at?substring(11,19)}</span>
@@ -72,7 +71,7 @@
                             </#list>
                         </ul>
                     <#else>
-                        <div class="p-3 text-muted text-center small">No events recorded.</div>
+                        <div class="p-3 text-muted text-center small">${t["match.no_events"]?html}</div>
                     </#if>
                 </div>
             </div>
@@ -95,7 +94,7 @@
                                                 ${game.artist} - ${game.title} [${game.version}]
                                             </a>
                                         <#else>
-                                            <span class="text-muted">Unknown map</span>
+                                            <span class="text-muted">${t["match.unknown_map"]?html}</span>
                                         </#if>
                                     </div>
                                     <div class="small text-white-50">
@@ -116,13 +115,13 @@
                                     <thead>
                                         <tr>
                                             <th class="ps-3">#</th>
-                                            <th>Player</th>
-                                            <th>Score</th>
-                                            <th>Acc</th>
-                                            <th>Combo</th>
-                                            <th>Mods</th>
-                                            <th>Grade</th>
-                                            <th class="pe-3">Result</th>
+                                            <th>${t["match.player"]?html}</th>
+                                            <th>${t["stats.score"]?html}</th>
+                                            <th>${t["stats.acc_short"]?html}</th>
+                                            <th>${t["match.combo"]?html}</th>
+                                            <th>${t["match.mods"]?html}</th>
+                                            <th>${t["match.grade"]?html}</th>
+                                            <th class="pe-3">${t["match.result"]?html}</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -164,7 +163,7 @@
                                 </table>
                             </div>
                         <#else>
-                            <div class="card-body text-muted small">No scores recorded.</div>
+                            <div class="card-body text-muted small">${t["match.no_scores"]?html}</div>
                         </#if>
                     </div>
                 </#list>
@@ -172,7 +171,7 @@
                 <div class="card">
                     <div class="card-body text-center text-muted">
                         <i class="fa-solid fa-music fa-2x mb-2"></i>
-                        <div>No maps played yet.</div>
+                        <div>${t["match.no_maps"]?html}</div>
                     </div>
                 </div>
             </#if>

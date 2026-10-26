@@ -35,7 +35,7 @@ public class Shiina implements Route {
             shiina.mysql.close();
         shiina.data.put("navbarItems", NavbarRegister.getItems());
         shiina.data.put("adminNavbarItems", NavbarRegister.getAdminItems());
-        shiina.data.put("docs", ShiinaDocs.docs);
+        shiina.data.put("docs", ShiinaDocs.forLanguage((String) shiina.data.get("lang")));
         shiina.data.put("domain", domain);
         shiina.data.put("devMode", App.devMode);
         shiina.data.put("themeIdent", ThemeLoader.generatedIdent);

@@ -1,21 +1,23 @@
 <#assign noBeatmapIcon = "/img/nobeatmapicon.png"> 
+<#-- server message: translated if lang/*.properties has msg.<text>, else the text itself -->
+<#function msg text><#if t?? && t["msg." + text]??><#return t["msg." + text]></#if><#return text></#function>
 <#function convertStatusBack status>
     <#switch status>
-        <#case 0><#return "Not submitted"><#break>
-        <#case 1><#return "Pending"><#break>
-        <#case 2><#return "Ranked"><#break>
-        <#case 3><#return "Approved"><#break>
-        <#case 4><#return "Qualified"><#break>
-        <#case 5><#return "Loved"><#break>
-        <#default><#return "Unknown"><#break>
+        <#case 0><#return t["status.not_submitted"]><#break>
+        <#case 1><#return t["status.pending"]><#break>
+        <#case 2><#return t["status.ranked"]><#break>
+        <#case 3><#return t["status.approved"]><#break>
+        <#case 4><#return t["status.qualified"]><#break>
+        <#case 5><#return t["status.loved"]><#break>
+        <#default><#return t["common.unknown"]><#break>
     </#switch>
 </#function>
 
 <#function convertScoreStatus status>
     <#switch status>
-        <#case 0><#return "Not submitted"><#break>
-        <#case 2><#return "Submitted"><#break>
-        <#default><#return "Unknown"><#break>
+        <#case 0><#return t["status.not_submitted"]><#break>
+        <#case 2><#return t["score.submitted"]><#break>
+        <#default><#return t["common.unknown"]><#break>
     </#switch>
 </#function>
 

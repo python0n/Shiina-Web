@@ -438,6 +438,12 @@ function lazyLoadNoImage(img, icon) {
     }
 }
 
+// translated UI text from window.SHIINA_T (filled by base.html), English fallback
+function tr(key, fallback) {
+    const all = window.SHIINA_T || {};
+    return Object.prototype.hasOwnProperty.call(all, key) ? all[key] : fallback;
+}
+
 function timeUntil(dateInput, unix) {
     let inputDate;
     if (unix) {
@@ -462,17 +468,19 @@ function timeUntil(dateInput, unix) {
         { unit: 'second', seconds: 1 }
     ];
 
-    let result = '';
-
+    // Intl.RelativeTimeFormat knows the plural forms of every language ("5 minut temu", "5 минут назад")
+    const lang = document.documentElement.lang || 'en';
     for (const { unit, seconds } of timeUnits) {
         const value = Math.floor(absDifferenceInSeconds / seconds);
-        if (value > 0) {
-            result += `${value} ${unit}${value > 1 ? 's' : ''} `;
-            break;
+        if (value > 0 || unit === 'second') {
+            if (typeof Intl !== 'undefined' && Intl.RelativeTimeFormat) {
+                return new Intl.RelativeTimeFormat(lang, { numeric: 'always' }).format(isPast ? -value : value, unit);
+            }
+            const text = `${value} ${unit}${value !== 1 ? 's' : ''}`;
+            return isPast ? text + ' ago' : text + ' from now';
         }
     }
-
-    return isPast ? result.trim() + ' ago' : result.trim() + ' from now';
+    return '';
 }
 
 function removeParam(param) {
@@ -538,7 +546,7 @@ function initPlayCountGraph() {
             data: {
                 labels: dataLabels,
                 datasets: [{
-                    label: 'Rank',
+                    label: tr('js.rank', 'Rank'),
                     data: values,
                     borderColor: getBsPrimaryColor(),
                     tension: 0.1
@@ -713,12 +721,12 @@ function loadScorePanel(
         const isPinned = score.pinned == 1;
         pinButton = `<a onclick="event.stopPropagation(); togglePinCard(${scoreId}, ${isPinned ? 1 : 0});"
            class="osu-action-btn"
-           title="${isPinned ? 'Unpin Score' : 'Pin Score'}"
+           title="${isPinned ? tr('js.unpin_score', 'Unpin Score') : tr('js.pin_score', 'Pin Score')}"
            style="cursor:pointer;${isPinned ? 'background:rgba(241,196,15,0.35);border-color:#f1c40f;' : ''}">
             <i class="fas fa-thumbtack"></i>
         </a>`;
         if (isPinned) {
-            dragHandle = `<span class="osu-action-btn pin-drag-handle" title="Drag to reorder"
+            dragHandle = `<span class="osu-action-btn pin-drag-handle" title="${tr('js.drag_reorder', 'Drag to reorder')}"
                style="cursor:grab;" onclick="event.stopPropagation();" onmousedown="event.stopPropagation();">
                 <i class="fas fa-grip-vertical"></i>
             </span>`;
@@ -737,7 +745,7 @@ function loadScorePanel(
 
     const weightDisplay = createBadge(
         weight > 0,
-        `<div class="weight-badge badge bg-info bg-opacity-25 text-info border border-info" title="Weight contribution to profile pp">
+        `<div class="weight-badge badge bg-info bg-opacity-25 text-info border border-info" title="${tr('js.weight_tip', 'Weight contribution to profile pp')}">
             <span>${weight}%</span>
             <span class="fw-bold">${weight_pp}pp</span>
         </div>`
@@ -752,7 +760,7 @@ function loadScorePanel(
     if(score.grade != "F") {
         downloadButton = `<a download onclick="event.stopPropagation();" href="${apiUrl}/v1/get_replay?id=${scoreId}"
            class="osu-action-btn osu-download-btn"
-           title="Download Replay"
+           title="${tr('js.download_replay', 'Download Replay')}"
            onmouseover="this.style.background='rgba(46,204,113,0.3)'; this.style.borderColor='#2ecc71';"
            onmouseout="this.style.background='rgba(255,255,255,0.1)'; this.style.borderColor='rgba(255,255,255,0.2)';">
             <i class="fas fa-download"></i>
@@ -820,7 +828,7 @@ function getBootstrapTextTransparent() {
 
 function addLoader(button) {
     button.disabled = true; // Disable the button
-    button.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Loading...';
+    button.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>' + tr('js.loading', 'Loading...');
 }
 
 function removeLoader(button, originalText) {
@@ -961,7 +969,7 @@ function togglePinCard(scoreId, currentlyPinned) {
     fetch('/api/v1/pin_score?id=' + scoreId + '&action=' + (currentlyPinned ? 'unpin' : 'pin'), { method: 'POST' })
         .then(r => r.json())
         .then(data => {
-            if (data.status !== 'success') { alert(data.message || 'Error'); return; }
+            if (data.status !== 'success') { alert(data.message || tr('js.error', 'Error')); return; }
             if (typeof reqUrlScores !== 'undefined') {
                 loadPinnedScores(reqUrlScores, true);
                 loadBestScores(reqUrlScores, true);
@@ -975,9 +983,9 @@ function togglePinScore(scoreId, btn) {
     fetch('/api/v1/pin_score?id=' + scoreId + '&action=' + (pinned ? 'unpin' : 'pin'), { method: 'POST' })
         .then(r => r.json())
         .then(data => {
-            if (data.status !== 'success') { alert(data.message || 'Error'); return; }
+            if (data.status !== 'success') { alert(data.message || tr('js.error', 'Error')); return; }
             btn.dataset.pinned = pinned ? '0' : '1';
-            btn.innerHTML = '<i class="fa-solid fa-thumbtack me-2"></i>' + (pinned ? 'Pin Score' : 'Unpin Score');
+            btn.innerHTML = '<i class="fa-solid fa-thumbtack me-2"></i>' + (pinned ? tr('js.pin_score', 'Pin Score') : tr('js.unpin_score', 'Unpin Score'));
         })
         .catch(error => console.error('Error:', error));
 }
@@ -995,7 +1003,7 @@ function savePinnedOrder() {
     if (!ids.length) return;
     fetch('/api/v1/pin_order?order=' + ids.join(','), { method: 'POST' })
         .then(r => r.json())
-        .then(data => { if (data.status !== 'success') alert(data.message || 'Error'); })
+        .then(data => { if (data.status !== 'success') alert(data.message || tr('js.error', 'Error')); })
         .catch(error => console.error('Error:', error));
 }
 

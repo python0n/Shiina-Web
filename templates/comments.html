@@ -4,8 +4,8 @@
     
     <div class="m-2 pb-2">
         <form action="/post/comment" method="post">
-            <textarea class="form-control" placeholder="Comment" name="message"></textarea>
-            <button type="submit" class="btn btn-primary mt-2">Post Comment</button>
+            <textarea class="form-control" placeholder="${t["comments.placeholder"]?html}" name="message"></textarea>
+            <button type="submit" class="btn btn-primary mt-2">${t["comments.post"]?html}</button>
             <input type="hidden" value="${commentsModule.target}" name="target">
             <input type="hidden" value="${commentsModule.id?c}" name="id">
         </form>
@@ -24,7 +24,7 @@
         };
     </script>
     <div class="m-2">
-        <button onclick="loadMoreComments(false)" id="commentButton" class="btn btn-primary mt-2">Load More</button>
+        <button onclick="loadMoreComments(false)" id="commentButton" class="btn btn-primary mt-2">${t["common.load_more"]?html}</button>
     </div>
 </div>
 </div>
