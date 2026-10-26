@@ -3,18 +3,18 @@
 <div class="container">
     <div class="card w-100">
         <div class="bg-secondary border-0 card-header text-body d-flex justify-content-between align-items-center py-4">
-            <span class="h1 fw-bold mb-0">Recover Account</span>
+            <span class="h1 fw-bold mb-0">${t["auth.recover_title"]?html}</span>
         </div>
 
         <div class="card-body bg-body px-4">
             <#if error??>
                 <div class="alert alert-danger" role="alert">
-                    ${error}
+                    ${msg(error)?html}
                 </div>
             </#if>
             <#if info??>
                 <div class="alert alert-primary" role="alert">
-                    ${info}
+                    ${msg(info)?html}
                 </div>
             </#if>
 
@@ -23,10 +23,10 @@
                 <div class="row">
                     <div class="col-md-12">
                         <div class="form-group mb-3">
-                            <label>New Password</label>
+                            <label>${t["auth.new_password"]?html}</label>
                             <div class="input-group">
                                 <span class="input-group-text"><i class="fa-solid fa-lock"></i></span>
-                                <input required name="password" type="password" class="form-control" placeholder="New Password" aria-label="New Password" aria-describedby="add-on-1">
+                                <input required name="password" type="password" class="form-control" placeholder="${t["auth.new_password"]?html}" aria-label="${t["auth.new_password"]?html}" aria-describedby="add-on-1">
                             </div>
                         </div>
                     </div>
@@ -37,7 +37,7 @@
                 <div class="row my-3">
                     <div class="col-md-12">
                         <input type="hidden" name="redirect" value="">
-                        <button type="submit" class="btn btn-primary btn-lg btn-block">Recover account</button>
+                        <button type="submit" class="btn btn-primary btn-lg btn-block">${t["auth.recover_button"]?html}</button>
                     </div>
                 </div>
             </form>

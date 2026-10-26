@@ -52,7 +52,7 @@
                 <div class="osu-action-buttons">
                     <a download href="${apiUrlPub}/v1/get_replay?id=${score.score_id?c}"
                        class="osu-action-btn osu-download-btn"
-                       title="Download Replay"
+                       title="${t["score.download_replay"]?html}"
                        onclick="event.stopPropagation();"
                        onkeydown="event.stopPropagation();"
                        onmouseover="this.style.background='rgba(46,204,113,0.3)'; this.style.borderColor='#2ecc71';"

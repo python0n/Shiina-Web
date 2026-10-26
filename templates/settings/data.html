@@ -10,13 +10,13 @@
             <#if error??>
                 <div class="alert alert-danger" role="alert">
                     <i class="fas fa-exclamation-triangle me-2"></i>
-                    ${error} <#if timestamp??><span class="text-muted" data-timestamp-format="unix" data-timestamp="${timestamp?c}">${timestamp?c}</span></#if>
+                    ${msg(error)?html} <#if timestamp??><span class="text-muted" data-timestamp-format="unix" data-timestamp="${timestamp?c}">${timestamp?c}</span></#if>
                 </div>
             </#if>
             <#if info??>
                 <div class="alert alert-primary" role="alert">
                     <i class="fas fa-info-circle me-2"></i>
-                    ${info} <#if timestamp??><span class="text-muted" data-timestamp-format="unix" data-timestamp="${timestamp?c}">${timestamp?c}</span></#if>
+                    ${msg(info)?html} <#if timestamp??><span class="text-muted" data-timestamp-format="unix" data-timestamp="${timestamp?c}">${timestamp?c}</span></#if>
                 </div>
             </#if>
 

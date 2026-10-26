@@ -8,6 +8,7 @@ import dev.osunolimits.common.Database;
 import dev.osunolimits.common.MySQL;
 import dev.osunolimits.main.App;
 import dev.osunolimits.models.UserInfoObject;
+import dev.osunolimits.modules.utils.I18n;
 import dev.osunolimits.modules.utils.ThemeLoader;
 import dev.osunolimits.utils.Auth;
 import dev.osunolimits.utils.Auth.User;
@@ -62,6 +63,14 @@ public class ShiinaRoute {
             asrv = "https://a.taksiegra.ovh/avatars";
         }
         request.data.put("avatarServer", asrv);
+
+        // translations: ${t["key"]} in templates, ${lang} = current language code
+        String lang = I18n.detect(req);
+        request.data.put("lang", lang);
+        request.data.put("t", I18n.messages(lang));
+        request.data.put("languages", I18n.languages());
+        String query = req.queryString();
+        request.data.put("currentPath", req.pathInfo() + (query == null ? "" : "?" + query));
 
         request.data.put("loggedIn", request.loggedIn);
         return request;

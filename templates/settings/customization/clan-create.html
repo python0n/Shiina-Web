@@ -3,17 +3,17 @@
     <div class="card-header bg-transparent">
         <h5 class="mb-0">
             <i class="fas fa-shield-alt me-2"></i>
-            Create Clan
+            ${t["settings.create_clan"]?html}
         </h5>
     </div>
     <div class="card-body mb-0">
-        <#assign spalert = "create a clan">
+        <#assign spalert = t["settings.sp_clan"]>
         <#if !userPriv?seq_contains("SUPPORTER") && clanCreateSupporter>
             <#include "supporter-modal.html">
         <#elseif curClanId?? && curClanId != 0>
             <div class="alert mb-0 alert-info d-flex align-items-center" role="alert">
                 <i class="fas fa-info-circle me-2"></i>
-                You are already in a clan. Leave or disband your current clan to create a new one.
+                ${t["settings.already_in_clan"]?html}
             </div>
         <#else>
             <!-- Clan Creation -->
@@ -24,23 +24,23 @@
                                 class="form-control" 
                                 name="name" 
                                 id="name"
-                                placeholder="Enter clan name"
+                                placeholder="${t["settings.clan_name_placeholder"]?html}"
                                 maxlength="15" required>
-                        <div class="form-text">Clan name must be 3-15 characters long</div>
+                        <div class="form-text">${t["settings.clan_name_hint"]?html}</div>
                     </div>
                     <div class="mb-3">
                         <input type="text" 
                                 class="form-control" 
                                 name="tag" 
                                 id="tag"
-                                placeholder="Enter clan tag"
+                                placeholder="${t["settings.clan_tag_placeholder"]?html}"
                                 maxlength="5" required>
-                        <div class="form-text">Clan tag must be 1-5 characters long</div>
+                        <div class="form-text">${t["settings.clan_tag_hint"]?html}</div>
                     </div>
 
                     <button type="submit" class="btn btn-primary">
                         <i class="fas fa-shield-alt me-2"></i>
-                        Create Clan
+                        ${t["settings.create_clan"]?html}
                     </button>
                 </form>
             </div>

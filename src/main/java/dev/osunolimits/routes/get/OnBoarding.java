@@ -17,7 +17,7 @@ public class OnBoarding extends Shiina {
         shiina.data.put("actNav", 0);
         for (DocsModel docs : ShiinaDocs.docs) {
             if (docs.getRoute().equals("connect")) {
-                shiina.data.put("doc", docs);
+                shiina.data.put("doc", ShiinaDocs.localized(docs, (String) shiina.data.get("lang")));
                 break;
             }
             

@@ -6,15 +6,15 @@
                 <div class="my-2 col-12 col-md-auto my-lg-0 col col-auto d-flex align-items-center justify-content-center ">
                     <div class="btn-group flex-wrap" role="group" aria-label="Mixed example">
                         <button type="button" onclick="selectParam('sort', 'pp')"
-                            class="btn btn-<#if sort == 'pp'>primary<#else>secondary</#if>">PP</button>
+                            class="btn btn-<#if sort == 'pp'>primary<#else>secondary</#if>">${t["stats.pp"]?html}</button>
                         <button type="button" onclick="selectParam('sort', 'tscore')"
-                            class="btn btn-<#if sort == 'tscore'>primary<#else>secondary</#if>">Total Score</button>
+                            class="btn btn-<#if sort == 'tscore'>primary<#else>secondary</#if>">${t["stats.total_score"]?html}</button>
                         <button type="button" onclick="selectParam('sort', 'rscore')"
-                            class="btn btn-<#if sort == 'rscore'>primary<#else>secondary</#if>">Ranked Score</button>
+                            class="btn btn-<#if sort == 'rscore'>primary<#else>secondary</#if>">${t["stats.ranked_score"]?html}</button>
                         <button type="button" onclick="selectParam('sort', 'acc')"
-                            class="btn btn-<#if sort == 'acc'>primary<#else>secondary</#if>">Accuracy</button>
+                            class="btn btn-<#if sort == 'acc'>primary<#else>secondary</#if>">${t["stats.accuracy"]?html}</button>
                         <button type="button" onclick="selectParam('sort', 'playtime')"
-                            class="btn btn-<#if sort == 'playtime'>primary<#else>secondary</#if>">Playtime</button>
+                            class="btn btn-<#if sort == 'playtime'>primary<#else>secondary</#if>">${t["stats.playtime"]?html}</button>
 
                     </div>
 
@@ -27,7 +27,7 @@
         <div class="card mt-4 d-flex justify-content-center align-items-center">
             <div class="px-auto row d-flex justify-content-center align-items-center w-100">
                 <button onclick="removeParam('country')"
-                    class="col-auto country-selector pt-1 btn <#if !country??> btn-primary active <#else>btn-secondary</#if>">No Country</button>
+                    class="col-auto country-selector pt-1 btn <#if !country??> btn-primary active <#else>btn-secondary</#if>">${t["leaderboard.no_country"]?html}</button>
                 <#list countries as flag>
                     <#if flag_index==10>
                         <span data-bs-toggle="modal" data-bs-target="#country-modal" style="user-select: none;"
@@ -126,21 +126,21 @@
                                     <div class="me-3 d-none d-lg-flex gap-3">
                                         <#if sort != "pp" && player.pp??>
                                             <div class="text-center">
-                                                <div class="small text-muted">PP</div>
+                                                <div class="small text-muted">${t["stats.pp"]?html}</div>
                                                 <div class="fw-bold text-info">${player.pp?string("0")}</div>
                                             </div>
                                         </#if>
                                         
                                         <#if sort != "acc" && player.accuracy??>
                                             <div class="text-center">
-                                                <div class="small text-muted">Acc</div>
+                                                <div class="small text-muted">${t["stats.acc_short"]?html}</div>
                                                 <div class="fw-bold text-success">${player.accuracy}%</div>
                                             </div>
                                         </#if>
                                         
                                         <#if sort != "tscore" && player.totalScore??>
                                             <div class="text-center">
-                                                <div class="small text-muted">Score</div>
+                                                <div class="small text-muted">${t["stats.score"]?html}</div>
                                                 <div class="fw-bold text-warning">${player.totalScore}</div>
                                             </div>
                                         </#if>
@@ -158,13 +158,13 @@
                                                 <div class="h6 mb-0 text-primary fw-bold">
                                                     ${player.totalScore}
                                                 </div>
-                                                <small class="text-muted">Total Score</small>
+                                                <small class="text-muted">${t["stats.total_score"]?html}</small>
                                                 <#break>
                                             <#case "rscore">
                                                 <div class="h6 mb-0 text-primary fw-bold">
                                                     ${player.rankedScore}
                                                 </div>
-                                                <small class="text-muted">Ranked Score</small>
+                                                <small class="text-muted">${t["stats.ranked_score"]?html}</small>
                                                 <#break>
                                             <#case "acc">
                                                 <div class="h5 mb-0 text-primary fw-bold">
@@ -174,7 +174,7 @@
                                             <#case "playtime">
                                                 <div class="h6 mb-0 text-primary fw-bold">
                                                     <#list convertPlaytime(player.playtime)?keys as key>
-                                                        ${convertPlaytime(player.playtime)[key]}<small class="text-muted ms-1">${key}</small>
+                                                        ${convertPlaytime(player.playtime)[key]}<small class="text-muted ms-1">${t["time." + key]}</small>
                                                     </#list>
                                                 </div>
                                                 <#break>

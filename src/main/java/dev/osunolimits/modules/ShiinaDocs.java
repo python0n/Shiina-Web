@@ -14,6 +14,7 @@ import org.commonmark.renderer.html.HtmlRenderer;
 import dev.osunolimits.main.App;
 import dev.osunolimits.main.WebServer;
 import dev.osunolimits.modules.ShiinaRoute.ShiinaRequest;
+import dev.osunolimits.modules.utils.I18n;
 import dev.osunolimits.modules.utils.SEOBuilder;
 import lombok.Data;
 import spark.Request;
@@ -34,6 +35,65 @@ public class ShiinaDocs {
         private String title;
         private String footer;
         private String behindLogin;
+    }
+
+    /**
+     * Translated docs: a file whose route is "ROUTE-LANG" (e.g. connect-pl, info-pl) is the
+     * LANG version of "ROUTE". /docs/ROUTE shows it to users with that language;
+     * ?lang=en (or any code) forces a version, e.g. an "English version" link.
+     */
+    public static DocsModel localized(DocsModel base, String lang) {
+        if (base == null || lang == null || lang.equals(I18n.DEFAULT_LANG)) {
+            return base;
+        }
+        String wanted = base.route + "-" + lang;
+        for (DocsModel model : docs) {
+            if (model.route.equals(wanted)) {
+                return model;
+            }
+        }
+        return base;
+    }
+
+    private static boolean isVariant(DocsModel model) {
+        int dash = model.route.lastIndexOf('-');
+        if (dash <= 0 || !model.route.substring(dash + 1).matches("[a-z]{2}")) {
+            return false;
+        }
+        String baseRoute = model.route.substring(0, dash);
+        for (DocsModel other : docs) {
+            if (other.route.equals(baseRoute)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /** Docs for the navbar/footer: one entry per doc, titled in the user's language, linking to the base route. */
+    public static List<DocsModel> forLanguage(String lang) {
+        List<DocsModel> out = new ArrayList<>();
+        for (DocsModel base : docs) {
+            if (isVariant(base)) {
+                continue;
+            }
+            DocsModel shown = localized(base, lang);
+            if (shown == base) {
+                out.add(base);
+                continue;
+            }
+            DocsModel entry = new ShiinaDocs().new DocsModel();
+            entry.filename = base.filename;
+            entry.content = shown.content;
+            entry.icon = base.icon;
+            entry.route = base.route;
+            entry.krz = shown.krz;
+            entry.title = shown.title;
+            entry.navbar = base.navbar;
+            entry.footer = base.footer;
+            entry.behindLogin = base.behindLogin;
+            out.add(entry);
+        }
+        return out;
     }
 
     public static DocsModel extractComments(String markdown) {
@@ -110,9 +170,15 @@ public class ShiinaDocs {
                 ShiinaRequest shiina = new ShiinaRoute().handle(req, res);
 
                 String route = req.params(":route");
-                for (DocsModel model : docs) {
-                    if (model.route.equals(route)) {
-                        if (model.behindLogin.equals("true") && !shiina.loggedIn) {
+                String lang = (String) shiina.data.get("lang");
+                String forced = req.queryParams("lang");
+                if (forced != null && I18n.isSupported(forced)) {
+                    lang = forced;
+                }
+                for (DocsModel base : docs) {
+                    if (base.route.equals(route)) {
+                        DocsModel model = localized(base, lang);
+                        if ((base.behindLogin.equals("true") || model.behindLogin.equals("true")) && !shiina.loggedIn) {
                             return redirect(res, shiina, "/login?path=" + req.pathInfo());
                         }
 

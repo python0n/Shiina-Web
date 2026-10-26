@@ -14,7 +14,7 @@
 
                     <div class="col-12 col-md-9 d-flex flex-column justify-content-center text-white">
                         <h2 class="display-5 py-3 fw-bold mb-2">
-                            Relationships
+                            ${t["friends.title"]?html}
                         </h2>
                     </div>
 
@@ -25,13 +25,13 @@
                 <div class="relationship-body card-body px-4">
             <#if error??>
                 <div class="relationship-alert-error alert alert-danger alert-dismissible fade show" role="alert">
-                    ${error}
-                    <button type="button" class="relationship-alert-close btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    ${msg(error)?html}
+                    <button type="button" class="relationship-alert-close btn-close" data-bs-dismiss="alert" aria-label="${t["common.close"]?html}"></button>
                 </div>
             </#if>
             <#if info??>
                 <div class="relationship-alert-info alert alert-primary alert-dismissible fade show" role="alert">
-                    ${info}
+                    ${msg(info)?html}
                     <button type="button" class="relationship-alert-close btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
             </#if>
@@ -50,15 +50,15 @@
                                 <div class="relation-status-badge">
                                     <#if relation.relationship_status == "mutual">
                                         <span class="status-badge mutual-badge">
-                                            <i class="fas fa-heart me-1"></i> Mutual
+                                            <i class="fas fa-heart me-1"></i> ${t["friends.mutual"]?html}
                                         </span>
                                     <#elseif relation.relationship_status == "known">
                                         <span class="status-badge following-badge">
-                                            <i class="fas fa-user-check me-1"></i> Following
+                                            <i class="fas fa-user-check me-1"></i> ${t["friends.following"]?html}
                                         </span>
                                     <#else>
                                         <span class="status-badge follower-badge">
-                                            <i class="fas fa-user-plus me-1"></i> Follower
+                                            <i class="fas fa-user-plus me-1"></i> ${t["friends.follower"]?html}
                                         </span>
                                     </#if>
                                 </div>
@@ -94,19 +94,19 @@
                                         <button class="relation-btn follow-btn" 
                                                 data-user="${relation.id?c}"
                                                 data-shiina-call="relationship">
-                                            <i class="fas fa-user-plus me-1"></i> Follow Back
+                                            <i class="fas fa-user-plus me-1"></i> ${t["friends.follow_back"]?html}
                                         </button>
                                     <#elseif relation.relationship_status == "mutual">
                                         <button class="relation-btn unmutual-btn" 
                                                 data-user="${relation.id?c}"
                                                 data-shiina-call="relationship">
-                                            <i class="fas fa-heart-crack me-1"></i> Unmutual
+                                            <i class="fas fa-heart-crack me-1"></i> ${t["profile.unmutual"]?html}
                                         </button>
                                     <#else>
                                         <button class="relation-btn unfollow-btn" 
                                                 data-user="${relation.id?c}"
                                                 data-shiina-call="relationship">
-                                            <i class="fas fa-user-xmark me-1"></i> Unfollow
+                                            <i class="fas fa-user-xmark me-1"></i> ${t["profile.unfollow"]?html}
                                         </button>
                                     </#if>
                                 </div>
@@ -117,7 +117,7 @@
                 </div>
             <#else>
                 <div class="relationship-empty text-center py-5">
-                    <h5 class="relationship-empty-text text-muted">You don't have any relationships yet.</h5>
+                    <h5 class="relationship-empty-text text-muted">${t["friends.empty"]?html}</h5>
                 </div>
             </#if>
         </div>

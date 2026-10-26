@@ -2,9 +2,9 @@
 <div class="container mb-4">
     <div class="card mb-3">
         <div class="card-body d-flex align-items-center justify-content-between">
-            <h1 class="h4 mb-0"><i class="fa-solid fa-gamepad me-2"></i>Multiplayer Matches</h1>
+            <h1 class="h4 mb-0"><i class="fa-solid fa-gamepad me-2"></i>${t["matches.title"]?html}</h1>
             <div class="d-flex gap-2">
-                <button class="btn btn-sm btn-outline-secondary" onclick="toggleHidden()" id="hiddenBtn">Show hidden matches</button>
+                <button class="btn btn-sm btn-outline-secondary" onclick="toggleHidden()" id="hiddenBtn" data-show="${t["matches.show_hidden"]?html}" data-hide="${t["matches.hide_hidden"]?html}">${t["matches.show_hidden"]?html}</button>
             </div>
         </div>
     </div>
@@ -16,11 +16,11 @@
                         <thead>
                             <tr>
                                 <th>#</th>
-                                <th>Name</th>
-                                <th>Creator</th>
-                                <th>Maps played</th>
-                                <th>Created</th>
-                                <th>Status</th>
+                                <th>${t["matches.name"]?html}</th>
+                                <th>${t["matches.creator"]?html}</th>
+                                <th>${t["matches.maps_played"]?html}</th>
+                                <th>${t["matches.created"]?html}</th>
+                                <th>${t["matches.status"]?html}</th>
                                 <#if isAdmin?? && isAdmin><th></th></#if>
                             </tr>
                         </thead>
@@ -36,16 +36,17 @@
                                     </td>
                                     <td>
                                         <#if m.ended_at??>
-                                            <span class="badge bg-secondary">Ended</span>
+                                            <span class="badge bg-secondary">${t["matches.ended"]?html}</span>
                                         <#else>
-                                            <span class="badge bg-success">Live</span>
+                                            <span class="badge bg-success">${t["matches.live"]?html}</span>
                                         </#if>
                                     </td>
                                     <#if isAdmin?? && isAdmin>
                                     <td onclick="event.stopPropagation()">
                                         <button class="btn btn-sm ${m.hidden?then('btn-outline-success', 'btn-outline-danger')}"
+                                            data-hide="${t["matches.hide"]?html}" data-unhide="${t["matches.unhide"]?html}"
                                             onclick="toggleMatch(${m.id?c}, this)">
-                                            ${m.hidden?then('Unhide', 'Hide')}
+                                            ${m.hidden?then(t["matches.unhide"], t["matches.hide"])}
                                         </button>
                                     </td>
                                     </#if>
@@ -55,12 +56,12 @@
                     </table>
                 </div>
                 <div class="text-center p-3" id="showMoreContainer" style="display:none;">
-                    <button class="btn btn-sm btn-outline-secondary" onclick="showMore()">Show more</button>
+                    <button class="btn btn-sm btn-outline-secondary" onclick="showMore()">${t["common.show_more"]?html}</button>
                 </div>
             <#else>
                 <div class="p-4 text-center text-muted">
                     <i class="fa-solid fa-inbox fa-2x mb-2"></i>
-                    <div>No matches found.</div>
+                    <div>${t["matches.none"]?html}</div>
                 </div>
             </#if>
         </div>
@@ -85,7 +86,8 @@ function applyFilters() {
 function toggleHidden() {
     showHidden = !showHidden;
     showing = PAGE_SIZE;
-    document.getElementById("hiddenBtn").textContent = showHidden ? "Hide hidden matches" : "Show hidden matches";
+    const hb = document.getElementById("hiddenBtn");
+    hb.textContent = showHidden ? hb.dataset.hide : hb.dataset.show;
     applyFilters();
 }
 
@@ -106,11 +108,11 @@ function toggleMatch(id, btn) {
                 const isHidden = row.classList.contains("hidden-match");
                 if (isHidden) {
                     row.classList.remove("hidden-match");
-                    btn.textContent = "Hide";
+                    btn.textContent = btn.dataset.hide;
                     btn.className = "btn btn-sm btn-outline-danger";
                 } else {
                     row.classList.add("hidden-match");
-                    btn.textContent = "Unhide";
+                    btn.textContent = btn.dataset.unhide;
                     btn.className = "btn btn-sm btn-outline-success";
                 }
                 applyFilters();

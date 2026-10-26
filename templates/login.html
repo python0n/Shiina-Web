@@ -3,18 +3,18 @@
 <div class="container">
     <div class="card w-100">
         <div class="bg-secondary border-0 card-header text-body d-flex justify-content-between align-items-center py-4">
-            <span class="h1 fw-bold mb-0">Login</span>
+            <span class="h1 fw-bold mb-0">${t["auth.login_title"]?html}</span>
         </div>
 
         <div class="card-body bg-body px-4">
             <#if error??>
                 <div data-turbo-temporary class="alert alert-danger" role="alert">
-                    ${error}
+                    ${msg(error)?html}
                 </div>
             </#if>
             <#if info??>
                 <div data-turbo-temporary class="alert alert-primary" role="alert">
-                    ${info}
+                    ${msg(info)?html}
                 </div>
             </#if>
 
@@ -22,10 +22,10 @@
                 <div class="row">
                     <div class="col-md-12">
                         <div class="form-group mb-3">
-                            <label>Email or Username</label>
+                            <label>${t["auth.email_or_username"]?html}</label>
                             <div class="input-group">
                                 <span class="input-group-text" id="add-on-1">@</span>
-                                <input name="input" required type="text" class="form-control" placeholder="Email or Username" aria-label="Email or Username" aria-describedby="add-on-1">
+                                <input name="input" required type="text" class="form-control" placeholder="${t["auth.email_or_username"]?html}" aria-label="${t["auth.email_or_username"]?html}" aria-describedby="add-on-1">
                             </div>
                         </div>
                     </div>
@@ -38,10 +38,10 @@
                 <div class="row">
                     <div class="col-md-12">
                         <div class="form-group mb-3">
-                            <label>Password</label>
+                            <label>${t["auth.password"]?html}</label>
                             <div class="input-group">
                                 <span class="input-group-text"><i class="fa-solid fa-lock"></i></span>
-                                <input required name="password" type="password" class="form-control" placeholder="Password" aria-label="Password" aria-describedby="add-on-1">
+                                <input required name="password" type="password" class="form-control" placeholder="${t["auth.password"]?html}" aria-label="${t["auth.password"]?html}" aria-describedby="add-on-1">
                             </div>
                         </div>
                     </div>
@@ -55,7 +55,7 @@
                 <div class="row my-2">
                     <div class="checkbox checkbox-primary">
                         <input id="checkbox_remember" type="checkbox" name="remember">
-                        <label for="checkbox_remember">Remember me</label>
+                        <label for="checkbox_remember">${t["auth.remember_me"]?html}</label>
                     </div>
                 </div>
 
@@ -63,13 +63,13 @@
                 <div class="row my-3">
                     <div class="col-md-12">
                         <input type="hidden" name="redirect" value="">
-                        <button type="submit" class="btn btn-primary btn-lg btn-block">Login</button>
+                        <button type="submit" class="btn btn-primary btn-lg btn-block">${t["auth.login_button"]?html}</button>
                     </div>
                 </div>
             </form>
 
             <div class="mt-4">
-                <i class="fa fa-user fa-fw"></i> No account? <a href="/register<#if refPath??>?path=${refPath}</#if>">Register</a>
+                <i class="fa fa-user fa-fw"></i> ${t["auth.no_account"]?html} <a href="/register<#if refPath??>?path=${refPath}</#if>">${t["nav.register"]?html}</a>
             </div>
         </div>
     </div>
