@@ -251,6 +251,20 @@ shiinaDocs.initializeDocs();
         WebServer.post("/ap/replays/action", new HandleReplayAction());
         WebServer.post("/ap/match/hide", new ToggleMatchHidden());
 
+        // CSRF protection: state-changing admin/API routes are plain GET/POST
+        // requests authenticated only by the session cookie. Reject anything a
+        // browser marks as coming from another site (links/forms on Discord,
+        // other websites). Server-to-server calls send no Sec-Fetch-Site and pass.
+        WebServer.before("/ap/*", App::blockCrossSiteRequest);
+        WebServer.before("/api/v1/*", App::blockCrossSiteRequest);
+        // settings/comment pages may be linked from anywhere; only their form posts are protected
+        WebServer.before("/settings/*", (req, res) -> {
+            if (!"GET".equals(req.requestMethod())) {
+                blockCrossSiteRequest(req, res);
+            }
+        });
+        WebServer.before("/post/*", App::blockCrossSiteRequest);
+
         // Support osu-style /mp<id> URLs (no slash)
         WebServer.before("/mp*", (req, res) -> {
             String pth = req.pathInfo();
@@ -365,4 +379,21 @@ shiinaDocs.initializeDocs();
         Runtime.getRuntime().addShutdownHook(new Shutdown());
     }
 
+    /**
+     * Blocks cross-site requests using the Sec-Fetch-Site header that every
+     * current browser sends. "same-origin", "same-site" (other taksiegra
+     * subdomains) and "none" (typed URL / bookmark) are allowed; a missing
+     * header (curl, bots, older browsers) is allowed too.
+     */
+    static void blockCrossSiteRequest(spark.Request req, spark.Response res) {
+        String site = req.headers("Sec-Fetch-Site");
+        if (site == null) {
+            return;
+        }
+        if (site.equals("same-origin") || site.equals("same-site") || site.equals("none")) {
+            return;
+        }
+        log.warn("Blocked cross-site request to " + req.pathInfo() + " (Sec-Fetch-Site: " + site + ")");
+        spark.Spark.halt(403, "Cross-site request blocked");
+    }
 }
