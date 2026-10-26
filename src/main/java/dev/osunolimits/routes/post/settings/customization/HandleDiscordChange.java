@@ -17,7 +17,7 @@ public class HandleDiscordChange extends Shiina {
     // current Discord usernames: 2-32 chars, lowercase letters, digits, "_" and ".", no ".."
     private static final Pattern NEW_USERNAME = Pattern.compile("^(?!.*\\.\\.)[a-z0-9_.]{2,32}$");
     // legacy usernames with a discriminator, e.g. Name#1234
-    private static final Pattern LEGACY_USERNAME = Pattern.compile("^[^@#:`]{2,32}#[0-9]{4}$");
+    private static final Pattern LEGACY_USERNAME = Pattern.compile("^[\\p{L}\\p{N} _.\\-]{2,32}#[0-9]{4}$");
 
     public static String normalize(String input) {
         if (input == null) {

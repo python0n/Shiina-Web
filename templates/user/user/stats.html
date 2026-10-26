@@ -173,12 +173,12 @@
         </#if>
         <#if discordName??>
             <span class="shiina-follower-count ms-1" role="button" title="Discord - click to copy"
-                data-copy="${discordName}"
+                data-copy="${discordName?html}"
                 onclick="navigator.clipboard.writeText(this.dataset.copy).then(() => { const b = this.querySelector('.shiina-follower-count-body'); const t = b.textContent; b.textContent = 'Copied!'; setTimeout(() => b.textContent = t, 1200); })">
                 <div class="shiina-follower-count-icon">
                     <i class="fa-brands fa-discord"></i>
                 </div>
-                <div class="shiina-follower-count-body">${discordName}</div>
+                <div class="shiina-follower-count-body">${discordName?html}</div>
             </span>
         </#if>
     </div>
