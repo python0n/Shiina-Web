@@ -37,7 +37,7 @@ Right-click your osu! shortcut, open Properties and add the flag at the end of t
 
 Run the following command to create a launcher shortcut automatically:
 ```bash
-bash <(curl -s https://taksiegra.ovh/downloads/setuptaksiegra.sh)
+bash <(curl -fsSL https://taksiegra.ovh/downloads/setuptaksiegra.sh)
 ```
 > Requires osu! installed via [osu-winello](https://github.com/NelloKudo/osu-winello) in the default location.
 
