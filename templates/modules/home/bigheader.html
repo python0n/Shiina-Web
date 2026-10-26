@@ -25,7 +25,6 @@
                                 <#if !loggedIn>
                                 <a class="btn btn-primary" href="/register" role="button">${t["nav.register"]?html}</a>
                             </#if>
-                            <#if (c.discordUrl!"")?has_content><a class="btn btn-discord" href="${c.discordUrl}" role="button">Discord</a></#if>
                             <a class="btn btn-secondary" href="/docs/connect">${t["home.how_to_connect"]?html}</a>
                             </div>
                        

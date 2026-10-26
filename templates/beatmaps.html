@@ -8,15 +8,15 @@
                         <button type="button" onclick="selectParam('status', 999)"
                             class="btn btn-<#if status == 999>primary<#else>secondary</#if>">${t["beatmaps.no_filter"]?html}</button>
                         <button type="button" onclick="selectParam('status', 2)"
-                            class="btn btn-<#if status == 2>primary<#else>secondary</#if>">${t["status.ranked"]?html}</button>
+                            class="btn btn-<#if status == 2>primary<#else>secondary</#if>">${t["status.filter.ranked"]?html}</button>
                         <button type="button" onclick="selectParam('status', 1)"
-                            class="btn btn-<#if status == 1>primary<#else>secondary</#if>">${t["status.pending"]?html}</button>
+                            class="btn btn-<#if status == 1>primary<#else>secondary</#if>">${t["status.filter.pending"]?html}</button>
                         <button type="button" onclick="selectParam('status', 3)"
-                            class="btn btn-<#if status == 3>primary<#else>secondary</#if>">${t["status.approved"]?html}</button>
+                            class="btn btn-<#if status == 3>primary<#else>secondary</#if>">${t["status.filter.approved"]?html}</button>
                         <button type="button" onclick="selectParam('status', 5)"
-                            class="btn btn-<#if status == 5>primary<#else>secondary</#if>">${t["status.loved"]?html}</button>
+                            class="btn btn-<#if status == 5>primary<#else>secondary</#if>">${t["status.filter.loved"]?html}</button>
                         <button type="button" onclick="selectParam('status', 4)"
-                            class="btn btn-<#if status == 4>primary<#else>secondary</#if>">${t["status.qualified"]?html}</button>
+                            class="btn btn-<#if status == 4>primary<#else>secondary</#if>">${t["status.filter.qualified"]?html}</button>
                     </div>
 
                 </div>
