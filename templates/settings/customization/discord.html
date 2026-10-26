@@ -1,0 +1,17 @@
+<!-- Discord Section -->
+<div class="card mb-4">
+    <div class="card-header bg-transparent">
+        <h5 class="mb-0">
+            <i class="fa-brands fa-discord me-2"></i>
+            Discord
+        </h5>
+    </div>
+    <div class="card-body">
+        <form action="/settings/discord" method="post">
+            <input type="text" class="form-control form-control-lg" name="discord" maxlength="37"
+                placeholder="your discord username" value="${curDiscord!""}" autocomplete="off">
+            <div class="form-text">Shown on your profile so other players can contact you. Leave empty to hide it.</div>
+            <button type="submit" class="btn btn-primary mt-2">Save Discord</button>
+        </form>
+    </div>
+</div>

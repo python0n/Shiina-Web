@@ -72,6 +72,9 @@ public class Customization extends Shiina {
         shiina.data.put("curMode", settingsResult.getInt("preferred_mode"));
         shiina.data.put("curClanId", settingsResult.getInt("clan_id"));
 
+        ResultSet discordRs = shiina.mysql.Query("SELECT `discord` FROM `sh_user_socials` WHERE `user_id` = ?", shiina.user.id);
+        shiina.data.put("curDiscord", discordRs != null && discordRs.next() && discordRs.getString("discord") != null ? discordRs.getString("discord") : "");
+
         shiina.data.put("modes", modes);
         shiina.data.put("countries", countries);
         shiina.data.put("clanCreateSupporter", XmlConfig.getInstance().get("shiina.clans.create-supporter").equals("true"));

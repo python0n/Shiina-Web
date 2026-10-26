@@ -207,6 +207,14 @@ public class User extends Shiina {
         shiina.data.put("levelProgress", LevelCalculator
                 .getPercentageToNextLevel(user.getPlayer().getStats().get(String.valueOf(mode)).getTscore()));
         shiina.data.put("clanTag", clanTag);
+
+        ResultSet discordRs = shiina.mysql.Query("SELECT `discord` FROM `sh_user_socials` WHERE `user_id` = ?", id);
+        if (discordRs != null && discordRs.next()) {
+            String discordName = discordRs.getString("discord");
+            if (discordName != null && !discordName.isEmpty()) {
+                shiina.data.put("discordName", discordName);
+            }
+        }
         shiina.data.put("u", user);
         shiina.data.put("mode", mode);
         shiina.data.put("status", userStatus);
