@@ -62,7 +62,7 @@ your account status will automatically change from **Pending** to active.
 - **"Incorrect credentials"**: make sure you registered on the website first and that you are logging in with your taksiegra account, not your official osu! account.
 - **The game connects to official osu!**: the flag is missing or misspelled. It has to be outside the quotes: `"...\osu!.exe" -devserver taksiegra.ovh`.
 - **The PowerShell command does nothing or shows an error**: use the manual method above.
-- **Still stuck?** Contact Python- (the server admin) the same way you got invited and include a screenshot of the error.
+- **Still stuck?** Contact Python- (the server admin). His Discord is on [his profile](https://osu.taksiegra.ovh/u/3). Include a screenshot of the error.
 
 ---
 

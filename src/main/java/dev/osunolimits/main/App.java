@@ -290,6 +290,7 @@ shiinaDocs.initializeDocs();
         WebServer.post("/settings/name", new HandleNameChange());
         WebServer.post("/settings/mode", new HandleModeChange());
         WebServer.post("/settings/userpage", new HandleUserpageChange());
+        WebServer.post("/settings/discord", new dev.osunolimits.routes.post.settings.customization.HandleDiscordChange());
         WebServer.post("/settings/banner", new HandleBannerChange());
         WebServer.post("/settings/clans/create", new HandleClanCreation());
 
