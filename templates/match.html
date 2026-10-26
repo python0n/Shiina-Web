@@ -145,7 +145,11 @@
                                                 </td>
                                                 <td>
                                                     <#assign g = s.grade>
-                                                    <span class="badge bg-<#if g == 'XH' || g == 'X'>warning<#elseif g == 'SH' || g == 'S'>primary<#elseif g == 'A'>success<#elseif g == 'B'>info<#elseif g == 'C'>warning<#else>secondary</#if>">${g}</span>
+                                                    <#if ['XH','X','SH','S','A','B','C','D']?seq_contains(g)>
+                                                        <img src="/img/ranking/ranking-${g}.png" alt="${g}" title="${g}" style="height:24px;">
+                                                    <#else>
+                                                        <span class="text-danger fw-bold">F</span>
+                                                    </#if>
                                                 </td>
                                                 <td class="pe-3">
                                                     <#if s.passed>
