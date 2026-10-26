@@ -2,7 +2,7 @@
 <div class="d-flex align-items-center mx-1 mx-md-4 my-2 mt-2 mb-3">
         <h5 class="mb-0 me-3 text-muted text-uppercase fw-bold" style="font-size: 0.9rem; letter-spacing: 0.05em;">
             <i class="fas fa-trophy me-2 text-warning"></i>
-            Best Scores
+            ${t["profile.best_scores"]?html}
         </h5>
         <div class="flex-grow-1"
             style="height: 1px; background: linear-gradient(90deg, rgba(255,255,255,0.2) 0%, transparent 100%);"></div>
@@ -12,12 +12,11 @@
     <div id="bestScores">
         <div id="bestScoresLoader" class="d-flex align-items-center justify-content-center h-100">
             <div class="spinner-grow" role="status">
-                <span class="visually-hidden">Loading...</span>
+                <span class="visually-hidden">${t["common.loading"]?html}</span>
             </div>
         </div>
     </div>
     <div>
-        <button onclick="loadMoreScores()" id="bestScoresButton" class="btn btn-primary btn-lg">Load
-            More</button>
+        <button onclick="loadMoreScores()" id="bestScoresButton" class="btn btn-primary btn-lg">${t["common.load_more"]?html}</button>
     </div>
 </div>

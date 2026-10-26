@@ -9,9 +9,9 @@
     <div class="card-body">
         <form action="/settings/discord" method="post">
             <input type="text" class="form-control form-control-lg" name="discord" maxlength="37"
-                placeholder="your discord username" value="${(curDiscord!"")?html}" autocomplete="off">
-            <div class="form-text">Shown on your profile so other players can contact you. Leave empty to hide it.</div>
-            <button type="submit" class="btn btn-primary mt-2">Save Discord</button>
+                placeholder="${t["settings.discord_placeholder"]?html}" value="${(curDiscord!"")?html}" autocomplete="off">
+            <div class="form-text">${t["settings.discord_hint"]?html}</div>
+            <button type="submit" class="btn btn-primary mt-2">${t["settings.discord_save"]?html}</button>
         </form>
     </div>
 </div>

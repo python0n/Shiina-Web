@@ -7,7 +7,7 @@ navbar:false
 footer:true
 behindLogin:false
 
-> 🇬🇧 [English version](info)
+> 🇬🇧 [English version](info?lang=en)
 
 Szczerze mówiąc, z własnej inicjatywy chciałem spróbować postawić swój homelab — jak widać na https://taksiegra.ovh/changelog, w końcu mi się udało. Nazwę taksiegra wymyślił w zasadzie Pioye_, o ile dobrze pamiętam po wbiciu jakiegoś szalonego wyniku i krótkiej rozmowie o tym, jak nazwać stronę.
 

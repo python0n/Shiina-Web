@@ -3,9 +3,9 @@
     <div class="card-header bg-transparent">
         <h5 class="mb-0">
             <i class="fas fa-user-circle me-2"></i>
-            Avatar changing
+            ${t["settings.avatar"]?html}
             <#if gifSupport>
-                <span class="supporter">(.gif only for supporters)</span>
+                <span class="supporter">${t["settings.gif_supporters"]?html}</span>
             </#if>
         </h5>
     </div>
@@ -28,19 +28,19 @@
                         <input type="file" name="avatar" id="avatar"
                             accept=".png<#if userPriv?seq_contains('SUPPORTER')>, .gif</#if>" class="form-control" required>
                         <div class="form-text">
-                            Supported formats: PNG<#if userPriv?seq_contains('SUPPORTER')>, GIF</#if>. Max size: 8MB
+                            ${t["settings.formats"]?html}: PNG<#if userPriv?seq_contains('SUPPORTER')>, GIF</#if>. ${t["settings.max_size"]?html}: 8MB
                         </div>
                     </div>
                     <button type="submit" class="btn btn-primary">
                         <i class="fas fa-upload me-2"></i>
-                        Upload Avatar
+                        ${t["settings.upload_avatar"]?html}
                     </button>
                 </form>
                 <form action="/settings/gfx/delete?action=pb" method="post">
                     <input type="hidden" name="action" value="pb">
                     <button type="submit" class="btn btn-danger mt-2">
                         <i class="fas fa-trash me-2"></i>
-                        Delete Profile Picture
+                        ${t["settings.delete_avatar"]?html}
                     </button>
                 </form>
             </div>

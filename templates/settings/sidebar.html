@@ -3,19 +3,19 @@
         <li class="nav-item">
             <a class="nav-link py-2 <#if actNav == 100>active</#if> d-flex align-items-center" aria-current="page" href="/settings/customization">
                <i style="width: 30px;" class="ms-2 fa-solid fa-palette"></i>
-                Customization
+                ${t["settings.customization"]?html}
             </a>
         </li>
        <li class="nav-item">
             <a class="nav-link py-2 <#if actNav == 101>active</#if> d-flex align-items-center" aria-current="page" href="/settings/auth">
                <i style="width: 30px;" class="ms-2 fa-solid fa-shield"></i>
-                Auth
+                ${t["settings.auth"]?html}
             </a>
         </li>
         <li class="nav-item">
             <a class="nav-link py-2 <#if actNav == 102>active</#if> d-flex align-items-center" aria-current="page" href="/settings/data">
                <i style="width: 30px;" class="ms-2 fa-solid fa-file"></i>
-                Data
+                ${t["settings.data"]?html}
             </a>
         </li>
         <#list pluginNav as item>

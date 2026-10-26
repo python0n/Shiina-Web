@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.Locale;
 
 import dev.osunolimits.modules.osr.OsrParser.OsrData;
 import dev.osunolimits.modules.osr.OsrParser.ReplayFrame;
@@ -34,6 +35,8 @@ public class ReplayAnalyzer {
         private List<NoteResult> noteResults = new ArrayList<>();
         private List<String> weaknesses = new ArrayList<>();
         private List<String> insights = new ArrayList<>();
+        // same insights as language-neutral codes, translated by the template: analyzer.ins.<key> with {v}
+        private List<Map<String, String>> insightCodes = new ArrayList<>();
         private List<Map<String, Object>> recommendedMaps = new ArrayList<>();
     }
 
@@ -190,17 +193,35 @@ public class ReplayAnalyzer {
         return Math.sqrt(v.stream().mapToDouble(d->(d-mean)*(d-mean)).average().orElse(0));
     }
 
+    private static void insight(AnalysisResult r, String english, String key, String value) {
+        r.insights.add(english);
+        Map<String, String> code = new HashMap<>();
+        code.put("key", key);
+        code.put("value", value);
+        r.insightCodes.add(code);
+    }
+
+    private static String fmt(String pattern, double v) {
+        return String.format(Locale.ROOT, pattern, v);
+    }
+
     private static void generateInsights(AnalysisResult r) {
-        List<String> ins = r.insights; List<String> wk = r.weaknesses;
+        List<String> wk = r.weaknesses;
         if (Math.abs(r.avgTimingError) > 10) {
-            if (r.avgTimingError < 0) { ins.add(String.format("Your timing is on average %.0f ms early.", Math.abs(r.avgTimingError))); wk.add("early_timing"); }
-            else { ins.add(String.format("Your timing is on average %.0f ms late.", r.avgTimingError)); wk.add("late_timing"); }
-        } else ins.add(String.format("Timing well centered (avg %.1f ms).", r.avgTimingError));
-        if (r.timingStdDev > 40) { ins.add(String.format("Unstable timing (±%.0f ms) — practice with a metronome.", r.timingStdDev)); wk.add("unstable_timing"); }
-        else ins.add(String.format("Timing stability: ±%.0f ms.", r.timingStdDev));
-        if (r.avgAimError > 30) { ins.add(String.format("Inaccurate aim — avg %.0f px from center.", r.avgAimError)); wk.add("poor_aim"); }
-        else ins.add(String.format("Aim: avg %.0f px from center.", r.avgAimError));
+            String v = fmt("%.0f", Math.abs(r.avgTimingError));
+            if (r.avgTimingError < 0) { insight(r, "Your timing is on average " + v + " ms early.", "early", v); wk.add("early_timing"); }
+            else { insight(r, "Your timing is on average " + v + " ms late.", "late", v); wk.add("late_timing"); }
+        } else {
+            String v = fmt("%.1f", r.avgTimingError);
+            insight(r, "Timing well centered (avg " + v + " ms).", "centered", v);
+        }
+        String sd = fmt("%.0f", r.timingStdDev);
+        if (r.timingStdDev > 40) { insight(r, "Unstable timing (\u00b1" + sd + " ms) \u2014 practice with a metronome.", "unstable", sd); wk.add("unstable_timing"); }
+        else insight(r, "Timing stability: \u00b1" + sd + " ms.", "stability", sd);
+        String aim = fmt("%.0f", r.avgAimError);
+        if (r.avgAimError > 30) { insight(r, "Inaccurate aim \u2014 avg " + aim + " px from center.", "poor_aim", aim); wk.add("poor_aim"); }
+        else insight(r, "Aim: avg " + aim + " px from center.", "aim", aim);
         // stream/jump accuracy removed - unreliable without full hit detection
-        if (r.missCount > 5) ins.add(String.format("%d misses — check your aim and timing.", r.missCount));
+        if (r.missCount > 5) insight(r, r.missCount + " misses \u2014 check your aim and timing.", "misses", String.valueOf(r.missCount));
     }
 }

@@ -9,10 +9,10 @@
       <div class="p-4 text-white position-relative">
         <div class="d-flex justify-content-between align-items-start">
           <div>
-            <h5 class="fw-bold mb-1">${score.artist} - ${score.title} [${score.version}]</h5>
-            <div class="opacity-75 small">★ ${score.diff} &nbsp;|&nbsp; Score: ${score.score?string(",##0")} &nbsp;|&nbsp; ${score.acc}% &nbsp;|&nbsp; ${score.pp}pp</div>
+            <h5 class="fw-bold mb-1">${score.artist?html} - ${score.title?html} [${score.version?html}]</h5>
+            <div class="opacity-75 small">★ ${score.diff} &nbsp;|&nbsp; ${t["stats.score"]?html}: ${score.score?string(",##0")} &nbsp;|&nbsp; ${score.acc}% &nbsp;|&nbsp; ${score.pp}pp</div>
           </div>
-          <a href="/analyzer" class="btn btn-sm btn-outline-light"><i class="fa-solid fa-arrow-left me-1"></i>Back</a>
+          <a href="/analyzer" class="btn btn-sm btn-outline-light"><i class="fa-solid fa-arrow-left me-1"></i>${t["common.back"]?html}</a>
         </div>
       </div>
     </div>
@@ -21,7 +21,7 @@
 
   <!-- błąd -->
   <#if error??>
-  <div class="alert alert-danger"><i class="fa-solid fa-triangle-exclamation me-2"></i>${error}</div>
+  <div class="alert alert-danger"><i class="fa-solid fa-triangle-exclamation me-2"></i>${msg(error)?html}</div>
   </#if>
 
   <#if analysis??>
@@ -30,36 +30,36 @@
   <div class="row g-3 mb-4">
     <div class="col-md-3">
       <div class="card rounded text-center p-3">
-        <div class="text-muted small mb-1">Avg Timing Error <span tabindex="0" data-bs-toggle="tooltip" title="Average offset of your clicks relative to the perfect moment. Negative = early, positive = late."><i class="fa-solid fa-circle-info fa-xs opacity-50"></i></span></div>
+        <div class="text-muted small mb-1">${t["analyzer.avg_timing"]?html} <span tabindex="0" data-bs-toggle="tooltip" title="${t["analyzer.avg_timing_tip"]?html}"><i class="fa-solid fa-circle-info fa-xs opacity-50"></i></span></div>
         <div class="fw-bold fs-5 ${(analysis.avgTimingError < -10)?then('text-warning', (analysis.avgTimingError > 10)?then('text-danger', 'text-success'))}">
           ${analysis.avgTimingError?string("0.0")} ms
         </div>
-        <div class="text-muted small">${(analysis.avgTimingError < 0)?then('early', 'late')}</div>
+        <div class="text-muted small">${(analysis.avgTimingError < 0)?then(t["analyzer.early"], t["analyzer.late"])}</div>
       </div>
     </div>
     <div class="col-md-3">
       <div class="card rounded text-center p-3">
-        <div class="text-muted small mb-1">Timing Stability <span tabindex="0" data-bs-toggle="tooltip" title="Standard deviation of timing error. Lower = more consistent timing."><i class="fa-solid fa-circle-info fa-xs opacity-50"></i></span></div>
+        <div class="text-muted small mb-1">${t["analyzer.stability"]?html} <span tabindex="0" data-bs-toggle="tooltip" title="${t["analyzer.stability_tip"]?html}"><i class="fa-solid fa-circle-info fa-xs opacity-50"></i></span></div>
         <div class="fw-bold fs-5 ${(analysis.timingStdDev > 40)?then('text-danger', (analysis.timingStdDev > 20)?then('text-warning', 'text-success'))}">
           ±${analysis.timingStdDev?string("0.0")} ms
         </div>
-        <div class="text-muted small">std deviation</div>
+        <div class="text-muted small">${t["analyzer.std_dev"]?html}</div>
       </div>
     </div>
     <div class="col-md-3">
       <div class="card rounded text-center p-3">
-        <div class="text-muted small mb-1">Avg Aim Error <span tabindex="0" data-bs-toggle="tooltip" title="Average cursor distance from note center at click time. Lower = more accurate aim."><i class="fa-solid fa-circle-info fa-xs opacity-50"></i></span></div>
+        <div class="text-muted small mb-1">${t["analyzer.avg_aim"]?html} <span tabindex="0" data-bs-toggle="tooltip" title="${t["analyzer.avg_aim_tip"]?html}"><i class="fa-solid fa-circle-info fa-xs opacity-50"></i></span></div>
         <div class="fw-bold fs-5 ${(analysis.avgAimError > 30)?then('text-danger', (analysis.avgAimError > 15)?then('text-warning', 'text-success'))}">
           ${analysis.avgAimError?string("0.0")} px
         </div>
-        <div class="text-muted small">from note center</div>
+        <div class="text-muted small">${t["analyzer.from_center"]?html}</div>
       </div>
     </div>
     <div class="col-md-3">
       <div class="card rounded text-center p-3">
-        <div class="text-muted small mb-1">Early / Late <span tabindex="0" data-bs-toggle="tooltip" title="How many times you hit early vs late. Ideally should be roughly equal."><i class="fa-solid fa-circle-info fa-xs opacity-50"></i></span></div>
+        <div class="text-muted small mb-1">${t["analyzer.early_late"]?html} <span tabindex="0" data-bs-toggle="tooltip" title="${t["analyzer.early_late_tip"]?html}"><i class="fa-solid fa-circle-info fa-xs opacity-50"></i></span></div>
         <div class="fw-bold fs-5">${analysis.earlyHits} / ${analysis.lateHits}</div>
-        <div class="text-muted small">${score.nmiss} misses</div>
+        <div class="text-muted small">${score.nmiss} ${t["analyzer.misses_lc"]?html}</div>
       </div>
     </div>
   </div>
@@ -68,7 +68,7 @@
   <!-- wykres timing error -->
   <div class="card rounded mb-4">
     <div class="card-header bg-body border-bottom px-4 py-3">
-      <h6 class="mb-0 fw-semibold"><i class="fa-solid fa-chart-line me-2"></i>Timing Error per note <span tabindex="0" data-bs-toggle="tooltip" title="Each bar = one note. Yellow = jump, blue = stream, grey = other. Scroll to zoom, drag to pan."><i class="fa-solid fa-circle-info fa-xs opacity-50"></i></span></h6>
+      <h6 class="mb-0 fw-semibold"><i class="fa-solid fa-chart-line me-2"></i>${t["analyzer.per_note"]?html} <span tabindex="0" data-bs-toggle="tooltip" title="${t["analyzer.per_note_tip"]?html}"><i class="fa-solid fa-circle-info fa-xs opacity-50"></i></span></h6>
     </div>
     <div class="card-body">
       <canvas id="timingChart" height="120"></canvas>
@@ -80,13 +80,13 @@
     <div class="col-md-6">
       <div class="card rounded h-100">
         <div class="card-header bg-body border-bottom px-4 py-3">
-          <h6 class="mb-0 fw-semibold"><i class="fa-solid fa-lightbulb me-2 text-warning"></i>Analysis <span tabindex="0" data-bs-toggle="tooltip" title="Automatic insights based on your replay."><i class="fa-solid fa-circle-info fa-xs opacity-50"></i></span></h6>
+          <h6 class="mb-0 fw-semibold"><i class="fa-solid fa-lightbulb me-2 text-warning"></i>${t["analyzer.analysis"]?html} <span tabindex="0" data-bs-toggle="tooltip" title="${t["analyzer.analysis_tip"]?html}"><i class="fa-solid fa-circle-info fa-xs opacity-50"></i></span></h6>
         </div>
         <div class="card-body">
-          <#list analysis.insights as insight>
+          <#list analysis.insightCodes as insight>
           <div class="d-flex gap-2 mb-2">
             <i class="fa-solid fa-circle-info text-muted mt-1 flex-shrink-0"></i>
-            <span class="small">${insight}</span>
+            <span class="small">${t["analyzer.ins." + insight.key]?replace("{v}", insight.value)}</span>
           </div>
           </#list>
         </div>
@@ -98,16 +98,16 @@
       <div class="card rounded h-100">
         <div class="card-header bg-body border-bottom px-4 py-3">
           <h6 class="mb-0 fw-semibold">
-  <i class="fa-solid fa-map me-2 text-info"></i>Recommended maps
+  <i class="fa-solid fa-map me-2 text-info"></i>${t["analyzer.recommended"]?html}
   <span data-bs-toggle="tooltip" data-bs-placement="right"
-    title="Maps selected based on the current map's skillset (NPS and AR). Stream: NPS≥8, Jump: AR≥9 and NPS&lt;8, Burst: NPS 6-8. Similar difficulty ±0.7★. Only maps you haven't played yet.">
+    title="${t["analyzer.recommended_tip"]?html}">
     <i class="fa-solid fa-circle-info text-muted ms-1" style="font-size:0.8rem;cursor:help;"></i>
   </span>
 </h6>
         </div>
         <div class="card-body p-0">
           <#if !analysis.recommendedMaps?has_content>
-            <div class="text-center text-muted py-4 small">No recommendations — great job!</div>
+            <div class="text-center text-muted py-4 small">${t["analyzer.no_recommendations"]?html}</div>
           <#else>
             <#list analysis.recommendedMaps as m>
             <a href="/b/${m.id?c}" class="d-flex align-items-center gap-3 px-4 py-2 text-decoration-none border-bottom hover-bg">
@@ -115,8 +115,8 @@
                    style="width:40px;height:40px;object-fit:cover;border-radius:4px;"
                    onerror="this.style.display='none'">
               <div class="flex-grow-1">
-                <div class="fw-semibold small">${m.artist} - ${m.title}</div>
-                <div class="text-muted" style="font-size:0.75rem;">[${m.version}] &#9733; ${m.diff} &nbsp;&bull;&nbsp; ${m.bpm} BPM</div>
+                <div class="fw-semibold small">${m.artist?html} - ${m.title?html}</div>
+                <div class="text-muted" style="font-size:0.75rem;">[${m.version?html}] &#9733; ${m.diff} &nbsp;&bull;&nbsp; ${m.bpm} BPM</div>
               </div>
               <#if m.skillset == "stream">
                 <span class="badge" style="background:#e74c3c;">Stream</span>
@@ -166,7 +166,7 @@ document.addEventListener('DOMContentLoaded', () => {
     data: {
       labels: labels,
       datasets: [{
-        label: 'Timing Error (ms)',
+        label: '${t["analyzer.chart_label"]?js_string}',
         data: timingData,
         backgroundColor: colors,
         borderWidth: 0,
@@ -182,9 +182,9 @@ document.addEventListener('DOMContentLoaded', () => {
             label: (ctx) => {
               const n = notes[ctx.dataIndex];
               return [
-                'Timing: ' + (n.te > 0 ? '+' : '') + n.te + ' ms',
-                'Verdict: ' + n.v,
-                n.j ? 'Jump' : n.s ? 'Stream' : 'Other'
+                '${t["analyzer.chart_timing"]?js_string}' + ': ' + (n.te > 0 ? '+' : '') + n.te + ' ms',
+                '${t["analyzer.chart_verdict"]?js_string}' + ': ' + n.v,
+                n.j ? 'Jump' : n.s ? 'Stream' : '${t["analyzer.other"]?js_string}'
               ];
             }
           }
@@ -197,7 +197,7 @@ document.addEventListener('DOMContentLoaded', () => {
       scales: {
         x: { display: false },
         y: {
-          title: { display: true, text: 'ms (early <- 0 -> late)' },
+          title: { display: true, text: '${t["analyzer.chart_axis"]?js_string}' },
           grid: { color: 'rgba(255,255,255,0.05)' }
         }
       }

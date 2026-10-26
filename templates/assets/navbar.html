@@ -13,19 +13,19 @@
       <ul class="navbar-nav me-auto my-2 my-lg-0 navbar-nav-scroll">
 
         <li class="nav-item">
-          <a class="nav-link <#if actNav == 1>active</#if>" href="/">Home</a>
+          <a class="nav-link <#if actNav == 1>active</#if>" href="/">${t["nav.home"]?html}</a>
         </li>
 
         <li class="nav-item">
-          <a class="nav-link <#if actNav == 2>active</#if>" href="/leaderboard">Leaderboards</a>
+          <a class="nav-link <#if actNav == 2>active</#if>" href="/leaderboard">${t["nav.leaderboards"]?html}</a>
         </li>
 
         <li class="nav-item">
-          <a class="nav-link <#if actNav == 3>active</#if>" href="/beatmaps">Beatmaps</a>
+          <a class="nav-link <#if actNav == 3>active</#if>" href="/beatmaps">${t["nav.beatmaps"]?html}</a>
         </li>
 
         <li class="nav-item">
-          <a class="nav-link <#if actNav == 4>active</#if>" href="/clans">Clans</a>
+          <a class="nav-link <#if actNav == 4>active</#if>" href="/clans">${t["nav.clans"]?html}</a>
         </li>
 
         <#list navbarItems as item>
@@ -43,23 +43,23 @@
         </#list>
 
         <li class="nav-item">
-          <a class="nav-link" href="/matches">Matches</a>
+          <a class="nav-link" href="/matches">${t["nav.matches"]?html}</a>
         </li>
 
         <#if user??>
           <li class="nav-item">
-            <a class="nav-link" href="/replays">Score Submit</a>
+            <a class="nav-link" href="/replays">${t["nav.score_submit"]?html}</a>
           </li>
         </#if>
 
         <li class="nav-item">
-          <a class="nav-link" href="https://osu.taksiegra.ovh/analyzer">Analyzer</a>
+          <a class="nav-link" href="/analyzer">${t["nav.analyzer"]?html}</a>
         </li>
 
         <!-- POPRAWIONY DROPDOWN DOCS -->
         <li class="nav-item dropdown">
           <a class="nav-link dropdown-toggle <#if actNav == 5>active</#if>" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-            Docs
+            ${t["nav.docs"]?html}
           </a>
           <ul class="dropdown-menu mt-lg-2 rounded-top-0">
             <#list docs as doc>
@@ -84,14 +84,27 @@
           oninput="searchShiinaDebounced(this.value)"
           onkeydown="handleSearchKeydown(event)"
           type="search"
-          placeholder="Search ${c.serverName}"
-          aria-label="Search">
+          placeholder="${t["nav.search"]?html?replace("{server}", c.serverName)}"
+          aria-label="${t["nav.search_label"]?html}">
         <div id="shiina-search" class="d-none bg-secondary"></div>
       </form>
 
       <div class="d-none d-md-none d-lg-flex">
         <div class="line-vert shiina-border"></div>
       </div>
+
+      <#if languages?? && (languages?size > 1)>
+      <div class="dropdown d-flex mt-3 my-lg-0 me-2">
+        <button class="btn btn-secondary dropdown-toggle" style="background-color: transparent; color: white;" type="button" data-bs-toggle="dropdown" aria-expanded="false" title="${t["nav.language"]?html}">
+          <i class="fa-solid fa-globe me-1"></i>${(lang!"en")?upper_case}
+        </button>
+        <ul class="dropdown-menu dropdown-menu-lg-end">
+          <#list languages?keys as code>
+            <li><a class="dropdown-item<#if code == (lang!"en")> active</#if>" data-turbo="false" href="/lang/${code}?back=${(currentPath!"/")?url("UTF-8")}">${languages[code]?html}</a></li>
+          </#list>
+        </ul>
+      </div>
+      </#if>
 
       <div class="d-flex mt-3 my-lg-0">
         <#if user??>
@@ -100,29 +113,29 @@
           </button>
 
           <ul class="dropdown-menu dropdown-menu-lg-end">
-            <li><a class="dropdown-item" href="/u/${user.id?c}">Profile</a></li>
-            <li><a class="dropdown-item" href="/friends">Friends</a></li>
-            <li><a class="dropdown-item" href="/settings">Settings</a></li>
+            <li><a class="dropdown-item" href="/u/${user.id?c}">${t["nav.profile"]?html}</a></li>
+            <li><a class="dropdown-item" href="/friends">${t["nav.friends"]?html}</a></li>
+            <li><a class="dropdown-item" href="/settings">${t["nav.settings"]?html}</a></li>
 
             <#list profileNavbarItems as item>
               <li><a class="dropdown-item" href="${item.url}">${item.name}</a></li>
             </#list>
 
             <#if userPriv?seq_contains("STAFF")>
-              <li><a class="dropdown-item" data-turbo="false" href="/ap/start">Admin Panel</a></li>
+              <li><a class="dropdown-item" data-turbo="false" href="/ap/start">${t["nav.admin_panel"]?html}</a></li>
             </#if>
 
             <li><hr class="dropdown-divider"></li>
             <li>
               <form data-turbo="false" action="/logout" method="post">
-                <button type="submit" class="dropdown-item">Logout</button>
+                <button type="submit" class="dropdown-item">${t["nav.logout"]?html}</button>
               </form>
             </li>
           </ul>
 
         <#else>
-          <a href="/login" class="btn btn-secondary mx-2">Login</a>
-          <a href="/register" class="btn btn-primary">Register</a>
+          <a href="/login" class="btn btn-secondary mx-2">${t["nav.login"]?html}</a>
+          <a href="/register" class="btn btn-primary">${t["nav.register"]?html}</a>
         </#if>
       </div>
 

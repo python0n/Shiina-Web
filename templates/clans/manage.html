@@ -13,7 +13,7 @@
 
                     <div class="col-12 col-md-9 d-flex flex-column justify-content-center text-white">
                         <h2 class="display-5 py-3 fw-bold mb-2">
-                            Settings of ${clan.name} [${clan.tag}]
+                            ${t["clanmanage.title"]?html?replace("{name}", clan.name?html)?replace("{tag}", clan.tag?html)}
                         </h2>
                     </div>
 
@@ -21,7 +21,7 @@
             </div>
             <div class="shiina-pill mx-1 my-2 mx-md-4 d-flex align-items-center">
                 <div class="shiina-pill-icon"></div>
-                <span>Owner</span>
+                <span>${t["clan.owner"]?html}</span>
             </div>
             <#assign u={ "id" : clan.owner, "name" : clan.ownerName, "isOwner" : true}>
 
@@ -32,7 +32,7 @@
 
                 <div class="shiina-pill mx-1 my-2 mx-md-4 d-flex align-items-center">
                     <div class="shiina-pill-icon"></div>
-                    <span>Members</span>
+                    <span>${t["clans.members"]?html}</span>
                 </div>
 
                 <div class="mx-3">
@@ -62,14 +62,14 @@
                                         </a>
                                         <div class="text-end position-relative" style="z-index: 2;">
                                             <button onclick="handleClanManage('${u.id?c}', '${clan.id?c}', 'KICK')"
-                                                class="btn btn-danger">Ban</button>
+                                                class="btn btn-danger">${t["clanmanage.ban"]?html}</button>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                             <#else>
                                 <div class="col-12 text-center py-5">
-                                    <h5 class="text-muted">You don't have any members yet.</h5>
+                                    <h5 class="text-muted">${t["clanmanage.no_members"]?html}</h5>
                                 </div>
                         </#list>
                     </div>
@@ -77,7 +77,7 @@
 
                 <div class="shiina-pill mx-1 my-2 mx-md-4 d-flex align-items-center">
                     <div class="shiina-pill-icon"></div>
-                    <span>Join requests</span>
+                    <span>${t["clanmanage.requests"]?html}</span>
                 </div>
 
                 <div class="mx-3">
@@ -107,16 +107,16 @@
                                         </a>
                                         <div class="text-end position-relative" style="z-index: 2;">
                                             <button onclick="handleClanManage('${u.id?c}', '${clan.id?c}', 'ACCEPT')"
-                                                type="submit" class="btn btn-success me-2">Accept</button>
+                                                type="submit" class="btn btn-success me-2">${t["clanmanage.accept"]?html}</button>
                                             <button onclick="handleClanManage('${u.id?c}', '${clan.id?c}', 'DENY')"
-                                                class="btn btn-danger">Ban</button>
+                                                class="btn btn-danger">${t["clanmanage.ban"]?html}</button>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                             <#else>
                                 <div class="col-12 text-center py-5">
-                                    <h5 class="text-muted">You don't have any requests yet.</h5>
+                                    <h5 class="text-muted">${t["clanmanage.no_requests"]?html}</h5>
                                 </div>
                         </#list>
                     </div>
@@ -124,7 +124,7 @@
 
                 <div class="shiina-pill mx-1 my-2 mx-md-4 d-flex align-items-center">
                     <div class="shiina-pill-icon"></div>
-                    <span>Banned users</span>
+                    <span>${t["clanmanage.banned_users"]?html}</span>
                 </div>
 
                 <div class="mx-3 mb-3">
@@ -154,23 +154,23 @@
                                         </a>
                                         <div class="text-end position-relative" style="z-index: 2;">
                                             <button onclick="handleClanManage('${u.id?c}', '${clan.id?c}', 'UNDENY')"
-                                                class="btn btn-warning">Unban</button>
+                                                class="btn btn-warning">${t["clanmanage.unban"]?html}</button>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                             <#else>
                                 <div class="col-12 text-center py-5">
-                                    <h5 class="text-muted">No banned users in this clan.</h5>
+                                    <h5 class="text-muted">${t["clanmanage.no_banned"]?html}</h5>
                                 </div>
                         </#list>
                     </div>
                 </div>
 
                 <div class="mx-3 mb-3">
-                    <form action="/api/v1/disband_clan" method="post" onsubmit="return confirm('Are you sure you want to disband this clan? This action cannot be undone and will remove all members from the clan.');">
+                    <form action="/api/v1/disband_clan" method="post" onsubmit="return confirm('${t["clanmanage.disband_confirm"]?js_string?html}');">
                         <button type="submit" class="btn btn-danger">
-                            <i class="fas fa-trash-alt me-1"></i>Disband Clan
+                            <i class="fas fa-trash-alt me-1"></i>${t["clanmanage.disband"]?html}
                         </button>
                     </form>
                 </div>

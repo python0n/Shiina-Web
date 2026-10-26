@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-bs-theme="${c.mode}" data-bs-core="${c.theme}">
+<html lang="${lang!"en"}" data-bs-theme="${c.mode}" data-bs-core="${c.theme}">
 
 <head>
     <meta charset="UTF-8">
@@ -20,6 +20,7 @@
     src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit"
     data-turbo-track="reload">
     </script>
+    <script data-turbo-track="reload">window.SHIINA_T = {<#if t??><#list t?keys as k><#if k?starts_with("js.")>"${k?js_string}": "${t[k]?js_string}", </#if></#list></#if>};</script>
     <script src="/js/shiina.js"></script>
     <script src="/js/jquery.min.js"></script>
     <script src="/js/select2.min.js"></script>
