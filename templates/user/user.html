@@ -16,8 +16,8 @@
         </#if>
         <#if restricted && self>
             <div class="alert alert-danger mt-4" role="alert">
-                You are in restricted mode and not present in our ranking. Visit our <a
-                    href="${c.discordUrl}">Discord</a> for further information.
+                You are in restricted mode and not present in our ranking.
+                <#if (c.discordUrl!"")?has_content>Visit our <a href="${c.discordUrl}">Discord</a> for further information.<#else>Contact the server admin for further information.</#if>
             </div>
         </#if>
 
