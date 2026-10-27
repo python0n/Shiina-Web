@@ -15,8 +15,9 @@
 
 <#function convertScoreStatus status>
     <#switch status>
-        <#case 0><#return t["status.not_submitted"]><#break>
-        <#case 2><#return t["score.submitted"]><#break>
+        <#case 0><#return t["score.status_failed"]><#break>
+        <#case 1><#return t["score.status_submitted"]><#break>
+        <#case 2><#case 3><#return t["score.status_best"]><#break>
         <#default><#return t["common.unknown"]><#break>
     </#switch>
 </#function>
