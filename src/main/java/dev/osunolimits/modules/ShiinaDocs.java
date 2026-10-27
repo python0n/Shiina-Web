@@ -7,10 +7,6 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.commonmark.node.Node;
-import org.commonmark.parser.Parser;
-import org.commonmark.renderer.html.HtmlRenderer;
-
 import dev.osunolimits.main.App;
 import dev.osunolimits.main.WebServer;
 import dev.osunolimits.modules.ShiinaRoute.ShiinaRequest;
@@ -123,7 +119,6 @@ public class ShiinaDocs {
     public void initializeDocs() {
 
         File[] files = new File("docs/").listFiles();
-        Parser parser = Parser.builder().build();
         for (File file : files) {
 
             if (file.isDirectory()) {
@@ -148,10 +143,8 @@ public class ShiinaDocs {
                 }
                 String[] sbLines = sb.split("\n", -1);
                 String sbContent = String.join("\n", java.util.Arrays.copyOfRange(sbLines, 8, sbLines.length));
-                Node document = parser.parse(sbContent);
-                HtmlRenderer renderer = HtmlRenderer.builder().build();
-
-                model.content = renderer.render(document);
+                java.util.regex.Matcher langMatch = java.util.regex.Pattern.compile("-([a-z]{2})$").matcher(model.route);
+                model.content = DocsMarkdown.render(sbContent, langMatch.find() ? langMatch.group(1) : I18n.DEFAULT_LANG);
                 model.filename = file.getName();
                 docs.add(model);
             } catch (IOException e) {
