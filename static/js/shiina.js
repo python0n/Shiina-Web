@@ -46,10 +46,17 @@ loadEventTurbo = document.addEventListener("turbo:load", function () {
 
     initUserpageEditor();
 
+    // like osu-web: the server prints UTC, the browser shows it in the viewer's own time zone
     nodesArray.forEach(node => {
-        let format;
-        if (node.getAttribute('data-timestamp-format') == 'date') { format = false; } else { format = true; }
-        node.innerHTML = timeUntil(node.getAttribute('data-timestamp'), format);
+        const date = parseShiinaTime(node.getAttribute('data-timestamp'));
+        if (!date) return; // keep the server text
+        const full = formatLocalTime(date);
+        if (node.getAttribute('data-timestamp-format') === 'local') {
+            node.textContent = full;
+        } else {
+            node.textContent = timeUntil(date.getTime() / 1000, true);
+            node.title = full;
+        }
     });
 
     updateTooltips();
@@ -444,6 +451,29 @@ function tr(key, fallback) {
     return Object.prototype.hasOwnProperty.call(all, key) ? all[key] : fallback;
 }
 
+// unix seconds or a "YYYY-MM-DD HH:MM:SS" date from the database (stored in UTC)
+function parseShiinaTime(raw) {
+    if (raw == null) return null;
+    raw = String(raw).trim();
+    if (raw === '') return null;
+    let date;
+    if (/^\d+$/.test(raw)) {
+        date = new Date(parseInt(raw, 10) * 1000);
+    } else {
+        const hasZone = /([zZ]|[+-]\d\d:?\d\d)$/.test(raw);
+        date = new Date(raw.replace(' ', 'T') + (hasZone ? '' : 'Z'));
+    }
+    return isNaN(date.getTime()) ? null : date;
+}
+// full date and time in the viewer's time zone and site language
+function formatLocalTime(date) {
+    const lang = document.documentElement.lang || 'en';
+    try {
+        return new Intl.DateTimeFormat(lang, { dateStyle: 'medium', timeStyle: 'short' }).format(date);
+    } catch (e) {
+        return date.toLocaleString();
+    }
+}
 function timeUntil(dateInput, unix) {
     let inputDate;
     if (unix) {
@@ -452,6 +482,7 @@ function timeUntil(dateInput, unix) {
         inputDate = new Date(dateInput.replace(' ', 'T') + 'Z');
     }
 
+    if (isNaN(inputDate.getTime())) return String(dateInput);
     const currentDate = new Date();
     const differenceInSeconds = Math.floor((inputDate - currentDate) / 1000);
 
