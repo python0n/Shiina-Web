@@ -21,9 +21,73 @@
             </div>
 
             <div class="card-body bg-body px-4 py-3">
-                ${content}
+                <div class="doc-layout" id="doc-layout">
+                    <nav class="doc-toc" id="doc-toc" hidden>
+                        <div class="doc-toc-title">${t["docs.toc"]}</div>
+                        <ul id="doc-toc-list"></ul>
+                    </nav>
+                    <div class="doc-content" id="doc-content" data-copy="${t["docs.copy"]}" data-copied="${t["common.copied"]}">
+                        ${content}
+                    </div>
+                </div>
             </div>
         
         </div>
     </div>
+<script>
+(function () {
+    var content = document.getElementById('doc-content');
+    if (!content || content.dataset.ready) return;
+    content.dataset.ready = '1';
+    var heads = content.querySelectorAll('h2[id], h3[id]');
+    if (heads.length >= 3) {
+        var list = document.getElementById('doc-toc-list');
+        heads.forEach(function (h) {
+            var li = document.createElement('li');
+            li.className = 'doc-toc-' + h.tagName.toLowerCase();
+            var a = document.createElement('a');
+            a.href = '#' + h.id;
+            a.textContent = h.textContent;
+            li.appendChild(a);
+            list.appendChild(li);
+        });
+        document.getElementById('doc-toc').hidden = false;
+        document.getElementById('doc-layout').classList.add('has-toc');
+    }
+    heads.forEach(function (h) {
+        var a = document.createElement('a');
+        a.href = '#' + h.id;
+        a.className = 'doc-anchor';
+        a.textContent = '#';
+        a.setAttribute('aria-hidden', 'true');
+        h.appendChild(a);
+    });
+    content.querySelectorAll('pre').forEach(function (pre) {
+        var btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'doc-copy';
+        btn.textContent = content.dataset.copy;
+        btn.addEventListener('click', function () {
+            var code = pre.querySelector('code') || pre;
+            navigator.clipboard.writeText(code.innerText).then(function () {
+                btn.textContent = content.dataset.copied;
+                setTimeout(function () { btn.textContent = content.dataset.copy; }, 1500);
+            });
+        });
+        var wrap = document.createElement('div');
+        wrap.className = 'doc-code';
+        pre.parentNode.insertBefore(wrap, pre);
+        wrap.appendChild(pre);
+        wrap.appendChild(btn);
+    });
+    var blocks = content.querySelectorAll('pre code[class*="language-"]');
+    if (!blocks.length) return;
+    function run() { blocks.forEach(function (b) { window.hljs.highlightElement(b); }); }
+    if (window.hljs) { run(); return; }
+    var s = document.createElement('script');
+    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js';
+    s.onload = run;
+    document.head.appendChild(s);
+})();
+</script>
 <#include "assets/footer.html">
