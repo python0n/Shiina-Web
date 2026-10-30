@@ -85,6 +85,7 @@ import dev.osunolimits.routes.get.Beatmaps;
 import dev.osunolimits.routes.get.Bot;
 import dev.osunolimits.routes.get.Leaderboard;
 import dev.osunolimits.routes.get.Hypo;
+import dev.osunolimits.routes.get.Reworks;
 import dev.osunolimits.routes.get.OnBoarding;
 import dev.osunolimits.routes.get.User;
 import dev.osunolimits.routes.get.UserScore;
@@ -229,6 +230,7 @@ shiinaDocs.initializeDocs();
         WebServer.get("/beatmaps", new Beatmaps());
         WebServer.get("/leaderboard", new Leaderboard());
         WebServer.get("/hypo", new Hypo());
+        WebServer.get("/reworks", new Reworks());
 
         WebServer.get("/clans", new Clans());
         WebServer.get("/clan/:id", new Clan());

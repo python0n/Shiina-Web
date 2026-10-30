@@ -1,0 +1,502 @@
+<#include "assets/base.html">
+<div class="container mb-5" id="rw-root" data-lang="${lang!"en"}" data-avatars="${avatarServer!""}" data-me="${(loggedUserId!0)?c}">
+    <div class="card mb-4">
+        <div class="card-body d-flex align-items-center gap-3 flex-wrap">
+            <div class="me-auto">
+                <h4 class="mb-1"><i class="fa-solid fa-flask me-2 text-primary"></i>${t["reworks.title"]?html}</h4>
+                <p class="text-muted mb-0 small">${t["reworks.subtitle"]?html}</p>
+            </div>
+            <div class="rw-modes" id="rw-modes">
+                <img src="/img/modes/osu.svg" class="sort-button" data-mode="0" alt="osu!">
+                <img src="/img/modes/taiko.svg" class="sort-button" data-mode="1" alt="osu!taiko">
+                <img src="/img/modes/catch.svg" class="sort-button" data-mode="2" alt="osu!catch">
+                <img src="/img/modes/mania.svg" class="sort-button" data-mode="3" alt="osu!mania">
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-12 col-lg-4">
+            <div class="card">
+                <div class="list-group list-group-flush" id="rw-variants">
+                    <div class="list-group-item text-muted small">${t["reworks.loading"]?html}</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-lg-8">
+            <div class="card mb-4" id="rw-info" hidden>
+                <div class="card-body">
+                    <div class="d-flex align-items-start gap-2 flex-wrap">
+                        <div class="me-auto">
+                            <h5 class="mb-1" id="rw-name"></h5>
+                            <div class="text-muted small" id="rw-period"></div>
+                        </div>
+                        <span class="badge rw-badge" id="rw-badge"></span>
+                    </div>
+                    <p class="mt-3 mb-2" id="rw-desc"></p>
+                    <ul class="rw-changes mb-2" id="rw-changes"></ul>
+                    <div class="text-muted small" id="rw-updated"></div>
+                </div>
+            </div>
+
+            <div id="rw-empty" class="card" hidden>
+                <div class="card-body text-center text-muted py-5">
+                    <i class="fa-solid fa-hourglass-half fa-2x mb-3 opacity-50"></i>
+                    <p class="mb-0">${t["reworks.not_calculated"]?html}</p>
+                </div>
+            </div>
+
+            <div id="rw-main" hidden>
+                <ul class="nav nav-pills mb-3 gap-1" id="rw-tabs">
+                    <li class="nav-item"><button class="nav-link active" data-tab="players">${t["reworks.tab_players"]?html}</button></li>
+                    <li class="nav-item"><button class="nav-link" data-tab="scores">${t["reworks.tab_scores"]?html}</button></li>
+                    <li class="nav-item ms-auto" id="rw-me-wrap" hidden><button class="btn btn-sm btn-outline-primary" id="rw-me">${t["reworks.my_scores"]?html}</button></li>
+                </ul>
+
+                <div id="rw-tab-players">
+                    <input type="search" class="form-control form-control-sm mb-3" id="rw-search" placeholder="${t["reworks.search"]?html}" maxlength="32">
+                    <div class="card">
+                        <div class="rw-table-head d-none d-md-grid rw-player-grid">
+                            <span>#</span><span>${t["reworks.player"]?html}</span>
+                            <span class="text-end">${t["reworks.old_pp"]?html}</span>
+                            <span class="text-end">${t["reworks.new_pp"]?html}</span>
+                            <span class="text-end">${t["reworks.change"]?html}</span>
+                        </div>
+                        <div class="list-group list-group-flush" id="rw-players"></div>
+                    </div>
+                    <div class="d-flex justify-content-center gap-2 mt-3" id="rw-pager"></div>
+                </div>
+
+                <div id="rw-tab-scores" hidden>
+                    <div class="btn-group btn-group-sm mb-3" id="rw-score-order">
+                        <button class="btn btn-primary" data-order="gain">${t["reworks.order_gain"]?html}</button>
+                        <button class="btn btn-secondary" data-order="loss">${t["reworks.order_loss"]?html}</button>
+                        <button class="btn btn-secondary" data-order="top">${t["reworks.order_top"]?html}</button>
+                    </div>
+                    <div class="card"><div class="list-group list-group-flush" id="rw-scores"></div></div>
+                    <p class="text-muted small mt-2">${t["reworks.scores_note"]?html}</p>
+                </div>
+
+                <div id="rw-player" hidden>
+                    <button class="btn btn-sm btn-secondary mb-3" id="rw-back"><i class="fa-solid fa-arrow-left me-1"></i>${t["reworks.back"]?html}</button>
+                    <div class="card mb-3">
+                        <div class="card-body d-flex align-items-center gap-3 flex-wrap" id="rw-player-head"></div>
+                    </div>
+                    <div class="row g-3 mb-3" id="rw-player-stats"></div>
+                    <div class="card"><div class="list-group list-group-flush" id="rw-player-scores"></div></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>window.RW_T = {<#list t?keys as k><#if k?starts_with("reworks.")>"${k?js_string}": "${t[k]?js_string}", </#if></#list>};</script>
+<#noparse>
+<script>
+(function () {
+    var root = document.getElementById('rw-root');
+    if (!root || root.dataset.ready) return;
+    root.dataset.ready = '1';
+
+    var API = '/hypo/api';
+    var T = window.RW_T || {};
+    var LANG = root.dataset.lang === 'pl' ? 'pl' : 'en';
+    var AVATARS = root.dataset.avatars;
+    var ME = parseInt(root.dataset.me || '0', 10);
+    var nf0 = new Intl.NumberFormat(LANG, { maximumFractionDigits: 0 });
+    var nf1 = new Intl.NumberFormat(LANG, { maximumFractionDigits: 1, minimumFractionDigits: 1 });
+    var nf2 = new Intl.NumberFormat(LANG, { maximumFractionDigits: 2, minimumFractionDigits: 2 });
+    var MODS = [[1, 'NF'], [2, 'EZ'], [4, 'TD'], [8, 'HD'], [16, 'HR'], [32, 'SD'], [64, 'DT'], [256, 'HT'], [512, 'NC'], [1024, 'FL'], [4096, 'SO'], [16384, 'PF'], [1048576, 'FI'], [8388608, 'MR']];
+
+    var params = new URLSearchParams(location.search);
+    var state = {
+        variants: [], base: 'tsg',
+        variant: params.get('variant'),
+        mode: Math.min(3, Math.max(0, parseInt(params.get('mode') || '0', 10) || 0)),
+        player: parseInt(params.get('player') || '0', 10) || 0,
+        tab: 'players', page: 0, q: '', order: 'gain', showEras: false
+    };
+
+    function t(k, vars) {
+        var s = T['reworks.' + k] || k;
+        if (vars) Object.keys(vars).forEach(function (v) { s = s.replace('{' + v + '}', vars[v]); });
+        return s;
+    }
+    function el(tag, cls, text) {
+        var e = document.createElement(tag);
+        if (cls) e.className = cls;
+        if (text !== undefined && text !== null) e.textContent = text;
+        return e;
+    }
+    function loc(obj) { return obj ? (obj[LANG] || obj.en || '') : ''; }
+    function get(path, q) {
+        var url = API + path + '?' + new URLSearchParams(q).toString();
+        return fetch(url).then(function (r) {
+            if (!r.ok) throw new Error(r.status);
+            return r.json();
+        });
+    }
+    function modList(bits) {
+        var out = [];
+        MODS.forEach(function (m) {
+            if (!(bits & m[0])) return;
+            if (m[1] === 'DT' && (bits & 512)) return;
+            if (m[1] === 'SD' && (bits & 16384)) return;
+            out.push(m[1]);
+        });
+        return out;
+    }
+    function modPills(bits) {
+        var wrap = el('span', 'rw-mods');
+        modList(bits).forEach(function (m) { wrap.appendChild(el('span', 'rw-mod', m)); });
+        return wrap;
+    }
+    function diff(newPp, oldPp, withPct) {
+        var span = el('span', 'rw-diff');
+        if (oldPp === null || oldPp === undefined) { span.textContent = t('new_entry'); span.classList.add('rw-neu'); return span; }
+        var d = newPp - oldPp;
+        span.classList.add(Math.abs(d) < 0.5 ? 'rw-neu' : d > 0 ? 'rw-pos' : 'rw-neg');
+        var txt = (d > 0 ? '+' : '') + nf0.format(d) + 'pp';
+        if (withPct && oldPp > 0) txt += ' (' + (d > 0 ? '+' : '') + nf1.format(d / oldPp * 100) + '%)';
+        span.textContent = txt;
+        return span;
+    }
+    function rankMove(newRank, oldRank) {
+        var span = el('span', 'rw-move');
+        if (!oldRank) return span;
+        var d = oldRank - newRank;
+        if (d > 0) { span.classList.add('rw-pos'); span.textContent = '▲' + d; }
+        else if (d < 0) { span.classList.add('rw-neg'); span.textContent = '▼' + (-d); }
+        return span;
+    }
+    function playerCell(p) {
+        var cell = el('span', 'rw-player-cell');
+        if (AVATARS) {
+            var img = el('img', 'rw-avatar');
+            img.src = AVATARS + '/' + p.id; img.alt = ''; img.loading = 'lazy';
+            cell.appendChild(img);
+        }
+        if (p.country) {
+            var flag = el('img', 'rw-flag');
+            flag.src = '/img/flags/' + String(p.country).toLowerCase() + '.svg'; flag.alt = p.country;
+            cell.appendChild(flag);
+        }
+        cell.appendChild(el('span', 'rw-name', p.name));
+        return cell;
+    }
+    function mapTitle(s) {
+        var a = el('a', 'rw-map');
+        a.href = '/b/' + s.map_id;
+        a.appendChild(el('span', 'rw-map-title', s.artist + ' - ' + s.title));
+        a.appendChild(el('span', 'rw-map-version', ' [' + s.version + ']'));
+        return a;
+    }
+    function saveUrl() {
+        var q = new URLSearchParams();
+        if (state.variant) q.set('variant', state.variant);
+        if (state.mode) q.set('mode', state.mode);
+        if (state.player) q.set('player', state.player);
+        history.replaceState(history.state, '', location.pathname + (q.toString() ? '?' + q : ''));
+    }
+    function current() {
+        return state.variants.find(function (v) { return v.id === state.variant; });
+    }
+    function hasRun(v, mode) { return v && v.runs && v.runs[String(mode)]; }
+
+    // ---------- lista wariantów ----------
+    function renderVariants() {
+        var list = document.getElementById('rw-variants');
+        list.textContent = '';
+        var groups = [['server', t('group_server')], ['osu', t('group_osu')], ['proposal', t('group_proposal')], ['era', t('group_era')]];
+        var cur = current();
+        if (cur && cur.group === 'era') state.showEras = true;
+        groups.forEach(function (g) {
+            var items = state.variants.filter(function (v) { return v.group === g[0]; });
+            if (!items.length) return;
+            var head = el('div', 'list-group-item rw-group', g[1]);
+            list.appendChild(head);
+            if (g[0] === 'era') {
+                head.classList.add('rw-group-toggle');
+                head.setAttribute('role', 'button');
+                head.appendChild(el('span', 'rw-group-arrow', state.showEras ? '▾' : '▸'));
+                head.addEventListener('click', function () { state.showEras = !state.showEras; renderVariants(); });
+                if (!state.showEras) return;
+            }
+            items.forEach(function (v) {
+                var b = el('button', 'list-group-item list-group-item-action rw-variant');
+                b.type = 'button';
+                if (v.id === state.variant) b.classList.add('active');
+                var supported = v.modes.indexOf(state.mode) !== -1;
+                if (!supported || !hasRun(v, state.mode)) b.classList.add('rw-off');
+                b.appendChild(el('div', 'rw-variant-name', loc(v.name)));
+                b.appendChild(el('div', 'rw-variant-period', supported ? loc(v.period) : t('mode_unsupported')));
+                b.addEventListener('click', function () {
+                    state.variant = v.id; state.player = 0; state.page = 0;
+                    saveUrl(); renderVariants(); show();
+                });
+                list.appendChild(b);
+            });
+        });
+    }
+
+    function renderModes() {
+        document.querySelectorAll('#rw-modes .sort-button').forEach(function (img) {
+            img.classList.toggle('selected', parseInt(img.dataset.mode, 10) === state.mode);
+        });
+    }
+
+    // ---------- opis wariantu ----------
+    function renderInfo(v) {
+        document.getElementById('rw-info').hidden = false;
+        document.getElementById('rw-name').textContent = loc(v.name);
+        document.getElementById('rw-period').textContent = loc(v.period);
+        document.getElementById('rw-desc').textContent = loc(v.description);
+        var badge = document.getElementById('rw-badge');
+        badge.className = 'badge rw-badge rw-badge-' + v.group;
+        badge.textContent = t('badge_' + v.group);
+        var ul = document.getElementById('rw-changes');
+        ul.textContent = '';
+        (v.changes || []).forEach(function (c) { ul.appendChild(el('li', null, loc(c))); });
+        ul.hidden = !(v.changes || []).length;
+        var upd = document.getElementById('rw-updated');
+        var run = hasRun(v, state.mode);
+        upd.textContent = '';
+        if (run) {
+            var when = new Date(run.updated);
+            upd.textContent = t('updated', {
+                date: new Intl.DateTimeFormat(LANG, { dateStyle: 'medium', timeStyle: 'short' }).format(when),
+                scores: nf0.format(run.scores)
+            });
+        }
+    }
+
+    // ---------- gracze ----------
+    var searchTimer = null;
+    function loadPlayers() {
+        var list = document.getElementById('rw-players');
+        list.textContent = '';
+        list.appendChild(el('div', 'list-group-item text-muted small', t('loading')));
+        var q = { variant: state.variant, mode: state.mode, limit: 50, offset: state.page * 50 };
+        if (state.q) q.q = state.q;
+        get('/players', q).then(function (data) {
+            list.textContent = '';
+            if (!data.players.length) list.appendChild(el('div', 'list-group-item text-muted small', t('no_players')));
+            data.players.forEach(function (p) {
+                var row = el('button', 'list-group-item list-group-item-action rw-player-grid rw-row');
+                row.type = 'button';
+                if (p.id === ME) row.classList.add('rw-me');
+                var rank = el('span', 'rw-rank');
+                rank.appendChild(el('span', null, '#' + p.new_rank));
+                rank.appendChild(rankMove(p.new_rank, p.old_rank));
+                row.appendChild(rank);
+                row.appendChild(playerCell(p));
+                row.appendChild(el('span', 'text-end text-muted d-none d-md-block', p.old_pp === null ? '-' : nf0.format(p.old_pp)));
+                row.appendChild(el('span', 'text-end rw-new', nf0.format(p.new_pp) + 'pp'));
+                var d = el('span', 'text-end');
+                d.appendChild(diff(p.new_pp, p.old_pp, true));
+                row.appendChild(d);
+                row.addEventListener('click', function () { openPlayer(p.id); });
+                list.appendChild(row);
+            });
+            renderPager(data.total);
+        }).catch(function () {
+            list.textContent = '';
+            list.appendChild(el('div', 'list-group-item text-danger small', t('error')));
+        });
+    }
+    function renderPager(total) {
+        var pager = document.getElementById('rw-pager');
+        pager.textContent = '';
+        var pages = Math.ceil(total / 50);
+        if (pages <= 1) return;
+        var prev = el('button', 'btn btn-sm btn-secondary', '←');
+        prev.disabled = state.page === 0;
+        prev.addEventListener('click', function () { state.page--; loadPlayers(); });
+        var info = el('span', 'align-self-center small text-muted', (state.page + 1) + ' / ' + pages);
+        var next = el('button', 'btn btn-sm btn-secondary', '→');
+        next.disabled = state.page >= pages - 1;
+        next.addEventListener('click', function () { state.page++; loadPlayers(); });
+        pager.appendChild(prev); pager.appendChild(info); pager.appendChild(next);
+    }
+
+    // ---------- wyniki ----------
+    function loadScores() {
+        var list = document.getElementById('rw-scores');
+        list.textContent = '';
+        list.appendChild(el('div', 'list-group-item text-muted small', t('loading')));
+        document.querySelectorAll('#rw-score-order button').forEach(function (b) {
+            b.className = 'btn ' + (b.dataset.order === state.order ? 'btn-primary' : 'btn-secondary');
+        });
+        get('/scores', { variant: state.variant, mode: state.mode, order: state.order, limit: 50 }).then(function (data) {
+            list.textContent = '';
+            if (!data.scores.length) list.appendChild(el('div', 'list-group-item text-muted small', t('no_scores')));
+            data.scores.forEach(function (s) {
+                var row = el('div', 'list-group-item rw-score-row');
+                var who = el('button', 'btn btn-link p-0 rw-score-player');
+                who.type = 'button';
+                who.appendChild(playerCell({ id: s.user_id, name: s.name, country: s.country }));
+                who.addEventListener('click', function () { openPlayer(s.user_id); });
+                var mid = el('div', 'rw-score-map');
+                mid.appendChild(mapTitle(s));
+                var meta = el('div', 'rw-score-meta');
+                meta.appendChild(modPills(s.mods));
+                meta.appendChild(el('span', null, nf2.format(s.acc) + '%'));
+                if (s.misses) meta.appendChild(el('span', 'rw-neg', s.misses + '×'));
+                meta.appendChild(el('span', null, nf2.format(s.stars) + '★'));
+                mid.appendChild(meta);
+                var pp = el('div', 'rw-score-pp');
+                pp.appendChild(el('span', 'text-muted', nf0.format(s.old_pp) + ' → '));
+                pp.appendChild(el('span', 'rw-new', nf0.format(s.new_pp) + 'pp'));
+                pp.appendChild(el('br'));
+                pp.appendChild(diff(s.new_pp, s.old_pp, true));
+                row.appendChild(who); row.appendChild(mid); row.appendChild(pp);
+                list.appendChild(row);
+            });
+        }).catch(function () {
+            list.textContent = '';
+            list.appendChild(el('div', 'list-group-item text-danger small', t('error')));
+        });
+    }
+
+    // ---------- gracz ----------
+    function openPlayer(id) {
+        state.player = id;
+        saveUrl();
+        show();
+    }
+    function stat(label, value, extra) {
+        var col = el('div', 'col-6 col-md-3');
+        var card = el('div', 'card h-100 text-center');
+        var body = el('div', 'card-body py-3');
+        body.appendChild(el('div', 'small text-muted mb-1', label));
+        var v = el('div', 'h5 mb-0 fw-bold', value);
+        body.appendChild(v);
+        if (extra) body.appendChild(extra);
+        card.appendChild(body); col.appendChild(card);
+        return col;
+    }
+    function loadPlayer() {
+        var head = document.getElementById('rw-player-head');
+        var stats = document.getElementById('rw-player-stats');
+        var list = document.getElementById('rw-player-scores');
+        head.textContent = ''; stats.textContent = ''; list.textContent = '';
+        list.appendChild(el('div', 'list-group-item text-muted small', t('loading')));
+        get('/player', { variant: state.variant, mode: state.mode, id: state.player }).then(function (data) {
+            var p = data.player;
+            var link = el('a', 'rw-profile-link');
+            link.href = '/u/' + p.id + '?mode=' + state.mode;
+            link.appendChild(playerCell(p));
+            head.appendChild(link);
+            if (p.new_pp === null) {
+                list.textContent = '';
+                list.appendChild(el('div', 'list-group-item text-muted small', t('no_scores')));
+                return;
+            }
+            stats.appendChild(stat(t('old_pp'), p.old_pp === null ? '-' : nf0.format(p.old_pp) + 'pp'));
+            stats.appendChild(stat(t('new_pp'), nf0.format(p.new_pp) + 'pp'));
+            var dWrap = el('div', 'h5 mb-0 fw-bold');
+            dWrap.appendChild(diff(p.new_pp, p.old_pp, false));
+            var dc = stat(t('change'), '');
+            dc.querySelector('.h5').replaceWith(dWrap);
+            stats.appendChild(dc);
+            stats.appendChild(stat(t('rank'), (p.old_rank ? '#' + p.old_rank + ' → ' : '') + '#' + p.new_rank));
+
+            list.textContent = '';
+            list.appendChild(el('div', 'list-group-item rw-group', t('top_scores', { n: data.scores.length })));
+            data.scores.forEach(function (s, i) {
+                var row = el('div', 'list-group-item rw-score-row rw-score-row-player');
+                row.appendChild(el('span', 'rw-pos-num', '#' + (i + 1)));
+                var mid = el('div', 'rw-score-map');
+                mid.appendChild(mapTitle(s));
+                var meta = el('div', 'rw-score-meta');
+                meta.appendChild(modPills(s.mods));
+                meta.appendChild(el('span', null, nf2.format(s.acc) + '%'));
+                if (s.misses) meta.appendChild(el('span', 'rw-neg', s.misses + '×'));
+                meta.appendChild(el('span', null, nf2.format(s.stars) + '★'));
+                mid.appendChild(meta);
+                var parts = el('div', 'rw-parts');
+                [['aim', 'aim'], ['speed', 'speed'], ['acc', 'acc'], ['fl', 'fl'], ['reading', 'reading']].forEach(function (k) {
+                    var val = s.parts[k[0]];
+                    if (!val) return;
+                    parts.appendChild(el('span', null, t('part_' + k[1]) + ' ' + nf0.format(val)));
+                });
+                if (parts.childNodes.length) mid.appendChild(parts);
+                var pp = el('div', 'rw-score-pp');
+                if (s.old_pp !== null) pp.appendChild(el('span', 'text-muted', nf0.format(s.old_pp) + ' → '));
+                pp.appendChild(el('span', 'rw-new', nf0.format(s.new_pp) + 'pp'));
+                pp.appendChild(el('br'));
+                pp.appendChild(diff(s.new_pp, s.old_pp, false));
+                pp.appendChild(el('div', 'rw-weight', t('weighted', { pp: nf0.format(s.new_pp * s.weight), w: nf0.format(s.weight * 100) })));
+                row.appendChild(mid); row.appendChild(pp);
+                list.appendChild(row);
+            });
+        }).catch(function () {
+            list.textContent = '';
+            list.appendChild(el('div', 'list-group-item text-danger small', t('error')));
+        });
+    }
+
+    // ---------- widok ----------
+    function show() {
+        renderModes();
+        var v = current();
+        var main = document.getElementById('rw-main');
+        var empty = document.getElementById('rw-empty');
+        if (!v) return;
+        renderInfo(v);
+        var ok = v.modes.indexOf(state.mode) !== -1 && hasRun(v, state.mode);
+        main.hidden = !ok; empty.hidden = ok;
+        if (!ok) return;
+        var inPlayer = !!state.player;
+        document.getElementById('rw-tabs').hidden = inPlayer;
+        document.getElementById('rw-player').hidden = !inPlayer;
+        document.getElementById('rw-tab-players').hidden = inPlayer || state.tab !== 'players';
+        document.getElementById('rw-tab-scores').hidden = inPlayer || state.tab !== 'scores';
+        document.getElementById('rw-me-wrap').hidden = !ME;
+        document.querySelectorAll('#rw-tabs .nav-link').forEach(function (b) {
+            b.classList.toggle('active', b.dataset.tab === state.tab);
+        });
+        if (inPlayer) loadPlayer();
+        else if (state.tab === 'players') loadPlayers();
+        else loadScores();
+    }
+
+    document.querySelectorAll('#rw-modes .sort-button').forEach(function (img) {
+        img.addEventListener('click', function () {
+            state.mode = parseInt(img.dataset.mode, 10); state.page = 0; state.player = 0;
+            saveUrl(); renderVariants(); show();
+        });
+    });
+    document.querySelectorAll('#rw-tabs .nav-link').forEach(function (b) {
+        b.addEventListener('click', function () { state.tab = b.dataset.tab; show(); });
+    });
+    document.querySelectorAll('#rw-score-order button').forEach(function (b) {
+        b.addEventListener('click', function () { state.order = b.dataset.order; loadScores(); });
+    });
+    document.getElementById('rw-search').addEventListener('input', function (e) {
+        clearTimeout(searchTimer);
+        searchTimer = setTimeout(function () { state.q = e.target.value.trim(); state.page = 0; loadPlayers(); }, 300);
+    });
+    document.getElementById('rw-back').addEventListener('click', function () { state.player = 0; saveUrl(); show(); });
+    document.getElementById('rw-me').addEventListener('click', function () { openPlayer(ME); });
+
+    get('/variants', {}).then(function (data) {
+        state.variants = data.variants;
+        state.base = data.base;
+        if (!current()) {
+            var first = state.variants.find(function (v) { return v.group === 'osu' && hasRun(v, state.mode); })
+                || state.variants[0];
+            state.variant = first ? first.id : null;
+        }
+        renderVariants();
+        show();
+    }).catch(function () {
+        var list = document.getElementById('rw-variants');
+        list.textContent = '';
+        list.appendChild(el('div', 'list-group-item text-danger small', t('error')));
+    });
+})();
+</script>
+</#noparse>
+<#include "assets/footer.html">
