@@ -22,8 +22,12 @@
   </div>
 
   <div class="card rounded">
-    <div class="card-header bg-body border-bottom px-4 py-3">
-      <h6 class="mb-0 fw-semibold"><i class="fa-solid fa-clock-rotate-left me-2"></i>${t["analyzer.last50"]?html}</h6>
+    <div class="card-header bg-body border-bottom px-4 py-3 d-flex align-items-center flex-wrap gap-2">
+      <h6 class="mb-0 fw-semibold me-auto"><i class="fa-solid fa-clock-rotate-left me-2"></i>${t["analyzer.last50"]?html}</h6>
+      <div class="form-check form-switch mb-0">
+        <input class="form-check-input" type="checkbox" role="switch" id="showFailed"<#if showFailed> checked</#if>>
+        <label class="form-check-label small" for="showFailed">${t["analyzer.show_failed"]?html}</label>
+      </div>
     </div>
     <div class="card-body p-0">
       <#if scores?size == 0>
@@ -54,7 +58,7 @@
               </#if>
                 <td class="ps-4">
                   <div class="fw-semibold">${s.artist?html} - ${s.title?html}</div>
-                  <div class="text-muted small">[${s.version?html}] ★ ${s.diff}</div>
+                  <div class="text-muted small">[${s.version?html}] <span class="js-stars" data-map="${s.map_id?c}" data-mods="${s.mods?c}">★ ${s.diff}</span><#if s.mods_str?has_content> <span class="analyzer-mods">+${s.mods_str}</span></#if></div>
                 </td>
                 <td>${s.score?string(",##0")}</td>
                 <td>${s.acc}%</td>
@@ -63,7 +67,7 @@
                   <#if s.grade != "F">
                     <img src="/img/ranking/ranking-${s.grade}.png" alt="${s.grade}" style="height:24px;">
                   <#else>
-                    <span class="text-danger fw-bold">F</span>
+                    <span class="grade-fail" title="${t["analyzer.failed"]?html}">FAIL</span>
                   </#if>
                 </td>
                 <td class="text-muted small" data-timestamp-format="relative">${s.play_time}</td>
@@ -85,7 +89,7 @@
 </div>
 <script>
 (function() {
-  var L = { noResults: "${t["analyzer.no_results"]?js_string}", searching: "${t["common.searching"]?js_string}", error: "${t["analyzer.search_error"]?js_string}", available: "${t["analyzer.available"]?js_string}", none: "${t["analyzer.none"]?js_string}", miss: "${t["analyzer.miss"]?js_string}" };
+  var L = { noResults: "${t["analyzer.no_results"]?js_string}", searching: "${t["common.searching"]?js_string}", error: "${t["analyzer.search_error"]?js_string}", available: "${t["analyzer.available"]?js_string}", none: "${t["analyzer.none"]?js_string}", miss: "${t["analyzer.miss"]?js_string}", nomod: "${t["analyzer.nomod"]?js_string}" };
   function esc(v) { return String(v == null ? "" : v).replace(/[&<>"']/g, function(c) { return {"&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;", "'": "&#39;"}[c]; }); }
   var input = document.getElementById("scoreSearch");
   var resultsDiv = document.getElementById("searchResults");
@@ -105,7 +109,7 @@
       html += "<img src=\"https://assets.ppy.sh/beatmaps/" + encodeURIComponent(s.set_id) + "/covers/list.jpg\" style=\"width:48px;height:48px;object-fit:cover;border-radius:4px;flex-shrink:0;\" onerror=\"this.style.display='none'\">";
       html += "<div class=\"flex-grow-1\">";
       html += "<div class=\"fw-semibold small\">" + esc(s.artist) + " - " + esc(s.title) + "</div>";
-      html += "<div class=\"text-muted\" style=\"font-size:0.75rem;\">[" + esc(s.version) + "] &#9733;" + esc(s.diff) + "</div>";
+      html += "<div class=\"text-muted\" style=\"font-size:0.75rem;\">[" + esc(s.version) + "] <span class=\"js-stars\" data-map=\"" + esc(s.map_id) + "\" data-mods=\"" + esc(s.mods) + "\">&#9733; " + esc(s.diff) + "</span>" + (s.mods_str ? " <span class=\"analyzer-mods\">+" + esc(s.mods_str) + "</span>" : "") + (s.grade === "F" ? " <span class=\"grade-fail grade-fail-sm\">FAIL</span>" : "") + "</div>";
       html += "<div class=\"text-muted\" style=\"font-size:0.72rem;\">";
       html += esc(s.acc) + "% &nbsp;&bull;&nbsp; " + esc(s.pp) + "pp &nbsp;&bull;&nbsp; ";
       html += "<span class=\"text-warning\">100: " + esc(s.n100) + "</span> &nbsp;&bull;&nbsp; ";
@@ -116,7 +120,29 @@
       html += "</div>";
     }
     resultsDiv.innerHTML = html;
+    loadStars(resultsDiv);
   }
+
+  // gwiazdki z modami (DT, HR, EZ, HT, FL) liczone wzorem serwera przez pp-lab
+  function loadStars(root) {
+    var els = Array.prototype.filter.call(root.querySelectorAll(".js-stars"), function(e) { return (parseInt(e.dataset.mods, 10) & 1874) !== 0; });
+    if (!els.length) return;
+    var items = els.map(function(e) { return e.dataset.map + ":" + e.dataset.mods; });
+    fetch("/hypo/api/stars?items=" + encodeURIComponent(Array.from(new Set(items)).slice(0, 100).join(",")))
+      .then(function(r) { return r.ok ? r.json() : {}; })
+      .then(function(data) {
+        els.forEach(function(e) {
+          var v = data[e.dataset.map + ":" + e.dataset.mods];
+          if (v === undefined) return;
+          e.title = L.nomod + " " + e.textContent.trim();
+          e.textContent = "\u2605 " + v.toFixed(2);
+        });
+      }).catch(function() {});
+  }
+  loadStars(document);
+  document.getElementById("showFailed").addEventListener("change", function() {
+    Turbo.visit("/analyzer" + (this.checked ? "?failed=1" : ""));
+  });
 
   input.addEventListener("input", function() {
     var q = this.value.trim();
@@ -125,7 +151,7 @@
     resultsDiv.style.display = "block";
     resultsDiv.innerHTML = "<div class=\"text-muted small px-1 py-2\">" + esc(L.searching) + "</div>";
     timer = setTimeout(function() {
-      fetch("/analyzer/search?q=" + encodeURIComponent(q), {credentials: "same-origin"})
+      fetch("/analyzer/search?q=" + encodeURIComponent(q) + (document.getElementById("showFailed").checked ? "&failed=1" : ""), {credentials: "same-origin"})
         .then(function(r) { return r.json(); })
         .then(renderResults)
         .catch(function() { resultsDiv.innerHTML = "<div class=\"text-danger small\">" + esc(L.error) + "</div>"; });

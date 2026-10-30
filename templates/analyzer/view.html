@@ -10,7 +10,7 @@
         <div class="d-flex justify-content-between align-items-start">
           <div>
             <h5 class="fw-bold mb-1">${score.artist?html} - ${score.title?html} [${score.version?html}]</h5>
-            <div class="opacity-75 small">★ ${score.diff}<#if score.mods_str?has_content> &nbsp;|&nbsp; +${score.mods_str}</#if> &nbsp;|&nbsp; ${t["stats.score"]?html}: ${score.score?string(",##0")} &nbsp;|&nbsp; ${score.acc}% &nbsp;|&nbsp; ${score.pp}pp</div>
+            <div class="opacity-75 small"><span class="js-stars" data-map="${score.map_id?c}" data-mods="${score.mods?c}" data-nomod="${t["analyzer.nomod"]?html}">★ ${score.diff}</span><#if score.mods_str?has_content> &nbsp;|&nbsp; +${score.mods_str}</#if> &nbsp;|&nbsp; ${t["stats.score"]?html}: ${score.score?string(",##0")} &nbsp;|&nbsp; ${score.acc}% &nbsp;|&nbsp; ${score.pp}pp</div>
           </div>
           <a href="/analyzer" class="btn btn-sm btn-outline-light"><i class="fa-solid fa-arrow-left me-1"></i>${t["common.back"]?html}</a>
         </div>
@@ -147,6 +147,18 @@ document.addEventListener('DOMContentLoaded', () => {
     new bootstrap.Tooltip(el, { placement: 'top', trigger: 'hover focus' });
   });
 });
+(function() {
+  var e = document.querySelector('.js-stars');
+  if (!e || (parseInt(e.dataset.mods, 10) & 1874) === 0) return;
+  fetch('/hypo/api/stars?items=' + encodeURIComponent(e.dataset.map + ':' + e.dataset.mods))
+    .then(function(r) { return r.ok ? r.json() : {}; })
+    .then(function(d) {
+      var v = d[e.dataset.map + ':' + e.dataset.mods];
+      if (v === undefined) return;
+      e.title = e.dataset.nomod + ' ' + e.textContent.trim();
+      e.textContent = '\u2605 ' + v.toFixed(2);
+    }).catch(function() {});
+})();
 <#if noteResultsJson??>
 (function() {
   const notes = ${noteResultsJson};
