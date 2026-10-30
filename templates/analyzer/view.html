@@ -164,9 +164,11 @@ document.addEventListener('DOMContentLoaded', () => {
   const notes = ${noteResultsJson};
   if (!notes.length) return;
   const labels = notes.map((n, i) => i + 1);
-  const timingData = notes.map(n => n.te);
+  // missy jako czerwony pas przez cały wykres; wcześniej miały wysokość 0 i wyglądały jak przerwy
+  const maxAbs = Math.max(10, ...notes.filter(n => n.v !== 'miss').map(n => Math.abs(n.te)));
+  const timingData = notes.map(n => n.v === 'miss' ? [-maxAbs, maxAbs] : [0, n.te]);
   const colors = notes.map(n => {
-    if (n.v === 'miss') return 'rgba(220,53,69,0.8)';
+    if (n.v === 'miss') return 'rgba(220,53,69,0.35)';
     if (n.j) return 'rgba(255,193,7,0.7)';
     if (n.s) return 'rgba(13,110,253,0.6)';
     return 'rgba(108,117,125,0.5)';
@@ -194,7 +196,7 @@ document.addEventListener('DOMContentLoaded', () => {
             label: (ctx) => {
               const n = notes[ctx.dataIndex];
               return [
-                '${t["analyzer.chart_timing"]?js_string}' + ': ' + (n.te > 0 ? '+' : '') + n.te + ' ms',
+                n.v === 'miss' ? 'Miss' : '${t["analyzer.chart_timing"]?js_string}' + ': ' + (n.te > 0 ? '+' : '') + n.te + ' ms',
                 '${t["analyzer.chart_verdict"]?js_string}' + ': ' + (n.v === 'slider' ? '${t["analyzer.slider_head"]?js_string}' : n.v),
                 n.j ? 'Jump' : n.s ? 'Stream' : '${t["analyzer.other"]?js_string}'
               ];
