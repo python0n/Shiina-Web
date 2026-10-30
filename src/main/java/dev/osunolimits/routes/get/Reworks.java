@@ -1,6 +1,5 @@
 package dev.osunolimits.routes.get;
 
-import dev.osunolimits.main.App;
 import dev.osunolimits.modules.Shiina;
 import dev.osunolimits.modules.ShiinaRoute;
 import dev.osunolimits.modules.ShiinaRoute.ShiinaRequest;
@@ -19,7 +18,7 @@ public class Reworks extends Shiina {
         java.util.Map<String, String> t = (java.util.Map<String, String>) shiina.data.get("t");
         String title = t != null && t.get("reworks.title") != null ? t.get("reworks.title") : "PP reworks";
         String description = t != null && t.get("reworks.subtitle") != null ? t.get("reworks.subtitle") : "";
-        shiina.data.put("seo", new SEOBuilder(title + " | " + App.customization.get("serverName"), description));
+        shiina.data.put("seo", new SEOBuilder(title, description));
         return renderTemplate("reworks.html", shiina, res, req);
     }
 }
