@@ -3022,3 +3022,18 @@ END LEADERBOARD */
 .rw-group-toggle { cursor: pointer; display: flex; justify-content: space-between; user-select: none; }
 .rw-group-toggle:hover { color: var(--bs-emphasis-color); }
 .rw-badge-proposal { background: var(--bs-warning); color: #000; }
+/* analizator: oznaczenie niezaliczonego zagrania i modów */
+.grade-fail {
+    display: inline-block;
+    font-size: .72rem;
+    font-weight: 800;
+    letter-spacing: .1em;
+    line-height: 1;
+    padding: .3rem .45rem;
+    border-radius: .4rem;
+    color: #ff5c7a;
+    border: 2px solid currentColor;
+    background: color-mix(in srgb, #ff5c7a 12%, transparent);
+}
+.grade-fail-sm { font-size: .6rem; padding: .15rem .3rem; border-width: 1px; }
+.analyzer-mods { font-family: var(--bs-font-monospace); font-weight: 700; font-size: .72rem; color: var(--bs-emphasis-color); }
