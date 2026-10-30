@@ -108,7 +108,7 @@ public class Analyzer extends Shiina {
         }
         json.append("]");
         shiina.data.put("scoresJson", json.toString());
-        shiina.data.put("seo", new SEOBuilder("Analyzer | " + App.customization.get("serverName"), "Analiza replayów"));
+        shiina.data.put("seo", new SEOBuilder("Analyzer", "Analiza replayów"));
         return renderTemplate("analyzer/list.html", shiina, res, req);
     }
 
@@ -215,13 +215,13 @@ public class Analyzer extends Shiina {
 
         if (!osrFile.exists()) {
             shiina.data.put("error", "Replay file is not available for this score.");
-            shiina.data.put("seo", new SEOBuilder("Analyzer | " + App.customization.get("serverName"), ""));
+            shiina.data.put("seo", new SEOBuilder("Analyzer", ""));
             return renderTemplate("analyzer/view.html", shiina, res, req);
         }
 
         if (!osuFile.exists()) {
             shiina.data.put("error", "Beatmap file is not available locally. Play this map again to download it.");
-            shiina.data.put("seo", new SEOBuilder("Analyzer | " + App.customization.get("serverName"), ""));
+            shiina.data.put("seo", new SEOBuilder("Analyzer", ""));
             return renderTemplate("analyzer/view.html", shiina, res, req);
         }
 
@@ -242,7 +242,7 @@ public class Analyzer extends Shiina {
             shiina.data.put("error", "Analysis error: " + e.getMessage());
         }
 
-        shiina.data.put("seo", new SEOBuilder("Analyzer | " + App.customization.get("serverName"), ""));
+        shiina.data.put("seo", new SEOBuilder("Analyzer", ""));
         return renderTemplate("analyzer/view.html", shiina, res, req);
     }
 
