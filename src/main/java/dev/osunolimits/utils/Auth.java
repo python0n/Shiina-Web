@@ -38,6 +38,11 @@ public class Auth {
         public String city = null;
         @SerializedName("country")
         public String country = null;
+        /** null for sessions created before this field existed (treated as remembered) */
+        @SerializedName("remember")
+        public Boolean remember = null;
+        @SerializedName("refreshed")
+        public Integer refreshed = null;
     }
 
     private static final SecureRandom secureRandom = new SecureRandom();

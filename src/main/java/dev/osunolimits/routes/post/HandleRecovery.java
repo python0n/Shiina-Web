@@ -69,7 +69,7 @@ public class HandleRecovery extends Shiina {
         UserInfoCache.reloadUser(userId);
 
         // same flags as HandleLogin without "remember me": 1 day, Secure, HttpOnly
-        res.cookie("shiina", new SessionBuilder(userId, req).build(), 604800 / 7, true, true);
+        new SessionBuilder(userId, req).login(res, false);
 
         return redirect(res, shiina, "/?recover=success");
     }

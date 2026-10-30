@@ -86,7 +86,7 @@ The server only collects what it needs to run and to enforce these rules. Data i
 
 The website uses only two cookies, both needed for it to work:
 
-- `shiina` keeps you logged in. It expires after 1 day, or after 7 days with "Remember me".
+- `shiina` keeps you logged in. It expires after 1 day without visiting the site, or after 30 days without a visit with "Remember me".
 - `lang` remembers the language you picked. It expires after a year.
 
 There are no advertising or tracking cookies, which is why there is no cookie banner.

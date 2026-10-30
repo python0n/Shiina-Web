@@ -109,7 +109,7 @@ public class HandleRegister extends Shiina {
         UserInfoCache.reloadUser(userId);
 
         // same flags as HandleLogin without "remember me": 1 day, Secure, HttpOnly
-        res.cookie("shiina", new SessionBuilder(userId, req).build(), 604800 / 7, true, true);
+        new SessionBuilder(userId, req).login(res, false);
 
         String refPath = req.queryParams("refPath");
         if(refPath != null && !refPath.isEmpty()) {
