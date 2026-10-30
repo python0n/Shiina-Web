@@ -86,7 +86,7 @@ Serwer zbiera tylko to, czego potrzebuje do działania i pilnowania tych zasad. 
 
 Strona używa tylko dwóch ciasteczek, oba są niezbędne do działania:
 
-- `shiina` – utrzymuje zalogowanie. Wygasa po 1 dniu, a z opcją „Zapamiętaj mnie” po 7 dniach.
+- `shiina` – utrzymuje zalogowanie. Wygasa po 1 dniu bez wizyty na stronie, a z opcją „Zapamiętaj mnie” po 30 dniach bez wizyty.
 - `lang` – zapamiętuje wybrany język strony. Wygasa po roku.
 
 Nie ma ciasteczek reklamowych ani śledzących, dlatego strona nie pokazuje banera o ciasteczkach.
