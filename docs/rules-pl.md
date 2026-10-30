@@ -86,15 +86,15 @@ Serwer zbiera tylko to, czego potrzebuje do działania i pilnowania tych zasad. 
 
 Strona używa tylko dwóch ciasteczek, oba są niezbędne do działania:
 
-- `shiina` – utrzymuje zalogowanie. Wygasa po 1 dniu bez wizyty na stronie, a z opcją „Zapamiętaj mnie” po 30 dniach bez wizyty.
-- `lang` – zapamiętuje wybrany język strony. Wygasa po roku.
+- `shiina` - utrzymuje zalogowanie. Wygasa po 1 dniu bez wizyty na stronie, a z opcją „Zapamiętaj mnie” po 30 dniach bez wizyty.
+- `lang` - zapamiętuje wybrany język strony. Wygasa po roku.
 
 Nie ma ciasteczek reklamowych ani śledzących, dlatego strona nie pokazuje banera o ciasteczkach.
 
 ### Usługi zewnętrzne
 
-- **Cloudflare** – część ruchu do strony przechodzi przez ich serwery, a ich weryfikacja Turnstile chroni formularze przed botami.
-- **osu.direct** – źródło map pobieranych w grze i na stronie. Pobieranie idzie przez serwer taksiegra, więc osu.direct widzi adres serwera, nie twój.
+- **Cloudflare** - część ruchu do strony przechodzi przez ich serwery, a ich weryfikacja Turnstile chroni formularze przed botami.
+- **osu.direct** - źródło map pobieranych w grze i na stronie. Pobieranie idzie przez serwer taksiegra, więc osu.direct widzi adres serwera, nie twój.
 
 ### Twoje dane
 

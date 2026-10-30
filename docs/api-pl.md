@@ -94,7 +94,7 @@ Szukanie graczy po fragmencie nicku.
 
 | Parametr | Typ | Opis |
 |---|---|---|
-| `q` | tekst | Fragment nicku, 2–32 znaki. Bez parametru zwraca wszystkich. |
+| `q` | tekst | Fragment nicku, 2-32 znaki. Bez parametru zwraca wszystkich. |
 
 ```bash
 curl "https://api.taksiegra.ovh/v1/search_players?q=pyth"
@@ -177,7 +177,7 @@ Ostatnie albo najlepsze wyniki gracza.
 | `scope` | tekst | **Wymagany.** `recent` (od najnowszych) albo `best` (od największego pp, tylko mapy rankingowe i zatwierdzone) |
 | `mode` | liczba | Tryb, domyślnie `0` |
 | `mods` | tekst | Filtr modów, patrz [Mody](#mody) |
-| `limit` | liczba | 1–100, domyślnie 25 |
+| `limit` | liczba | 1-100, domyślnie 25 |
 | `include_loved` | true/false | Dla `best`: czy liczyć mapy uwielbiane. Domyślnie `false` |
 | `include_failed` | true/false | Dla `recent`: czy pokazywać niezaliczone. Domyślnie `true` |
 
@@ -208,7 +208,7 @@ Najczęściej grane mapy gracza.
 |---|---|---|
 | `id` / `name` | liczba / tekst | Gracz |
 | `mode` | liczba | Tryb, domyślnie `0` |
-| `limit` | liczba | 1–100, domyślnie 25 |
+| `limit` | liczba | 1-100, domyślnie 25 |
 
 ```bash
 curl "https://api.taksiegra.ovh/v1/get_player_most_played?id=3&mode=0&limit=5"
@@ -253,7 +253,7 @@ Ranking mapy.
 | `scope` | tekst | **Wymagany.** `best` albo `recent` |
 | `mode` | liczba | Tryb, domyślnie `0` |
 | `mods` | tekst | Filtr modów |
-| `limit` | liczba | 1–100, domyślnie 50 |
+| `limit` | liczba | 1-100, domyślnie 50 |
 
 Przy `best` w zwykłych trybach kolejność jest według score, a w Relax i Autopilot według pp. Każdy gracz pojawia się raz, z wynikiem, który daje mu najwięcej pp na tej mapie.
 
@@ -349,7 +349,7 @@ Ranking graczy.
 | `mode` | liczba | Tryb, domyślnie `0` |
 | `sort` | tekst | `pp` (domyślnie), `tscore`, `rscore`, `acc`, `plays` albo `playtime` |
 | `country` | tekst | Kod kraju, np. `pl` |
-| `limit` | liczba | 1–100, domyślnie 50 |
+| `limit` | liczba | 1-100, domyślnie 50 |
 | `offset` | liczba | Ile pozycji pominąć, do stronicowania |
 
 ```bash
@@ -398,7 +398,7 @@ Pokój multiplayer, który jest teraz otwarty. Zakończone mecze są w historii 
 
 | Parametr | Typ | Opis |
 |---|---|---|
-| `id` | liczba | **Wymagany.** Numer pokoju, 1–64 |
+| `id` | liczba | **Wymagany.** Numer pokoju, 1-64 |
 
 ```bash
 curl "https://api.taksiegra.ovh/v1/get_match?id=1"
