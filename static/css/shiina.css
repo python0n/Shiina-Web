@@ -2927,3 +2927,98 @@ END LEADERBOARD */
 }
 .doc-try:hover, .doc-code-label .doc-copy:hover { color: var(--bs-primary); border-color: var(--bs-primary); }
 @media (hover: none) { .doc-code.has-label > pre { padding-top: 1rem; } }
+/* ---- reworki pp (/reworks) ---- */
+.rw-modes .sort-button { cursor: pointer; }
+.rw-group {
+    font-size: .72rem;
+    font-weight: 700;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    color: var(--bs-secondary-color);
+    background: var(--bs-tertiary-bg);
+    padding-top: .45rem;
+    padding-bottom: .45rem;
+}
+.rw-variant { border-left: 3px solid transparent; }
+.rw-variant.active { border-left-color: var(--bs-primary); }
+.rw-variant-name { font-weight: 600; }
+.rw-variant-period { font-size: .8rem; opacity: .75; }
+.rw-variant.rw-off:not(.active) { opacity: .55; }
+.rw-badge { font-weight: 600; }
+.rw-badge-server { background: var(--bs-primary); }
+.rw-badge-osu { background: #d63384; }
+.rw-badge-era { background: var(--bs-secondary); }
+.rw-changes { padding-left: 1.1rem; }
+.rw-changes li + li { margin-top: .25rem; }
+.rw-table-head {
+    padding: .5rem 1rem;
+    font-size: .75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    color: var(--bs-secondary-color);
+    border-bottom: 1px solid var(--bs-border-color);
+}
+.rw-player-grid {
+    display: grid;
+    grid-template-columns: 4.5rem minmax(0, 1fr) 6rem 6.5rem 8.5rem;
+    align-items: center;
+    gap: .75rem;
+}
+@media (max-width: 767.98px) {
+    .rw-player-grid { grid-template-columns: 3rem minmax(0, 1fr) auto auto; gap: .5rem; font-size: .9rem; }
+    .rw-player-grid .rw-avatar { display: none; }
+}
+.rw-row { padding: .6rem 1rem; }
+.rw-row.rw-me { background: color-mix(in srgb, var(--bs-primary) 10%, transparent); }
+.rw-rank { display: flex; flex-direction: column; font-weight: 600; line-height: 1.15; }
+.rw-move { font-size: .7rem; font-weight: 600; }
+.rw-player-cell { display: inline-flex; align-items: center; gap: .55rem; min-width: 0; }
+.rw-avatar { width: 32px; height: 32px; border-radius: .4rem; object-fit: cover; flex: none; }
+.rw-flag { width: 20px; height: auto; flex: none; }
+.rw-name { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rw-new { font-weight: 700; color: var(--bs-primary); }
+.rw-diff { font-weight: 600; white-space: nowrap; }
+.rw-pos { color: var(--bs-success); }
+.rw-neg { color: var(--bs-danger); }
+.rw-neu { color: var(--bs-secondary-color); }
+.rw-score-row {
+    display: grid;
+    grid-template-columns: 11rem minmax(0, 1fr) auto;
+    gap: 1rem;
+    align-items: center;
+    padding: .7rem 1rem;
+}
+.rw-score-row-player { grid-template-columns: 2.5rem minmax(0, 1fr) auto; }
+@media (max-width: 767.98px) {
+    .rw-score-row { grid-template-columns: minmax(0, 1fr) auto; }
+    .rw-score-row > .rw-score-player { grid-column: 1 / -1; justify-self: start; }
+    .rw-score-row-player > .rw-pos-num { display: none; }
+}
+.rw-score-player { text-decoration: none; color: inherit; text-align: left; min-width: 0; }
+.rw-score-map { min-width: 0; }
+.rw-map { display: block; color: inherit; text-decoration: none; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rw-map:hover .rw-map-title { text-decoration: underline; }
+.rw-map-title { font-weight: 600; }
+.rw-map-version { color: var(--bs-secondary-color); }
+.rw-score-meta { display: flex; flex-wrap: wrap; align-items: center; gap: .6rem; font-size: .82rem; color: var(--bs-secondary-color); margin-top: .15rem; }
+.rw-mods { display: inline-flex; gap: .25rem; }
+.rw-mod {
+    font-family: var(--bs-font-monospace);
+    font-size: .7rem;
+    font-weight: 700;
+    padding: .05rem .35rem;
+    border-radius: .3rem;
+    background: var(--bs-secondary-bg);
+    color: var(--bs-emphasis-color);
+}
+.rw-parts { display: flex; flex-wrap: wrap; gap: .75rem; font-size: .75rem; color: var(--bs-secondary-color); margin-top: .2rem; }
+.rw-score-pp { text-align: right; white-space: nowrap; line-height: 1.35; }
+.rw-weight { font-size: .72rem; color: var(--bs-secondary-color); }
+.rw-pos-num { font-weight: 600; color: var(--bs-secondary-color); }
+.rw-profile-link { color: inherit; text-decoration: none; }
+.rw-profile-link .rw-avatar { width: 48px; height: 48px; }
+.rw-profile-link .rw-name { font-size: 1.15rem; }
+.rw-group-toggle { cursor: pointer; display: flex; justify-content: space-between; user-select: none; }
+.rw-group-toggle:hover { color: var(--bs-emphasis-color); }
+.rw-badge-proposal { background: var(--bs-warning); color: #000; }
