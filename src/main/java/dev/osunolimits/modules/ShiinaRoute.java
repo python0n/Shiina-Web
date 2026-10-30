@@ -9,6 +9,7 @@ import dev.osunolimits.common.MySQL;
 import dev.osunolimits.main.App;
 import dev.osunolimits.models.UserInfoObject;
 import dev.osunolimits.modules.utils.I18n;
+import dev.osunolimits.modules.utils.SessionBuilder;
 import dev.osunolimits.modules.utils.ThemeLoader;
 import dev.osunolimits.utils.Auth;
 import dev.osunolimits.utils.Auth.User;
@@ -37,6 +38,7 @@ public class ShiinaRoute {
             Auth.SessionUser user = gson.fromJson(userJson, Auth.SessionUser.class);
 
             if (user != null) {
+                SessionBuilder.refresh(req.cookie("shiina"), user, res);
                 Auth.User referenceUser = new User();
                 String userInfoJson = App.appCache.get("shiina:user:" + user.id);
                 UserInfoObject infoObject = gson.fromJson(userInfoJson, UserInfoObject.class);
