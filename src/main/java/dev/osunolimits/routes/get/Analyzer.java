@@ -51,12 +51,14 @@ public class Analyzer extends Shiina {
     }
 
     private Object handleList(Request req, Response res, ShiinaRequest shiina) throws Exception {
+        boolean showFailed = "1".equals(req.queryParams("failed"));
+        shiina.data.put("showFailed", showFailed);
         ResultSet rs = shiina.mysql.Query(
             "SELECT s.id, s.score, s.acc, s.grade, s.pp, s.mods, s.play_time, s.max_combo, s.n100, s.n50, s.nmiss, " +
             "m.title, m.artist, m.version, m.diff, m.set_id, m.id as map_id " +
             "FROM scores s " +
             "JOIN maps m ON s.map_md5 = m.md5 " +
-            "WHERE s.userid = ? AND s.mode = 0 " +
+            "WHERE s.userid = ? AND s.mode = 0 " + (showFailed ? "" : "AND s.status > 0 ") +
             "ORDER BY s.id DESC LIMIT 50",
             shiina.user.id
         );
@@ -71,6 +73,7 @@ public class Analyzer extends Shiina {
             score.put("grade", rs.getString("grade"));
             score.put("pp", String.format("%.0f", rs.getFloat("pp")));
             score.put("mods", rs.getInt("mods"));
+            score.put("mods_str", modString(rs.getInt("mods")));
             score.put("max_combo", rs.getInt("max_combo"));
             score.put("play_time", rs.getString("play_time"));
             score.put("title", rs.getString("title"));
@@ -116,12 +119,13 @@ public class Analyzer extends Shiina {
             return "[]";
         }
         String like = "%" + q.trim() + "%";
+        boolean showFailed = "1".equals(req.queryParams("failed"));
         ResultSet rs = shiina.mysql.Query(
-            "SELECT s.id, s.score, s.acc, s.grade, s.pp, s.play_time, s.n100, s.n50, s.nmiss, " +
-            "m.title, m.artist, m.version, m.diff, m.set_id " +
+            "SELECT s.id, s.score, s.acc, s.grade, s.pp, s.mods, s.play_time, s.n100, s.n50, s.nmiss, " +
+            "m.id AS map_id, m.title, m.artist, m.version, m.diff, m.set_id " +
             "FROM scores s " +
             "JOIN maps m ON s.map_md5 = m.md5 " +
-            "WHERE s.userid = ? AND s.mode = 0 " +
+            "WHERE s.userid = ? AND s.mode = 0 " + (showFailed ? "" : "AND s.status > 0 ") +
             "AND (m.title LIKE ? OR m.artist LIKE ? OR m.version LIKE ?) " +
             "ORDER BY s.id DESC LIMIT 30",
             shiina.user.id, like, like, like
@@ -150,6 +154,9 @@ public class Analyzer extends Shiina {
             json.append("\"nmiss\":").append(rs.getInt("nmiss")).append(",");
             json.append("\"play_time\":\"").append(rs.getString("play_time")).append("\",");
             json.append("\"set_id\":").append(rs.getInt("set_id")).append(",");
+            json.append("\"map_id\":").append(rs.getInt("map_id")).append(",");
+            json.append("\"mods\":").append(rs.getInt("mods")).append(",");
+            json.append("\"mods_str\":\"").append(modString(rs.getInt("mods"))).append("\",");
             json.append("\"hasReplay\":").append(hasReplay);
             json.append("}");
         }
@@ -199,6 +206,7 @@ public class Analyzer extends Shiina {
         score.put("n100", rs.getInt("n100"));
         score.put("n50", rs.getInt("n50"));
         score.put("mods_str", modString(rs.getInt("mods")));
+        score.put("mods", rs.getInt("mods"));
         shiina.data.put("score", score);
         shiina.data.put("scoreId", scoreId);
 
