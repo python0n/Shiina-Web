@@ -10,7 +10,7 @@
         <div class="d-flex justify-content-between align-items-start">
           <div>
             <h5 class="fw-bold mb-1">${score.artist?html} - ${score.title?html} [${score.version?html}]</h5>
-            <div class="opacity-75 small">★ ${score.diff} &nbsp;|&nbsp; ${t["stats.score"]?html}: ${score.score?string(",##0")} &nbsp;|&nbsp; ${score.acc}% &nbsp;|&nbsp; ${score.pp}pp</div>
+            <div class="opacity-75 small">★ ${score.diff}<#if score.mods_str?has_content> &nbsp;|&nbsp; +${score.mods_str}</#if> &nbsp;|&nbsp; ${t["stats.score"]?html}: ${score.score?string(",##0")} &nbsp;|&nbsp; ${score.acc}% &nbsp;|&nbsp; ${score.pp}pp</div>
           </div>
           <a href="/analyzer" class="btn btn-sm btn-outline-light"><i class="fa-solid fa-arrow-left me-1"></i>${t["common.back"]?html}</a>
         </div>
@@ -40,10 +40,10 @@
     <div class="col-md-3">
       <div class="card rounded text-center p-3">
         <div class="text-muted small mb-1">${t["analyzer.stability"]?html} <span tabindex="0" data-bs-toggle="tooltip" title="${t["analyzer.stability_tip"]?html}"><i class="fa-solid fa-circle-info fa-xs opacity-50"></i></span></div>
-        <div class="fw-bold fs-5 ${(analysis.timingStdDev > 40)?then('text-danger', (analysis.timingStdDev > 20)?then('text-warning', 'text-success'))}">
+        <div class="fw-bold fs-5 ${(analysis.unstableRate > 200)?then('text-danger', (analysis.unstableRate > 130)?then('text-warning', 'text-success'))}">
           ±${analysis.timingStdDev?string("0.0")} ms
         </div>
-        <div class="text-muted small">${t["analyzer.std_dev"]?html}</div>
+        <div class="text-muted small">UR ${analysis.unstableRate?string("0")}</div>
       </div>
     </div>
     <div class="col-md-3">
@@ -183,7 +183,7 @@ document.addEventListener('DOMContentLoaded', () => {
               const n = notes[ctx.dataIndex];
               return [
                 '${t["analyzer.chart_timing"]?js_string}' + ': ' + (n.te > 0 ? '+' : '') + n.te + ' ms',
-                '${t["analyzer.chart_verdict"]?js_string}' + ': ' + n.v,
+                '${t["analyzer.chart_verdict"]?js_string}' + ': ' + (n.v === 'slider' ? '${t["analyzer.slider_head"]?js_string}' : n.v),
                 n.j ? 'Jump' : n.s ? 'Stream' : '${t["analyzer.other"]?js_string}'
               ];
             }

@@ -198,6 +198,7 @@ public class Analyzer extends Shiina {
         score.put("n300", rs.getInt("n300"));
         score.put("n100", rs.getInt("n100"));
         score.put("n50", rs.getInt("n50"));
+        score.put("mods_str", modString(rs.getInt("mods")));
         shiina.data.put("score", score);
         shiina.data.put("scoreId", scoreId);
 
@@ -221,8 +222,7 @@ public class Analyzer extends Shiina {
             OsrData osr = OsrParser.parse(osrBytes, true);
             OsuData osu = OsuFileParser.parse(osuFile.getAbsolutePath());
             int nmiss = rs.getInt("nmiss");
-            float cs = rs.getFloat("cs");
-            AnalysisResult analysis = ReplayAnalyzer.analyze(osr, osu, nmiss, cs);
+            AnalysisResult analysis = ReplayAnalyzer.analyze(osr, osu, nmiss, rs.getInt("mods"));
 
             List<Map<String, Object>> recommendedMaps = getRecommendedMaps(shiina, analysis, mapId, diff);
             analysis.setRecommendedMaps(recommendedMaps);
@@ -314,7 +314,9 @@ public class Analyzer extends Shiina {
                     m.put("diff", String.format("%.2f", rs2.getFloat("diff")));
                     m.put("set_id", rs2.getInt("set_id"));
                     m.put("bpm", String.format("%.0f", rs2.getFloat("bpm")));
-                    m.put("skillset", classifySkillset(rs2.getFloat("bpm"), rs2.getFloat("ar")));
+                    int tl2 = rs2.getInt("total_length");
+                    float nps2 = tl2 > 0 ? (float) rs2.getInt("max_combo") / tl2 : 0;
+                    m.put("skillset", classifySkillset(nps2, rs2.getFloat("ar")));
                     result.add(m);
                 }
             }
@@ -323,6 +325,19 @@ public class Analyzer extends Shiina {
             log.warn("Failed to get recommended maps: {}", e.getMessage(), e);
             return new ArrayList<>();
         }
+    }
+
+    private static String modString(int mods) {
+        int[][] order = {{1, 0}, {2, 1}, {8, 2}, {16, 3}, {512, 4}, {64, 5}, {256, 6}, {1024, 7}, {32, 8}, {16384, 9}, {4096, 10}};
+        String[] names = {"NF", "EZ", "HD", "HR", "NC", "DT", "HT", "FL", "SD", "PF", "SO"};
+        StringBuilder sb = new StringBuilder();
+        for (int[] m : order) {
+            if ((mods & m[0]) == 0) continue;
+            if (m[0] == 64 && (mods & 512) != 0) continue;
+            if (m[0] == 32 && (mods & 16384) != 0) continue;
+            sb.append(names[m[1]]);
+        }
+        return sb.toString();
     }
 
     private String classifySkillset(float nps, float ar) {
@@ -350,8 +365,9 @@ public class Analyzer extends Shiina {
             if (i > 0) sb.append(",");
             sb.append("{")
                 .append("\"t\":").append(n.getNoteTimeMs()).append(",")
-                .append("\"te\":").append(String.format("%.1f", n.getTimingError())).append(",")
-                .append("\"ae\":").append(String.format("%.1f", n.getAimError())).append(",")
+                .append("\"te\":").append(String.format(java.util.Locale.ROOT, "%.1f", n.getTimingError())).append(",")
+                .append("\"ae\":").append(String.format(java.util.Locale.ROOT, "%.1f", n.getAimError())).append(",")
+                .append("\"sl\":").append(n.isSlider()).append(",")
                 .append("\"v\":\"").append(n.getVerdict()).append("\",")
                 .append("\"s\":").append(n.isInStream()).append(",")
                 .append("\"j\":").append(n.isInJump())
