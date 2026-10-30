@@ -64,11 +64,7 @@
                 <td>${s.acc}%</td>
                 <td>${s.pp}pp</td>
                 <td>
-                  <#if s.grade != "F">
-                    <img src="/img/ranking/ranking-${s.grade}.png" alt="${s.grade}" style="height:24px;">
-                  <#else>
-                    <span class="grade-fail" title="${t["analyzer.failed"]?html}">FAIL</span>
-                  </#if>
+                  <img src="/img/ranking/ranking-${s.grade}.png" alt="${s.grade}" style="height:24px;"<#if s.grade == "F"> title="${t["analyzer.failed"]?html}"</#if>>
                 </td>
                 <td class="text-muted small" data-timestamp-format="relative">${s.play_time}</td>
                 <td class="pe-4">
@@ -89,7 +85,7 @@
 </div>
 <script>
 (function() {
-  var L = { noResults: "${t["analyzer.no_results"]?js_string}", searching: "${t["common.searching"]?js_string}", error: "${t["analyzer.search_error"]?js_string}", available: "${t["analyzer.available"]?js_string}", none: "${t["analyzer.none"]?js_string}", miss: "${t["analyzer.miss"]?js_string}", nomod: "${t["analyzer.nomod"]?js_string}" };
+  var L = { noResults: "${t["analyzer.no_results"]?js_string}", searching: "${t["common.searching"]?js_string}", error: "${t["analyzer.search_error"]?js_string}", available: "${t["analyzer.available"]?js_string}", none: "${t["analyzer.none"]?js_string}", miss: "${t["analyzer.miss"]?js_string}", nomod: "${t["analyzer.nomod"]?js_string}", failed: "${t["analyzer.failed"]?js_string}" };
   function esc(v) { return String(v == null ? "" : v).replace(/[&<>"']/g, function(c) { return {"&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;", "'": "&#39;"}[c]; }); }
   var input = document.getElementById("scoreSearch");
   var resultsDiv = document.getElementById("searchResults");
@@ -109,7 +105,7 @@
       html += "<img src=\"https://assets.ppy.sh/beatmaps/" + encodeURIComponent(s.set_id) + "/covers/list.jpg\" style=\"width:48px;height:48px;object-fit:cover;border-radius:4px;flex-shrink:0;\" onerror=\"this.style.display='none'\">";
       html += "<div class=\"flex-grow-1\">";
       html += "<div class=\"fw-semibold small\">" + esc(s.artist) + " - " + esc(s.title) + "</div>";
-      html += "<div class=\"text-muted\" style=\"font-size:0.75rem;\">[" + esc(s.version) + "] <span class=\"js-stars\" data-map=\"" + esc(s.map_id) + "\" data-mods=\"" + esc(s.mods) + "\">&#9733; " + esc(s.diff) + "</span>" + (s.mods_str ? " <span class=\"analyzer-mods\">+" + esc(s.mods_str) + "</span>" : "") + (s.grade === "F" ? " <span class=\"grade-fail grade-fail-sm\">FAIL</span>" : "") + "</div>";
+      html += "<div class=\"text-muted\" style=\"font-size:0.75rem;\">[" + esc(s.version) + "] <span class=\"js-stars\" data-map=\"" + esc(s.map_id) + "\" data-mods=\"" + esc(s.mods) + "\">&#9733; " + esc(s.diff) + "</span>" + (s.mods_str ? " <span class=\"analyzer-mods\">+" + esc(s.mods_str) + "</span>" : "") + (s.grade === "F" ? " <img src=\"/img/ranking/ranking-F.png\" alt=\"F\" title=\"" + esc(L.failed) + "\" style=\"height:14px;vertical-align:-2px;\">" : "") + "</div>";
       html += "<div class=\"text-muted\" style=\"font-size:0.72rem;\">";
       html += esc(s.acc) + "% &nbsp;&bull;&nbsp; " + esc(s.pp) + "pp &nbsp;&bull;&nbsp; ";
       html += "<span class=\"text-warning\">100: " + esc(s.n100) + "</span> &nbsp;&bull;&nbsp; ";
