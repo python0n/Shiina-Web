@@ -26,7 +26,7 @@
                         <div class="doc-toc-title">${t["docs.toc"]}</div>
                         <ul id="doc-toc-list"></ul>
                     </nav>
-                    <div class="doc-content" id="doc-content" data-copy="${t["docs.copy"]}" data-copied="${t["common.copied"]}">
+                    <div class="doc-content" id="doc-content" data-copy="${t["docs.copy"]}" data-copied="${t["common.copied"]}" data-request="${t["docs.request"]}" data-response="${t["docs.response"]}" data-open="${t["docs.open"]}">
                         ${content}
                     </div>
                 </div>
@@ -39,6 +39,26 @@
     var content = document.getElementById('doc-content');
     if (!content || content.dataset.ready) return;
     content.dataset.ready = '1';
+    var layout = document.getElementById('doc-layout');
+    var apiMode = !!content.querySelector('.doc-api');
+    if (apiMode) {
+        layout.classList.add('doc-api-mode');
+        content.querySelectorAll('h3[id]').forEach(function (h) {
+            var m = h.textContent.trim().match(/^(GET|POST|PUT|PATCH|DELETE)\s+(\S+)$/);
+            if (!m) return;
+            h.classList.add('doc-endpoint-title');
+            h.dataset.method = m[1];
+            h.dataset.path = m[2];
+            h.textContent = '';
+            var badge = document.createElement('span');
+            badge.className = 'doc-method doc-method-' + m[1].toLowerCase();
+            badge.textContent = m[1];
+            var code = document.createElement('code');
+            code.textContent = m[2];
+            h.appendChild(badge);
+            h.appendChild(code);
+        });
+    }
     var heads = content.querySelectorAll('h2[id], h3[id]');
     if (heads.length >= 3) {
         var list = document.getElementById('doc-toc-list');
@@ -47,12 +67,20 @@
             li.className = 'doc-toc-' + h.tagName.toLowerCase();
             var a = document.createElement('a');
             a.href = '#' + h.id;
-            a.textContent = h.textContent;
+            if (h.dataset.method) {
+                var b = document.createElement('span');
+                b.className = 'doc-method doc-method-' + h.dataset.method.toLowerCase();
+                b.textContent = h.dataset.method;
+                a.appendChild(b);
+                a.appendChild(document.createTextNode(h.dataset.path.replace(/^\/v\d+\//, '')));
+            } else {
+                a.textContent = h.textContent;
+            }
             li.appendChild(a);
             list.appendChild(li);
         });
         document.getElementById('doc-toc').hidden = false;
-        document.getElementById('doc-layout').classList.add('has-toc');
+        layout.classList.add('has-toc');
     }
     heads.forEach(function (h) {
         var a = document.createElement('a');
@@ -62,6 +90,11 @@
         a.setAttribute('aria-hidden', 'true');
         h.appendChild(a);
     });
+    if (apiMode) {
+        content.querySelectorAll('pre code.language-json').forEach(function (c) {
+            try { c.textContent = JSON.stringify(JSON.parse(c.textContent), null, 2) + '\n'; } catch (e) {}
+        });
+    }
     content.querySelectorAll('pre').forEach(function (pre) {
         var btn = document.createElement('button');
         btn.type = 'button';
@@ -78,8 +111,62 @@
         wrap.className = 'doc-code';
         pre.parentNode.insertBefore(wrap, pre);
         wrap.appendChild(pre);
-        wrap.appendChild(btn);
+        var lang = (pre.querySelector('code') || pre).className;
+        var label = /language-(bash|shell|sh)/.test(lang) ? content.dataset.request
+            : /language-json/.test(lang) ? content.dataset.response : null;
+        if (apiMode && label) {
+            var bar = document.createElement('div');
+            bar.className = 'doc-code-label';
+            var name = document.createElement('span');
+            name.textContent = label;
+            bar.appendChild(name);
+            var tools = document.createElement('span');
+            tools.className = 'doc-code-tools';
+            var text = pre.innerText;
+            var url = text.match(/curl\s+(?:-\S+\s+)*"(https:\/\/[^"\s]+)"/);
+            if (url && text.indexOf('Authorization') === -1) {
+                var open = document.createElement('a');
+                open.className = 'doc-try';
+                open.href = url[1];
+                open.target = '_blank';
+                open.rel = 'noopener';
+                open.textContent = content.dataset.open;
+                tools.appendChild(open);
+            }
+            tools.appendChild(btn);
+            bar.appendChild(tools);
+            wrap.insertBefore(bar, pre);
+            wrap.classList.add('has-label');
+        } else {
+            wrap.appendChild(btn);
+        }
     });
+    if (apiMode) {
+        content.querySelectorAll('h3.doc-endpoint-title').forEach(function (h) {
+            var section = document.createElement('section');
+            section.className = 'doc-endpoint';
+            var body = document.createElement('div');
+            body.className = 'doc-endpoint-body';
+            var main = document.createElement('div');
+            main.className = 'doc-endpoint-main';
+            var side = document.createElement('div');
+            side.className = 'doc-endpoint-side';
+            var el = h.nextElementSibling;
+            var parts = [];
+            while (el && !/^H[1-3]$/.test(el.tagName)) {
+                parts.push(el);
+                el = el.nextElementSibling;
+            }
+            h.parentNode.insertBefore(section, h);
+            section.appendChild(h);
+            parts.forEach(function (p) {
+                (p.classList.contains('doc-code') ? side : main).appendChild(p);
+            });
+            body.appendChild(main);
+            if (side.children.length) body.appendChild(side);
+            section.appendChild(body);
+        });
+    }
     var blocks = content.querySelectorAll('pre code[class*="language-"]');
     if (!blocks.length) return;
     function run() { blocks.forEach(function (b) { window.hljs.highlightElement(b); }); }
