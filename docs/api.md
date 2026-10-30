@@ -94,7 +94,7 @@ Search players by part of their name.
 
 | Parameter | Type | Description |
 |---|---|---|
-| `q` | text | Part of the name, 2–32 characters. Without it every player is returned. |
+| `q` | text | Part of the name, 2-32 characters. Without it every player is returned. |
 
 ```bash
 curl "https://api.taksiegra.ovh/v1/search_players?q=pyth"
@@ -177,7 +177,7 @@ A player's recent or best scores.
 | `scope` | text | **Required.** `recent` (newest first) or `best` (highest pp first, ranked and approved maps only) |
 | `mode` | number | Mode, default `0` |
 | `mods` | text | Mod filter, see [Mods](#mods) |
-| `limit` | number | 1–100, default 25 |
+| `limit` | number | 1-100, default 25 |
 | `include_loved` | true/false | For `best`: include loved maps. Default `false` |
 | `include_failed` | true/false | For `recent`: include failed plays. Default `true` |
 
@@ -208,7 +208,7 @@ A player's most played beatmaps.
 |---|---|---|
 | `id` / `name` | number / text | The player |
 | `mode` | number | Mode, default `0` |
-| `limit` | number | 1–100, default 25 |
+| `limit` | number | 1-100, default 25 |
 
 ```bash
 curl "https://api.taksiegra.ovh/v1/get_player_most_played?id=3&mode=0&limit=5"
@@ -253,7 +253,7 @@ A beatmap's leaderboard.
 | `scope` | text | **Required.** `best` or `recent` |
 | `mode` | number | Mode, default `0` |
 | `mods` | text | Mod filter |
-| `limit` | number | 1–100, default 50 |
+| `limit` | number | 1-100, default 50 |
 
 With `best`, normal modes are sorted by score and Relax and Autopilot by pp. Each player appears once, with the play that gives them the most pp on the map.
 
@@ -349,7 +349,7 @@ The player ranking.
 | `mode` | number | Mode, default `0` |
 | `sort` | text | `pp` (default), `tscore`, `rscore`, `acc`, `plays` or `playtime` |
 | `country` | text | Country code, e.g. `pl` |
-| `limit` | number | 1–100, default 50 |
+| `limit` | number | 1-100, default 50 |
 | `offset` | number | How many entries to skip, for paging |
 
 ```bash
@@ -398,7 +398,7 @@ A multiplayer room that is open right now. Finished matches are in the match his
 
 | Parameter | Type | Description |
 |---|---|---|
-| `id` | number | **Required.** Room number, 1–64 |
+| `id` | number | **Required.** Room number, 1-64 |
 
 ```bash
 curl "https://api.taksiegra.ovh/v1/get_match?id=1"
