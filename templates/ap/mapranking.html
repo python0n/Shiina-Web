@@ -15,7 +15,7 @@
       <div class="col">
         <form class="d-flex" action="/ap/mapranking" method="get">
           <input type="text" name="search" class="form-control me-2" placeholder="Enter beatmap url..."
-            value="${search!}">
+            value="${(search!"")?html}">
           <button class="btn btn-outline-secondary" type="submit">Submit</button>
         </form>
       </div>
@@ -27,7 +27,7 @@
       <div class="row align-items-center">
         <div class="col-auto">
           <h5 class="mb-0">
-            <i class="fa-solid fa-map"></i> ${map.title} by ${map.artist} (${map.creator})
+            <i class="fa-solid fa-map"></i> ${map.title?html} by ${map.artist?html} (${map.creator?html})
           </h5>
         </div>
       </div>
@@ -53,7 +53,7 @@
             <tbody>
               <#list map.beatmaps as beatmap>
                 <tr class="clickable-row" style="cursor: pointer;">
-                  <td>${beatmap.version}</td>
+                  <td>${beatmap.version?html}</td>
                   <td>${convertStatusBack(beatmap.status)}</td>
                   <td>${convertModeBack(beatmap.mode)?upper_case}</td>
                   <td>${beatmap.cs}</td>

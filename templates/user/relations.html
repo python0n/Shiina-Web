@@ -66,18 +66,18 @@
                                 <!-- User Info -->
                                 <div class="relation-user-info">
                                     <div class="relation-avatar ">
-                                        <img class="rounded" src="${avatarServer}/${relation.id?c}?v=${avatarV!""}" alt="${relation.name}">
+                                        <img class="rounded" src="${avatarServer}/${relation.id?c}?v=${avatarV!""}" alt="${relation.name?html}">
                                     </div>
                                     
                                     <div class="relation-name <#if relation.supporter>supporter</#if>">
-                                        ${relation.name}
+                                        ${relation.name?html}
                                     </div>
                                     
                                     <div class="relation-groups">
                                         <#list relation.user.groups as group>
                                             <span class="badge shiina-badge bg-light bg-opacity-25 text-white py-2 rounded-pill pe-3">
                                                 <span class="groupEmoji me-2">${group.emoji}</span>
-                                                ${group.name}
+                                                ${group.name?html}
                                             </span>
                                         </#list>
                                     </div>

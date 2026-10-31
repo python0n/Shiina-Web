@@ -64,8 +64,8 @@
               <#list replays as r>
               <tr>
                 <td>
-                  <div class="fw-semibold">${r.artist} - ${r.title}</div>
-                  <small class="text-muted">${r.version}</small>
+                  <div class="fw-semibold">${r.artist?html} - ${r.title?html}</div>
+                  <small class="text-muted">${r.version?html}</small>
                 </td>
                 <td>${r.score?string.number}</td>
                 <td>${r.acc}%</td>

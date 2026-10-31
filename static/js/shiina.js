@@ -1,3 +1,10 @@
+// escape text before putting it into innerHTML / template strings
+function shiinaEscape(value) {
+    return String(value == null ? '' : value).replace(/[&<>"']/g, function (c) {
+        return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+}
+
 let tooltipList = []; // Keep track of initialized tooltips
 var out;
 var out2;
@@ -764,7 +771,10 @@ function loadScorePanel(
         }
     }
     const beatmapImg = `https://assets.ppy.sh/beatmaps/${setId}/covers/cover.jpg?1650681317`;
-    const sanitizedName = name.replace('.osu', '');
+    // map names come from uploaded .osu files (BSS), so never trust them as HTML
+    const sanitizedName = shiinaEscape(String(name).replace('.osu', ''));
+    grade = shiinaEscape(grade);
+    mods = Array.isArray(mods) ? mods.map(shiinaEscape) : mods;
 
     // Helper for conditional elements
     const createBadge = (condition, html) => condition ? html : '';

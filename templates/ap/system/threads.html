@@ -12,7 +12,7 @@
         <#list threads as thread>
             <div class="card mb-3 shadow-sm">
                 <div class="card-header bg-secondary text-white">
-                    <h2 class="mb-0">${thread.name}</h2>
+                    <h2 class="mb-0">${thread.name?html}</h2>
                 </div>
                 <div class="card-body">
                     <div class="row">

@@ -34,7 +34,7 @@
                 </div>
                 <div>
                   <h5 class="mb-0">
-                    ${group.name}
+                    ${group.name?html}
                   </h5>
                   <p class="text-muted mb-0">
                     <#if group.desc?length gt 50>

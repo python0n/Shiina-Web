@@ -45,7 +45,7 @@
                                         <a href="/u/${u.id?c}"
                                             class="stretched-link text-decoration-none text-reset d-flex align-items-center flex-grow-1">
                                             <div class="me-3">
-                                                <img src="${avatarServer}/${u.id?c}?v=${avatarV!""}" alt="${u.name}" class="rounded"
+                                                <img src="${avatarServer}/${u.id?c}?v=${avatarV!""}" alt="${u.name?html}" class="rounded"
                                                     width="40" height="40">
                                             </div>
 
@@ -57,7 +57,7 @@
                                             </#if>
 
                                             <div class="flex-grow-1">
-                                                <div class="fw-bold">${u.name}</div>
+                                                <div class="fw-bold">${u.name?html}</div>
                                             </div>
                                         </a>
                                         <div class="text-end position-relative" style="z-index: 2;">
@@ -90,7 +90,7 @@
                                         <a href="/u/${u.id?c}"
                                             class="stretched-link text-decoration-none text-reset d-flex align-items-center flex-grow-1">
                                             <div class="me-3">
-                                                <img src="${avatarServer}/${u.id?c}?v=${avatarV!""}" alt="${u.name}" class="rounded"
+                                                <img src="${avatarServer}/${u.id?c}?v=${avatarV!""}" alt="${u.name?html}" class="rounded"
                                                     width="40" height="40">
                                             </div>
 
@@ -102,7 +102,7 @@
                                             </#if>
 
                                             <div class="flex-grow-1">
-                                                <div class="fw-bold">${u.name}</div>
+                                                <div class="fw-bold">${u.name?html}</div>
                                             </div>
                                         </a>
                                         <div class="text-end position-relative" style="z-index: 2;">
@@ -137,7 +137,7 @@
                                         <a href="/u/${u.id?c}"
                                             class="stretched-link text-decoration-none text-reset d-flex align-items-center flex-grow-1">
                                             <div class="me-3">
-                                                <img src="${avatarServer}/${u.id?c}?v=${avatarV!""}" alt="${u.name}" class="rounded"
+                                                <img src="${avatarServer}/${u.id?c}?v=${avatarV!""}" alt="${u.name?html}" class="rounded"
                                                     width="40" height="40">
                                             </div>
 
@@ -149,7 +149,7 @@
                                             </#if>
 
                                             <div class="flex-grow-1">
-                                                <div class="fw-bold">${u.name}</div>
+                                                <div class="fw-bold">${u.name?html}</div>
                                             </div>
                                         </a>
                                         <div class="text-end position-relative" style="z-index: 2;">

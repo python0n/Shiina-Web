@@ -5,7 +5,7 @@
             <#assign cap = badge.caption>
             <#if badge.awardedDate?? && badge.awardedDate?has_content><#assign cap = cap + " • " + badge.awardedDate></#if>
             <#if badge.link?? && badge.link?has_content>
-            <a href="${badge.link}" target="_blank" rel="noopener" class="shiina-badge-tile" title="${cap}" data-bs-toggle="tooltip">
+            <a href="${badge.link?html}" target="_blank" rel="noopener" class="shiina-badge-tile" title="${cap}" data-bs-toggle="tooltip">
                 <img src="/badge/img/${badge.image}" alt="badge" loading="lazy">
             </a>
             <#else>

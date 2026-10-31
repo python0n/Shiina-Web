@@ -19,7 +19,7 @@
                 <div class="card-body h-100 d-flex align-items-center">
                     <img width="50" class="img-fluid img-thumbnail me-3" src="${avatarServer}/${p.id?c}?v=${avatarV!""}" alt="">
                     <div>
-                        <i class="fa-solid text-success fa-circle me-2"></i><a href="/ap/user?id=${p.id?c}">${p.name}</a>
+                        <i class="fa-solid text-success fa-circle me-2"></i><a href="/ap/user?id=${p.id?c}">${p.name?html}</a>
                     </div>
                 </div>
             </div>
@@ -31,7 +31,7 @@
                 <div class="card-body d-flex align-items-center">
                     <img width="50" class="img-fluid img-thumbnail me-3" src="${avatarServer}/${p.id?c}?v=${avatarV!""}" alt="">
                     <div>
-                        <i class="fa-solid text-success fa-circle me-2"></i> ${p.name}
+                        <i class="fa-solid text-success fa-circle me-2"></i> ${p.name?html}
                     </div>
                 </div>
             </div>

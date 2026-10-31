@@ -28,7 +28,7 @@
         </div>
         <div>
             <form data-turbo="false" action="/settings/auth/sessions/delete" method="post">
-                    <input type="hidden" name="token" value="${session.encToken}">
+                    <input type="hidden" name="token" value="${session.encToken?html}">
                     <button type="submit" class="btn btn-danger btn-sm"><i class="fa-solid fa-trash"></i> ${t["settings.delete"]?html}</button>
             </form>
         </div>

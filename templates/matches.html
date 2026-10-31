@@ -28,7 +28,7 @@
                             <#list matches as m>
                                 <tr style="cursor:pointer;" class="${m.hidden?then('hidden-match', '')}" onclick="window.location.href='/matches/${m.id?c}'">
                                     <td class="text-muted">#${m.id?c}</td>
-                                    <td class="fw-semibold">${m.name}</td>
+                                    <td class="fw-semibold">${m.name?html}</td>
                                     <td>${m.creator_name!"-"}</td>
                                     <td>${m.game_count}</td>
                                     <td>

@@ -32,7 +32,7 @@
                 </div>
 
                 <#if refPath??>
-                    <input type="hidden" name="refPath" value="${refPath}">
+                    <input type="hidden" name="refPath" value="${refPath?html}">
                 </#if>
 
                 <div class="row">
@@ -69,7 +69,7 @@
             </form>
 
             <div class="mt-4">
-                <i class="fa fa-user fa-fw"></i> ${t["auth.no_account"]?html} <a href="/register<#if refPath??>?path=${refPath}</#if>">${t["nav.register"]?html}</a>
+                <i class="fa fa-user fa-fw"></i> ${t["auth.no_account"]?html} <a href="/register<#if refPath??>?path=${refPath?html}</#if>">${t["nav.register"]?html}</a>
             </div>
         </div>
     </div>

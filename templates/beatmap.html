@@ -17,10 +17,10 @@
                     <a href="/b/${diff.id?c}" 
                        data-bs-toggle="tooltip" 
                        data-bs-placement="top" 
-                       title="${diff.version}"
+                       title="${diff.version?html}"
                        class="btn btn-sm <#if beatmap.version = diff.version>btn-primary<#else>btn-outline-secondary</#if> rounded">
                         <i class="fa-solid fa-circle text-${convertDiffToColor(diff.version)} me-1"></i>
-                        <span class="d-none d-sm-inline">${diff.version}</span>
+                        <span class="d-none d-sm-inline">${diff.version?html}</span>
                     </a>
                 </#list>
             </div>
@@ -45,8 +45,8 @@
                 <div class="osu-beatmap-info">
                     <!-- Title Section -->
                     <div class="mb-4">
-                        <h1 class="display-6 fw-bold mb-2 text-white">${beatmap.artist} - ${beatmap.title}</h1>
-                        <h2 class="h4 mb-3 text-white-50">[${beatmap.version}]</h2>
+                        <h1 class="display-6 fw-bold mb-2 text-white">${beatmap.artist?html} - ${beatmap.title?html}</h1>
+                        <h2 class="h4 mb-3 text-white-50">[${beatmap.version?html}]</h2>
                         
                         <!-- Creator Info -->
                         <p class="osu-beatmap-creator mb-3">
@@ -254,13 +254,13 @@
                     <div class="flex-grow-1 me-3">
                         <div class="d-flex flex-column flex-sm-row align-items-start align-items-sm-center">
                             <div class="player-name">
-                                <span class="fw-medium <#if score.supporter>text-warning</#if>">${score.user.name}</span>
+                                <span class="fw-medium <#if score.supporter>text-warning</#if>">${score.user.name?html}</span>
                                 <#if score.mods?? && score.mods?size gt 0>
                                     <span class="badge bg-warning bg-opacity-25 text-warning border border-warning border-opacity-25 ms-2">${score.mods?join(", ")}</span>
                                 </#if>
                                 <#if score.user.groups??>
                                     <#list score.user.groups as group>
-                                        <span class="badge bg-light shiina-badge bg-opacity-25 text-white ms-2 py-2 rounded-pill pe-3"><span class="groupEmoji me-2">${group.emoji}</span>${group.name}</span>
+                                        <span class="badge bg-light shiina-badge bg-opacity-25 text-white ms-2 py-2 rounded-pill pe-3"><span class="groupEmoji me-2">${group.emoji}</span>${group.name?html}</span>
                                     </#list>
                                 </#if>
                             </div>

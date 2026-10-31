@@ -100,10 +100,10 @@
                                                 <#if player.clanTag?? && player.clanId??>
                                                     <span class="badge bg-secondary me-1">[${player.clanTag}]</span>
                                                 </#if>
-                                                <span class="fw-medium <#if player.supporter>text-warning</#if>">${player.name}</span>
+                                                <span class="fw-medium <#if player.supporter>text-warning</#if>">${player.name?html}</span>
                                                 <#if player.groups??>
                                                     <#list player.groups as group>
-                                                        <span class="badge bg-light shiina-badge bg-opacity-25 text-white ms-2 py-2 rounded-pill pe-3"><span class="groupEmoji me-2">${group.emoji}</span>${group.name}</span>
+                                                        <span class="badge bg-light shiina-badge bg-opacity-25 text-white ms-2 py-2 rounded-pill pe-3"><span class="groupEmoji me-2">${group.emoji}</span>${group.name?html}</span>
                                                     </#list>
                                                 </#if>
                                             </div>

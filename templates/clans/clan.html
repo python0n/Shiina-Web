@@ -217,7 +217,7 @@
                                     <div class="me-3">
                                         <div class="position-relative">
                                             <img src="${avatarServer}/${u.id?c}?v=${avatarV!""}" 
-                                                 alt="${u.name}" 
+                                                 alt="${u.name?html}" 
                                                  class="rounded shadow-sm" 
                                                  width="50" 
                                                  height="50"
@@ -247,7 +247,7 @@
                                     <!-- Player Name & Info -->
                                     <div class="flex-grow-1">
                                         <div class="fw-bold mb-1" style="font-size: 1.05rem;">
-                                            ${u.name}
+                                            ${u.name?html}
                                             <#if u.id == clan.owner>
                                                 <i class="fa-solid fa-crown text-warning ms-1 d-md-none" 
                                                    data-bs-toggle="tooltip" 

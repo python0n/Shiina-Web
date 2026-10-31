@@ -31,9 +31,9 @@
             <tbody>
               <#list replays as r>
               <tr>
-                <td><a href="/u/${r.userid}" target="_blank">${r.username}</a></td>
+                <td><a href="/u/${r.userid}" target="_blank">${r.username?html}</a></td>
                 <td>
-                  <div>${r.artist} - ${r.title} [${r.version}]</div>
+                  <div>${r.artist?html} - ${r.title?html} [${r.version?html}]</div>
                   <small class="text-muted font-monospace">${r.map_md5}</small>
                 </td>
                 <td>${r.score?string.number}</td>
