@@ -3024,3 +3024,13 @@ END LEADERBOARD */
 .rw-badge-proposal { background: var(--bs-warning); color: #000; }
 /* analizator: mody przy gwiazdkach */
 .analyzer-mods { font-family: var(--bs-font-monospace); font-weight: 700; font-size: .72rem; color: var(--bs-emphasis-color); }
+
+/* beatmap status badges in osu-web colours (light pill, dark text) */
+.osu-beatmap-status .status-badge { color: #1c1c1c; border-color: transparent; }
+.osu-beatmap-status .status-badge.bg-warning { background-color: #ffd966 !important; }   /* pending */
+.osu-beatmap-status .status-badge.bg-secondary { background-color: #b5b5b5 !important; } /* update available */
+.osu-beatmap-status .status-badge.bg-dark,
+.osu-beatmap-status .status-badge.bg-success { background-color: #b3ff66 !important; }   /* ranked, approved */
+.osu-beatmap-status .status-badge.bg-info { background-color: #66ccff !important; }      /* qualified */
+.osu-beatmap-status .status-badge.bg-danger { background-color: #ff66aa !important; }    /* loved */
+.osu-beatmap-status .status-badge.bg-body { background-color: #444 !important; color: #eee; }
