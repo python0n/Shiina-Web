@@ -65,6 +65,8 @@ public class ShiinaRoute {
             asrv = "https://a.taksiegra.ovh/avatars";
         }
         request.data.put("avatarServer", asrv);
+        request.data.put("assetV", dev.osunolimits.utils.AssetVersion.assets());
+        request.data.put("avatarV", dev.osunolimits.utils.AssetVersion.avatars());
 
         // translations: ${t["key"]} in templates, ${lang} = current language code
         String lang = I18n.detect(req);

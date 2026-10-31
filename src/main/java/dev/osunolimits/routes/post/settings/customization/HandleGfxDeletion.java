@@ -53,6 +53,7 @@ public class HandleGfxDeletion extends Shiina {
             if(avatarGif.exists()) {
                 avatarGif.delete();
             }
+            dev.osunolimits.utils.AssetVersion.avatarChanged();
         }
 
         new OnGfxDeletionEvent(action, shiina.user).callListeners();
