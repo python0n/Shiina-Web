@@ -1,5 +1,6 @@
 package dev.osunolimits.routes.api.get.auth;
 
+import dev.osunolimits.modules.pubsubs.SyncedAction;
 import dev.osunolimits.models.Clan;
 import dev.osunolimits.modules.Shiina;
 import dev.osunolimits.modules.ShiinaRoute;
@@ -44,6 +45,7 @@ public class HandleClanDisband extends Shiina {
 
 
         shiina.mysql.Exec("UPDATE `users` SET `clan_id`=0,`clan_priv`=0 WHERE `clan_id` = ?", clanId);
+        SyncedAction.clanDisbanded(clanId);
         shiina.mysql.Exec("DELETE FROM `clans` WHERE `id` = ?", clanId);
         shiina.mysql.Exec("DELETE FROM `sh_clan_denied` WHERE `clanid` = ?", clanId);
         shiina.mysql.Exec("DELETE FROM `sh_clan_pending` WHERE `clanid` = ?", clanId);
