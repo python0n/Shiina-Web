@@ -3,8 +3,10 @@
 <#function msg text><#if t?? && t["msg." + text]??><#return t["msg." + text]></#if><#return text></#function>
 <#function convertStatusBack status>
     <#switch status>
-        <#case 0><#return t["status.not_submitted"]><#break>
-        <#case 1><#return t["status.pending"]><#break>
+        <#-- values of maps.status in bancho (RankedStatus) -->
+        <#case -1><#return t["status.not_submitted"]><#break>
+        <#case 0><#return t["status.pending"]><#break>
+        <#case 1><#return t["status.update_available"]><#break>
         <#case 2><#return t["status.ranked"]><#break>
         <#case 3><#return t["status.approved"]><#break>
         <#case 4><#return t["status.qualified"]><#break>
@@ -25,8 +27,8 @@
 
 <#function convertStatusBackColor color>
     <#switch color>
-        <#case 0><#return "secondary"><#break>
-        <#case 1><#return "warning"><#break>
+        <#case 0><#return "warning"><#break>
+        <#case 1><#return "secondary"><#break>
         <#case 2><#return "dark"><#break>
         <#case 3><#return "success"><#break>
         <#case 4><#return "info"><#break>
