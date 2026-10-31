@@ -339,6 +339,7 @@ shiinaDocs.initializeDocs();
         WebServer.get("/ap/settings", new ModularSettings());
 
         WebServer.get("/ap/maprequests", new MapRequests());
+        WebServer.get("/ap/deletions", new dev.osunolimits.routes.ap.get.DeletionRequests());
         WebServer.get("/ap/mapranking", new MapRanking());
 
         WebServer.get("/ap/multiaccs", new Multiaccounts());
@@ -368,6 +369,7 @@ shiinaDocs.initializeDocs();
         WebServer.post("/ap/themes/change", new ChangeTheme());
         WebServer.post("/ap/settings/update", new ChangeSetting());
         WebServer.post("/ap/maprequests/deny", new DenyMapRequest());
+        WebServer.post("/ap/deletions/action", new dev.osunolimits.routes.ap.post.HandleDeletionRequest());
         WebServer.post("/ap/mapranking", new HandleMapStatusUpdate());
 
         WebServer.get("/banner/:id", new GetBanner());
