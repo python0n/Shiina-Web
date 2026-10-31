@@ -128,10 +128,11 @@ public class HandleReplaySubmit extends Shiina {
 
         App.log.info("Replay submitted: user=" + shiina.user.id + " map=" + osr.getMapMd5());
         try {
-            redis.clients.jedis.Jedis jedis = new redis.clients.jedis.Jedis("localhost", 6379);
-            String payload = "{\"user\": \"" + shiina.user.name + "\", \"map_md5\": \"" + osr.getMapMd5() + "\"}";
-            jedis.publish("ex:replay_submit", payload);
-            jedis.close();
+            // same Redis connection as the rest of Shiina (REDISHOST from .env), JSON built by Gson
+            java.util.Map<String, String> payload = new java.util.LinkedHashMap<>();
+            payload.put("user", shiina.user.name);
+            payload.put("map_md5", osr.getMapMd5());
+            App.jedisPool.publish("ex:replay_submit", new com.google.gson.Gson().toJson(payload));
         } catch (Exception e) {
             App.log.warn("Redis replay alert failed: " + e.getMessage());
         }

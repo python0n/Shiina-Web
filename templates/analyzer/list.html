@@ -102,7 +102,7 @@
       var style = s.hasReplay ? "cursor:pointer;" : "opacity:0.5;";
       var click = s.hasReplay ? " onclick=\"Turbo.visit('/analyzer/" + encodeURIComponent(s.id) + "')\"" : "";
       html += "<div class=\"d-flex align-items-center gap-3 p-2 rounded border mb-1\" style=\"" + style + "\"" + click + ">";
-      html += "<img src=\"https://assets.ppy.sh/beatmaps/" + encodeURIComponent(s.set_id) + "/covers/list.jpg\" style=\"width:48px;height:48px;object-fit:cover;border-radius:4px;flex-shrink:0;\" onerror=\"this.style.display='none'\">";
+      html += "<img alt=\"\" src=\"https://assets.ppy.sh/beatmaps/" + encodeURIComponent(s.set_id) + "/covers/list.jpg\" style=\"width:48px;height:48px;object-fit:cover;border-radius:4px;flex-shrink:0;\" onerror=\"this.style.display='none'\">";
       html += "<div class=\"flex-grow-1\">";
       html += "<div class=\"fw-semibold small\">" + esc(s.artist) + " - " + esc(s.title) + "</div>";
       html += "<div class=\"text-muted\" style=\"font-size:0.75rem;\">[" + esc(s.version) + "] <span class=\"js-stars\" data-map=\"" + esc(s.map_id) + "\" data-mods=\"" + esc(s.mods) + "\">&#9733; " + esc(s.diff) + "</span>" + (s.mods_str ? " <span class=\"analyzer-mods\">+" + esc(s.mods_str) + "</span>" : "") + (s.grade === "F" ? " <img src=\"/img/ranking/ranking-F.png\" alt=\"F\" title=\"" + esc(L.failed) + "\" style=\"height:14px;vertical-align:-2px;\">" : "") + "</div>";
