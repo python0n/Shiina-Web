@@ -21,8 +21,8 @@
     <div class="osu-score-card mb-3"
          role="link"
          tabindex="0"
-         onclick="window.location.href='/b/${score.map_id?c}';"
-         onkeydown="if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); window.location.href='/b/${score.map_id?c}'; }">
+         onclick="window.location.href='/b/${(score.map_id!score.mapId)?c}';"
+         onkeydown="if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); window.location.href='/b/${(score.map_id!score.mapId)?c}'; }">
         <div class="osu-score-container">
             <!-- Beatmap Background -->
             <div class="osu-beatmap-bg" style="background-image: url('https://assets.ppy.sh/beatmaps/${score.set_id?c}/covers/cover.jpg?1650681317')"></div>
