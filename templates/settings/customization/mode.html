@@ -12,7 +12,7 @@
                 <#list modes as mode>
                     <option <#if curMode??>
                         <#if curMode=mode.id>selected</#if>
-                        </#if> value="${mode.id}">${mode.name}
+                        </#if> value="${mode.id}">${mode.name?html}
                     </option>
                 </#list>
             </select>

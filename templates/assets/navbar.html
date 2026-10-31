@@ -31,12 +31,12 @@
           <#if item.loggedInOnly>
             <#if user??>
               <li class="nav-item">
-                <a class="nav-link <#if actNav == item.actNav>active</#if>" href="/${item.url}">${item.name}</a>
+                <a class="nav-link <#if actNav == item.actNav>active</#if>" href="/${item.url}">${item.name?html}</a>
               </li>
             </#if>
           <#else>
             <li class="nav-item">
-              <a class="nav-link <#if actNav == item.actNav>active</#if>" href="/${item.url}">${item.name}</a>
+              <a class="nav-link <#if actNav == item.actNav>active</#if>" href="/${item.url}">${item.name?html}</a>
             </li>
           </#if>
         </#list>
@@ -103,7 +103,7 @@
         </button>
         <ul class="dropdown-menu dropdown-menu-lg-end">
           <#list languages?keys as code>
-            <li><a class="dropdown-item<#if code == (lang!"en")> active</#if>" data-turbo="false" href="/lang/${code}?back=${(currentPath!"/")?url("UTF-8")}">${languages[code]?html}</a></li>
+            <li><a class="dropdown-item<#if code == (lang!"en")> active</#if>" data-turbo="false" href="/lang/${code?html}?back=${(currentPath!"/")?url("UTF-8")}">${languages[code]?html}</a></li>
           </#list>
         </ul>
       </div>
@@ -112,7 +112,7 @@
       <div class="d-flex mt-3 my-lg-0">
         <#if user??>
           <button class="btn btn-secondary dropdown-toggle" style="background-color: transparent; color: white; padding: 5px; padding-left: 10px; padding-right: 5px;" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-            <img class="me-2 rounded" src="${avatarServer}/${user.id?c}?v=${avatarV!""}" alt="Profile Image" width="28" height="28">${user.name}
+            <img class="me-2 rounded" src="${avatarServer}/${user.id?c}?v=${avatarV!""}" alt="Profile Image" width="28" height="28">${user.name?html}
           </button>
 
           <ul class="dropdown-menu dropdown-menu-lg-end">
@@ -121,7 +121,7 @@
             <li><a class="dropdown-item" href="/settings">${t["nav.settings"]?html}</a></li>
 
             <#list profileNavbarItems as item>
-              <li><a class="dropdown-item" href="${item.url}">${item.name}</a></li>
+              <li><a class="dropdown-item" href="${item.url}">${item.name?html}</a></li>
             </#list>
 
             <#if userPriv?seq_contains("STAFF")>

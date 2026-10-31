@@ -148,7 +148,7 @@
                     <#if userPriv?seq_contains(item.permission)>
                     <li class="nav-item">
                         <a href="/${item.url}" class="nav-link <#if actNav == item.actNav>active</#if>">
-                            <i class="fa-solid ${item.icon} shiina-ap-icon"></i> ${item.name}
+                            <i class="fa-solid ${item.icon} shiina-ap-icon"></i> ${item.name?html}
                         </a>
                     </li>
                     </#if>

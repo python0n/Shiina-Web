@@ -6,7 +6,7 @@
         </div>
         <div class="col-auto d-flex align-items-center">
             <span class="h6">
-                ${score.name}
+                ${score.name?html}
             </span>
             <small class="ms-2" data-timestamp-format="date" data-timestamp="${score.playTime}">
                 ${score.playTime}

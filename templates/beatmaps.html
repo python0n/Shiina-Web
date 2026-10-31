@@ -24,7 +24,7 @@
                     <div class="btn-group my-auto input-group shiina-beatmaps-input" role="group" aria-label="Mixed example">
                         <span class="input-group-text" id="add-on-1"><i class="fa-solid fa-user"></i></span>
                         <input id="artist" onfocusout="checkForArtist()" type="text" class="form-control"
-                            value="<#if artist??>${artist}</#if>" placeholder="${t["beatmaps.artist"]?html}" aria-label="${t["beatmaps.artist"]?html}"
+                            value="<#if artist??>${artist?html}</#if>" placeholder="${t["beatmaps.artist"]?html}" aria-label="${t["beatmaps.artist"]?html}"
                             aria-describedby="Artist">
                     </div>
                 </div>
@@ -32,7 +32,7 @@
                     <div class="btn-group my-auto input-group shiina-beatmaps-input" role="group" aria-label="Mixed example">
                         <span class="input-group-text" id="add-on-1"><i class="fa-solid fa-user"></i></span>
                         <input id="creator" onfocusout="checkForCreator()" type="text" class="form-control"
-                            value="<#if creator??>${creator}</#if>" placeholder="${t["beatmaps.creator"]?html}" aria-label="${t["beatmaps.creator"]?html}"
+                            value="<#if creator??>${creator?html}</#if>" placeholder="${t["beatmaps.creator"]?html}" aria-label="${t["beatmaps.creator"]?html}"
                             aria-describedby="Creator">
                     </div>
                 </div>

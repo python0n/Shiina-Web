@@ -179,7 +179,7 @@
                             <a href="/u/${score.userId?c}?mode=${score.mode}" class="d-block border rounded text-decoration-none">
                                 <div class="d-flex align-items-center p-3 h-100 text-decoration-none text-white hover-bg-light">
                                     <div class="me-3">
-                                        <img src="${avatarServer}/${score.userId?c}?v=${avatarV!""}" alt="${score.username}" 
+                                        <img src="${avatarServer}/${score.userId?c}?v=${avatarV!""}" alt="${score.username?html}" 
                                              class="rounded" width="48" height="48">
                                     </div>
                           
@@ -192,7 +192,7 @@
                                     </div>
                                     
                                     <div class="flex-grow-1">
-                                        <div class="fw-bold <#if score.supporter>supporter</#if>">${score.username}</div>
+                                        <div class="fw-bold <#if score.supporter>supporter</#if>">${score.username?html}</div>
                                         <div class="text-muted small">${t["score.played"]?html} <span data-timestamp-format="date" data-timestamp="${score.playTime}">${score.playTime}</span></div>
                                     </div>
                                     <div class="text-white">

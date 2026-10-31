@@ -25,9 +25,9 @@
                                 style="width: 100%;" required>
                             <#list countries as country>
                                 <option <#if country?contains(curCountry?upper_case)>selected</#if> 
-                                        value="${country.code}" 
+                                        value="${country.code?html}" 
                                         data-flag="/img/flags/${country.code?lower_case}.svg">
-                                    ${country.name}
+                                    ${country.name?html}
                                 </option>
                             </#list>
                         </select>

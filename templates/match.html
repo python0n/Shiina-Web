@@ -16,7 +16,7 @@
     <div class="card mb-3">
         <div class="card-body d-flex align-items-center justify-content-between flex-wrap gap-2">
             <div>
-                <h1 class="h4 mb-1"><i class="fa-solid fa-gamepad me-2"></i>${match.name}</h1>
+                <h1 class="h4 mb-1"><i class="fa-solid fa-gamepad me-2"></i>${match.name?html}</h1>
                 <div class="text-muted small">
                     ${t["match.created_by"]?html} <a href="/u/${match.creator_id?c}">${match.creator_name!match.creator_id?c}</a>
                     &nbsp;•&nbsp;
@@ -91,7 +91,7 @@
                                     <div class="fw-bold text-white">
                                         <#if game.title?? && game.title != "Unknown">
                                             <a href="/b/${game.map_id?c}" class="text-white text-decoration-none">
-                                                ${game.artist} - ${game.title} [${game.version}]
+                                                ${game.artist?html} - ${game.title?html} [${game.version?html}]
                                             </a>
                                         <#else>
                                             <span class="text-muted">${t["match.unknown_map"]?html}</span>

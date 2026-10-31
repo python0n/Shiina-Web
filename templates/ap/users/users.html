@@ -14,7 +14,7 @@
     <div class="row">
       <div class="col">
         <form class="d-flex" action="/ap/users" method="get">
-          <input type="text" name="search" class="form-control me-2" placeholder="Search users..." value="${search!}">
+          <input type="text" name="search" class="form-control me-2" placeholder="Search users..." value="${(search!"")?html}">
           <button class="btn btn-outline-secondary" type="submit">Search</button>
         </form>
       </div>
@@ -36,9 +36,9 @@
           <#list users as apuser>
             <tr onclick="window.location='/ap/user?id=${apuser.id?c}'" style="cursor: pointer;">
               <td class="text-center align-middle">
-                <img src="${avatarServer}/${apuser.id?c}?v=${avatarV!""}" alt="${apuser.name} avatar" style="width: 50px; height: 50px;">
+                <img src="${avatarServer}/${apuser.id?c}?v=${avatarV!""}" alt="${apuser.name?html} avatar" style="width: 50px; height: 50px;">
               </td>
-              <td class="text-center align-middle">${apuser.name}</td>
+              <td class="text-center align-middle">${apuser.name?html}</td>
               <td class="priv-cell text-center align-middle">
                <#if apuser.priv?size gt 3>
                 ...<br>
@@ -53,7 +53,7 @@
               </td>
               <td class="priv-cell text-center align-middle">
                 <#list apuser.groups as group>
-                  ${group.emoji} ${group.name}<br>
+                  ${group.emoji} ${group.name?html}<br>
                 <#else>
                   None
                 </#list>
