@@ -7,10 +7,13 @@ import dev.osunolimits.utils.Validation;
 public class OsuConverter {
     public static String convertStatus(String status) {
         switch (status) {
-            case "0":
+            // values of maps.status in bancho (RankedStatus)
+            case "-1":
                 return "Not submitted";
-            case "1":
+            case "0":
                 return "Pending";
+            case "1":
+                return "Update available";
             case "2":
                 return "Ranked";
             case "3":
@@ -26,8 +29,10 @@ public class OsuConverter {
     public static String convertStatusBack(String status) {
         switch (status) {
             case "Not submitted":
-                return "0";
+                return "-1";
             case "Pending":
+                return "0";
+            case "Update available":
                 return "1";
             case "Ranked":
                 return "2";
