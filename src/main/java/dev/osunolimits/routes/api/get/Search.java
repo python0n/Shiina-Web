@@ -28,7 +28,7 @@ public class Search extends MySQLRoute {
     }
 
     private final String SEARCH_QUERY = 
-        "SELECT id, name AS item_name, NULL AS set_id, 'users' AS source_table FROM users WHERE LOWER(name) LIKE CONCAT('%', LOWER(?), '%') " +
+        "SELECT id, name AS item_name, NULL AS set_id, 'users' AS source_table FROM users WHERE priv & 1 AND LOWER(name) LIKE CONCAT('%', LOWER(?), '%') " +
         "UNION " +
         "SELECT id, name AS item_name, NULL AS set_id, 'clans' AS source_table FROM clans WHERE LOWER(name) LIKE CONCAT('%', LOWER(?), '%') " +
         "UNION " +

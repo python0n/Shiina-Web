@@ -1,5 +1,6 @@
 package dev.osunolimits.routes.post;
 
+import dev.osunolimits.utils.Visibility;
 import java.sql.ResultSet;
 
 import dev.osunolimits.modules.Shiina;
@@ -20,6 +21,10 @@ public class HandlePinScore extends Shiina {
             res.status(401);
             shiina.mysql.close();
             return "{\"status\":\"error\",\"message\":\"not logged in\"}";
+        }
+        // restricted players can still play, but not change their profile or interact with others
+        if (Visibility.isRestricted(shiina.user.priv)) {
+            return notFound(res, shiina);
         }
 
         String idParam = req.queryParams("id");

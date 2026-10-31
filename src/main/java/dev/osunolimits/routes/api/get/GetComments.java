@@ -16,7 +16,7 @@ import spark.Response;
 
 public class GetComments extends MySQLRoute {
 
-    private final String GET_COMMENTS_SQL = "SELECT * FROM `comments` WHERE `target_id` = ? AND `target_type` = ? ORDER BY `comments`.`id` DESC LIMIT ? OFFSET ?";
+    private final String GET_COMMENTS_SQL = "SELECT c.* FROM `comments` c JOIN `users` u ON u.`id` = c.`userid` WHERE c.`target_id` = ? AND c.`target_type` = ? AND u.`priv` & 1 ORDER BY c.`id` DESC LIMIT ? OFFSET ?";
 
     @Override
     public Object handle(Request req, Response res) throws Exception {

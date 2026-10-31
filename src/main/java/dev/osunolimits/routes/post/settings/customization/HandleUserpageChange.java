@@ -1,5 +1,6 @@
 package dev.osunolimits.routes.post.settings.customization;
 
+import dev.osunolimits.utils.Visibility;
 import java.sql.ResultSet;
 
 import org.kefirsf.bb.BBProcessorFactory;
@@ -20,6 +21,10 @@ public class HandleUserpageChange extends Shiina {
 
         if (!shiina.loggedIn) {
             return redirect(res, shiina, "/login?path=/settings/customization");
+        }
+        // restricted players can still play, but not change their profile or interact with others
+        if (Visibility.isRestricted(shiina.user.priv)) {
+            return redirect(res, shiina, "/settings?error=Restricted accounts cannot change their profile");
         }
         int userId = shiina.user.id;
         String userpage = req.queryParams("userpage");
