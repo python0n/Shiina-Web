@@ -1,5 +1,6 @@
 package dev.osunolimits.routes.get.auth;
 
+import dev.osunolimits.utils.KnownAccount;
 import dev.osunolimits.main.App;
 import dev.osunolimits.modules.Shiina;
 import dev.osunolimits.modules.ShiinaRoute;
@@ -22,9 +23,24 @@ public class Register extends Shiina {
             shiina.data.put("refPath", path);
         }
 
-        shiina.data.put("modules", ModuleRegister.getModulesRawForPage("register", req, res, shiina));
-
         shiina.data.put("seo", new SEOBuilder("Register", App.customization.get("homeDescription").toString()));
+
+        // one account per player (a second one only with the admin's consent):
+        // warn first if this browser or this network already has an account
+        if (req.queryParams("confirm") == null) {
+            Integer knownId = shiina.loggedIn ? shiina.user.id : KnownAccount.fromCookie(req, shiina.mysql);
+            if (knownId != null) {
+                shiina.data.put("knownName", KnownAccount.nameOf(shiina.mysql, knownId));
+                shiina.data.put("warnReason", "browser");
+                return renderTemplate("register_warning.html", shiina, res, req);
+            }
+            if (KnownAccount.fromIp(req, shiina.mysql) != null) {
+                shiina.data.put("warnReason", "network");
+                return renderTemplate("register_warning.html", shiina, res, req);
+            }
+        }
+
+        shiina.data.put("modules", ModuleRegister.getModulesRawForPage("register", req, res, shiina));
         return renderTemplate("register.html", shiina, res, req);
     }
     
