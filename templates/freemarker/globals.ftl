@@ -3,7 +3,6 @@
 <#function msg text><#if t?? && t["msg." + text]??><#return t["msg." + text]></#if><#return text></#function>
 <#function convertStatusBack status>
     <#switch status>
-        <#-- values of maps.status in bancho (RankedStatus) -->
         <#case -1><#return t["status.not_submitted"]><#break>
         <#case 0><#return t["status.pending"]><#break>
         <#case 1><#return t["status.update_available"]><#break>
