@@ -1,136 +1,103 @@
-# **Shiina-Web** — taksiegra.ovh fork
+# Shiina-Web - taksiegra fork
 
 ![GitHub last commit](https://img.shields.io/github/last-commit/python0n/Shiina-Web/dev?label=Last%20commit&color=1783a3)
 ![GitHub License](https://img.shields.io/github/license/python0n/Shiina-Web?label=License&color=1783a3)
-![Static Badge](https://img.shields.io/badge/upstream-osu--NoLimits%2FShiina--Web-1783a3)
+![Upstream](https://img.shields.io/badge/upstream-osu--NoLimits%2FShiina--Web-1783a3)
 
-A Java-based web frontend for **bancho.py-ex** osu! private servers, with extensive features and plugin support.
+Web frontend of the [taksiegra](https://osu.taksiegra.ovh) osu! private server, a fork of
+[Shiina-Web](https://github.com/osu-NoLimits/Shiina-Web) by osu!NoLimits. It runs next to our
+fork of [bancho.py-ex](https://github.com/python0n/bancho.py-ex) and reads the same database.
 
-> **This is a fork.** The original project is
-> [osu-NoLimits/Shiina-Web](https://github.com/osu-NoLimits/Shiina-Web) by
-> **osu!NoLimits**, released under the MIT License. This fork powers
-> [osu.taksiegra.ovh](https://osu.taksiegra.ovh) and adds features specific to
-> that server. All upstream code remains under its original license and
-> copyright — see [LICENSE](/LICENSE).
->
-> For general installation and theming, use the
-> [upstream documentation](https://osu-nolimits.github.io/wiki/) — this fork does
-> not diverge in setup.
+Setup and theming work like upstream, so the [upstream wiki](https://osu-nolimits.github.io/wiki/)
+still applies. This page lists what the fork changes and the extra settings it needs.
 
----
+## What the fork adds
 
-## **Feature List**
-
-### Core Features (upstream)
-- ✅ User authentication and authorization
-- ✅ Homepage with server statistics
-- ✅ User profiles with customizable userpages
-- ✅ Profile picture changing
-- ✅ Beatmap browsing and search
-- ✅ Comprehensive leaderboard system
-  - Global leaderboards
-  - Country-specific leaderboards
-  - Clan leaderboards with competitive statistics
-- ✅ Score tracking and display
-  - First place scores
-  - Personal best scores
-  - Most recent scores
-  - Playcount graphs
-- ✅ Admin panel with extensible functionality
-
-### Customization & Extensibility (upstream)
-- ✅ Good theming support — [documented here](https://osu-nolimits.github.io/wiki/theming/)
-- ✅ Java plugin system with event hooks
-- ✅ Extensive API integration
-- ✅ Donation system (Ko-fi)
-
-### Technical Features (upstream)
-- ✅ API request caching for improved performance
-- ✅ Configurable error and request logging
-- ✅ Easy customization via `.config/customization.yml`
-- ✅ Multiple webhook support
-
----
-
-## **Added in this fork**
-
-### Scores & profiles
-- ✅ **Pinned Scores** — pin/unpin your own scores, drag & drop ordering, dedicated section above Best Scores
-- ✅ **Score v3 tab** — lazer standardised score on beatmap leaderboards (osu!std), using the 2026-06 lazer mod multiplier rebalance
-- ✅ **Badge system** — `user_badges` table, upload from the admin panel, badge grid on profiles with hover captions (tournament name + date), deletion and ordering
-- ✅ **PP Era Hypo** (`/hypo`) — calculate hypothetical PP under previous ranking-system eras
-- ✅ **Profile URL resolution** — `/users/<id>` → `/u/<id>`, and `@name` / `name` resolved to IDs, so `/u/<nick>` and `/users/@<nick>` both work
-- ✅ **IRC key display** on the auth settings page, auto-generated when missing
+### Players and scores
+- Pinned scores on profiles, with drag and drop ordering.
+- Badges (`user_badges`): uploaded in the admin panel, shown on profiles with the event name and date.
+- Profile links by id or nick: `/u/<id>`, `/u/<nick>`, `/users/<id>`, `/users/@<nick>`.
+- In score based modes the #1, placements, personal bests and first places go by the highest score,
+  the same rule bancho uses; Relax and Autopilot go by pp.
+- Score comments.
+- IRC key shown on the account settings page, created when missing.
+- Active sessions list in the settings, with logging out of single sessions.
 
 ### Replays
-- ✅ **Replay Submission System** — players upload `.osr` files for admin review
-- ✅ **Replay Analyzer** (`/analyzer`) — timing error and aim accuracy analysis with interactive Chart.js graphs, plus map recommendations by skill type (Stream / Jump / Burst / Tech)
-- ✅ **Admin Replay Panel** — approve or reject submissions, download `.osr` files
-
-### Multiplayer
-- ✅ **Match History** — match list (`/matches`) and detailed view (`/matches/:id`) with full event log and score tables
-- ✅ **Match visibility controls** — admin toggle to hide/show individual matches, with pagination
-- ✅ Correct accuracy, grade and mods for match scores, computed from hit counters when absent in the database
+- Replay submission: players upload `.osr` files, admins review them in the admin panel.
+- Replay analyzer (`/analyzer`): timing error and aim per note, stability (UR), early and late hits,
+  and map recommendations for the weakest skill (stream, jump, burst, tech).
 
 ### Beatmaps
-- ✅ **Beatmap Submission System UI** — frontend for the bancho.py-ex BSS; submit maps straight from the osu! editor
-- ✅ **Mapset grouping** on the beatmap listing — one tile per mapset instead of one per difficulty
-- ✅ Beatmap listing sorted by most recently updated
+- Interface for bancho.py-ex's beatmap submission (BSS): maps can be uploaded straight from the editor.
+- One tile per mapset on the beatmap list, newest first.
+- Map statuses follow bancho (Pending, Update available, Ranked, Approved, Qualified, Loved),
+  with osu-web like colours.
 
-### Misc
-- ✅ **Score comments** — comment system on score pages
-- ✅ **Bot & Docs pages** — Discord bot command reference and server documentation
-- ✅ Avatar upload limit raised to 8 MB, with cache-busting on all avatar URLs
-- ✅ One-year donor duration option
-- ✅ Full English UI (upstream ships partially localised templates)
+### Multiplayer
+- Match list (`/matches`) and match view (`/matches/<id>`, `/mp<id>`) with the full event log.
+- Accuracy, grade and mods of match scores computed from hit counts.
+- Admins can hide single matches.
 
----
+### PP reworks
+- `/reworks`: the server's scores recalculated with other pp formulas, from the pp-lab service.
+- `/hypo`: pp of a score under earlier ranking eras.
 
-## 🔒 Security
+### Server pages
+- Documents written in Markdown (`docs/`, Polish and English versions): rules, how to connect,
+  about the server, API reference.
+- Discord bot command list.
+- English and Polish interface (`lang/en.properties`, `lang/pl.properties`), switched with `/lang/<code>`.
+  The text files can be edited on the server without rebuilding.
 
-This fork tracks upstream security patches. Most recently, the fixes from
-upstream **2.2** ([#26](https://github.com/osu-NoLimits/Shiina-Web/pull/26)) were
-backported: stored XSS in comments and clan names, missing `clan_priv`
-authorization on clan actions and disbanding, `HttpOnly` + `Secure` session
-cookies, and Freemarker auto-escaping.
+### Accounts and moderation
+- Restricted players are hidden from everyone except staff: profile, scores, rankings, first places,
+  comments and the public API. They cannot change their profile.
+- Nick and password rules are the same as in bancho (`safe_name` must be unique, `_` and space
+  cannot be mixed, blocked names and passwords from `.env`), with hints on the registration form.
+- A warning before creating a second account, when the browser or the network already belongs
+  to a player. Ignoring it is logged for the multi-account detection.
+- Account deletion is a request that an admin accepts or rejects (`/ap/deletions`).
+- Clan changes reach the game at once (Redis event to bancho).
 
-Fork-specific fixes on top of that:
+### Security
+- Player, clan and map names are escaped in templates and in score tiles built by JavaScript.
+- Requests that change something (`/api/v1/*`, `/ap/*`, settings forms) are refused when the browser
+  marks them as coming from another site. Following, clan actions and pinning are POST only.
+- Only local redirects after logging in.
+- Session cookies are `HttpOnly` and `Secure`; passwords are stored as `bcrypt(md5(password))`,
+  matching what the osu! client sends (older accounts are converted on their next login).
+- Upstream security fixes are backported (upstream 2.2, [#26](https://github.com/osu-NoLimits/Shiina-Web/pull/26)).
 
-- Registration now stores passwords as `bcrypt(md5(password))`, matching what the
-  osu! stable client sends. Accounts created before this fix are migrated
-  automatically on their next web login.
-- Build configuration updated for JDK 23+, where `javac` no longer runs
-  annotation processors by default — Lombok is now declared explicitly via
-  `annotationProcessorPaths`.
+### Performance
+- Static files and avatars carry a version in their address (`?v=`), so they can be cached for a long time.
+- Chart.js, the WysiBB editor and select2 load only on the pages that use them.
+- Connection leaks in the background jobs fixed (try-with-resources, also in the rank cache).
 
-If you run a fork of this project, apply upstream's patch as well.
+## Extra settings (`.config/.env`)
 
----
+| Setting | What it does |
+| --- | --- |
+| `BANCHO_DATA_DIR` | bancho's `.data` folder (replays, `.osu` files) |
+| `INTERNAL_API_KEY` | same value as in bancho's `.env`; lets Shiina see restricted players through the API |
+| `DISALLOWED_NAMES`, `DISALLOWED_PASSWORDS` | comma separated, checked on registration and nick changes |
+| `CRON_THREADS` | threads for the background jobs (default 3) |
 
-## 📋 Changelog
+Everything else is described in `.config/.env.example`.
 
-Full changelog with all updates: **[taksiegra.ovh/changelog/](https://taksiegra.ovh/changelog/)**
+## Changelog
 
----
+[taksiegra.ovh/changelog](https://taksiegra.ovh/changelog/)
 
-## **License**
+## License and credits
 
-MIT — see [LICENSE](/LICENSE).
+MIT, see [LICENSE](/LICENSE). The original work is copyright osu!NoLimits (2024-2025); this fork
+keeps their notice and the same licence.
 
-Copyright for the original work belongs to **osu!NoLimits** (2024–2025). This
-fork is distributed under the same license, with the original copyright notice
-retained as MIT requires.
-
----
-
-## **Credits**
-
-Built on [Shiina-Web](https://github.com/osu-NoLimits/Shiina-Web) by osu!NoLimits
-and its contributors:
+Built on [Shiina-Web](https://github.com/osu-NoLimits/Shiina-Web) by osu!NoLimits and its contributors:
 
 <a href="https://github.com/osu-NoLimits/Shiina-Web/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=osu-NoLimits/Shiina-Web" />
+  <img src="https://contrib.rocks/image?repo=osu-NoLimits/Shiina-Web" alt="Shiina-Web contributors" />
 </a>
 
-Fork maintained by [python0n](https://github.com/python0n) for
-[taksiegra.ovh](https://taksiegra.ovh).
+Fork maintained by [python0n](https://github.com/python0n).
