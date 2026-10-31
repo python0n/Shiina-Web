@@ -11,33 +11,33 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
-    <link rel="stylesheet" href="/css/halfmoon.min.css">
-    <link rel="stylesheet" href="/css/shiina.css">
-    <link rel="stylesheet" href="/css/select2.min.css" />
-    <link rel="stylesheet" href="/css/wbbtheme.css" />
+    <link rel="stylesheet" href="/css/halfmoon.min.css?v=${assetV!""}">
+    <link rel="stylesheet" href="/css/shiina.css?v=${assetV!""}" data-turbo-track="reload">
+    <link rel="stylesheet" href="/css/select2.min.css?v=${assetV!""}" />
+    <link rel="stylesheet" href="/css/wbbtheme.css?v=${assetV!""}" />
 
     <script
     src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit"
     data-turbo-track="reload">
     </script>
     <script data-turbo-track="reload">window.SHIINA_T = {<#if t??><#list t?keys as k><#if k?starts_with("js.")>"${k?js_string}": "${t[k]?js_string}", </#if></#list></#if>};</script>
-    <script src="/js/shiina.js"></script>
-    <script src="/js/jquery.min.js"></script>
-    <script src="/js/select2.min.js"></script>
-    <script src="/js/bootstrap.bundle.min.js"></script>
-    <script src="/js/turbo.js"></script>
-    <script src="/js/chart.min.js"></script>
-    <script src="/js/jquery.wysibb.min.js"></script>
-    <script src="/js/shiina-search.js"></script>
+    <script src="/js/shiina.js?v=${assetV!""}" data-turbo-track="reload"></script>
+    <script src="/js/jquery.min.js?v=${assetV!""}"></script>
+    <script src="/js/select2.min.js?v=${assetV!""}"></script>
+    <script src="/js/bootstrap.bundle.min.js?v=${assetV!""}"></script>
+    <script src="/js/turbo.js?v=${assetV!""}"></script>
+    <script src="/js/chart.min.js?v=${assetV!""}"></script>
+    <script src="/js/jquery.wysibb.min.js?v=${assetV!""}"></script>
+    <script src="/js/shiina-search.js?v=${assetV!""}"></script>
 
     <meta name="turbo-refresh-method" content="morph">
     <meta name="turbo-refresh-scroll" content="preserve">
     <meta name="turbo-prefetch" content="false">
 
     
-    <link rel="stylesheet" href="/css/wysibb-theme.css">
+    <link rel="stylesheet" href="/css/wysibb-theme.css?v=${assetV!""}">
     <#if !currentTheme.included>
-    <link rel="stylesheet" href="/css/theme<#if devMode>dev</#if>-${themeIdent}.css">
+    <link rel="stylesheet" href="/css/theme<#if devMode>dev</#if>-${themeIdent}.css?v=${assetV!""}">
     </#if>
 
     <#if seo??>
