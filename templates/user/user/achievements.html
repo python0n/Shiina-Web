@@ -30,7 +30,7 @@
                                                             transition: all 0.2s ease;
                                                             cursor: pointer;" data-bs-toggle="tooltip"
                                                 data-bs-placement="top" data-bs-html="true"
-                                                title="<strong>${ach.name}</strong><br><small class='text-muted'>${ach.desc}</small>"
+                                                title="<strong>${ach.name?html}</strong><br><small class='text-muted'>${ach.desc}</small>"
                                                 onmouseover="this.style.background='rgba(255,255,255,0.1)'; this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.3)';"
                                                 onmouseout="this.style.background='rgba(255,255,255,0.05)'; this.style.transform='translateY(0)'; this.style.boxShadow='none';">
 
@@ -38,14 +38,14 @@
                                                     <!-- Achievement Image -->
                                                     <div class="mb-2">
                                                         <img src="${assetsUrl}/medals/client/${ach.file}.png"
-                                                            alt="${ach.name}" class="img-fluid"
+                                                            alt="${ach.name?html}" class="img-fluid"
                                                             style="max-height: 60px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));">
                                                     </div>
 
                                                     <!-- Achievement Name -->
                                                     <h6 class="card-title mb-0 text-muted"
                                                         style="font-size: 0.75rem; line-height: 1.2;">
-                                                        ${ach.name}
+                                                        ${ach.name?html}
                                                     </h6>
                                                 </div>
                                             </div>

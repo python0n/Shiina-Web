@@ -120,7 +120,7 @@ public class HandleRegister extends Shiina {
         KnownAccount.remember(res, userId);
 
         String refPath = req.queryParams("refPath");
-        if(refPath != null && !refPath.isEmpty()) {
+        if (refPath != null && refPath.startsWith("/") && !refPath.startsWith("//") && !refPath.contains("\\")) { // only paths on this site, no redirects elsewhere
             return redirect(res, shiina, refPath);
         }
 

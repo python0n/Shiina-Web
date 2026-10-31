@@ -41,13 +41,13 @@
                     <div class="col-12 col-md-9 d-flex flex-column justify-content-center text-white">
                         <div class="mb-2">
                             <h1 class="display-4 fw-bold mb-2 shiina-player-name <#if uprivs?seq_contains("SUPPORTER")>supporter</#if>">
-                                ${u.player.info.name}
+                                ${u.player.info.name?html}
                             </h1>
                             <div class="groupPlace d-flex flex-wrap gap-2 mt-2 mb-3">
                                 <#list groups as group>
                                     <span
                                         class="badge shiina-badge bg-light bg-opacity-25 text-white py-2 rounded-pill pe-3"><span
-                                            class="groupEmoji me-2">${group.emoji}</span>${group.name}</span>
+                                            class="groupEmoji me-2">${group.emoji}</span>${group.name?html}</span>
                                 </#list>
                             </div>
                         </div>

@@ -22,7 +22,7 @@
                 <!-- Beatmap Info -->
                 <div class="osu-beatmap-info">
                     <div class="osu-beatmap-title mt-2">
-                        ${beatmap.artist} - ${beatmap.title}
+                        ${beatmap.artist?html} - ${beatmap.title?html}
                     </div>
                     <div class="osu-beatmap-creator">
                         ${t["beatmap.mapped_by"]?html?replace("{creator}", beatmap.creator?html)}

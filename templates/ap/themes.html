@@ -22,7 +22,7 @@
                         <p class="card-text text-muted">By ${theme.author}</p>
                     </div>
                     <div class="card-footer">
-                        <form action="/ap/themes/change?name=${theme.name}" method="POST">
+                        <form action="/ap/themes/change?name=${theme.name?html}" method="POST">
                         <#if c.theme == theme.name>
                             <button class="btn btn-success w-100" disabled>Selected</button>
                         <#else>

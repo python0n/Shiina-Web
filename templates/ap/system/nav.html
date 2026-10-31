@@ -24,14 +24,14 @@
                         <#if navitem.icon??>
                             <i class="fa-solid ${navitem.icon}"></i>
                         </#if>
-                        ${navitem.name}
+                        ${navitem.name?html}
                     </h2>
                 </div>
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-6">
                             <p><strong>Target:</strong> ${navitem.target!"Unknown"}</p>
-                            <p><strong>Link:</strong> <a href="/${navitem.link}">/${navitem.link}</a></p>
+                            <p><strong>Link:</strong> <a href="/${navitem.link?html}">/${navitem.link?html}</a></p>
                             <#if navitem.auth??>
                                 <p><strong>Auth Required:</strong> ${navitem.auth?string("Yes", "No")}</p>
                             </#if>

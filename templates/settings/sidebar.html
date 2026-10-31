@@ -22,7 +22,7 @@
         <li class="nav-item">
             <a class="nav-link py-2 <#if actNav == item.actNav>active</#if> d-flex align-items-center" aria-current="page" href="${item.url}">
                <i style="width: 30px;" class="ms-2 ${item.icon}"></i>
-                ${item.name}
+                ${item.name?html}
             </a>
         </li>
         </#list>

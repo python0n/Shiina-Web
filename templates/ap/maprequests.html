@@ -27,7 +27,7 @@
                                 <h6 class="card-title mb-2">
                                     <a href="/b/${mapRequest.mapId?c}" target="_blank"
                                        class="text-decoration-none text-primary fw-bold">
-                                        ${mapRequest.mapName}
+                                        ${mapRequest.mapName?html}
                                     </a>
                                 </h6>
                                 
@@ -38,7 +38,7 @@
                                          alt="User avatar">
                                     <a href="/ap/user?id=${mapRequest.playerId?c}" 
                                        class="text-decoration-none fw-medium me-2">
-                                        ${mapRequest.playerName}
+                                        ${mapRequest.playerName?html}
                                     </a>
                                     <small class="text-muted fst-italic" 
                                            data-timestamp-format="date"

@@ -6,7 +6,7 @@
         <form action="/post/comment" method="post">
             <textarea class="form-control" placeholder="${t["comments.placeholder"]?html}" name="message"></textarea>
             <button type="submit" class="btn btn-primary mt-2">${t["comments.post"]?html}</button>
-            <input type="hidden" value="${commentsModule.target}" name="target">
+            <input type="hidden" value="${commentsModule.target?html}" name="target">
             <input type="hidden" value="${commentsModule.id?c}" name="id">
         </form>
 
@@ -19,7 +19,7 @@
     <div id="commentLoadable"></div>
     <script>
         var commentsModule = {
-            target: '${commentsModule.target}',
+            target: '${commentsModule.target?js_string}',
             id: '${commentsModule.id?c}',
         };
     </script>

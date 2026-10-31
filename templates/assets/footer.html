@@ -38,9 +38,9 @@
             <#list c.footer as footerItem>
             <div class="col-md-${footerItem?size} ms-md-auto">
                 <ul class="nav-list shiina-footer-row mt-2">
-                    <li> <h5 class="footer-heading">${footerItem.title}</h5></li>
+                    <li> <h5 class="footer-heading">${footerItem.title?html}</h5></li>
                     <#list footerItem.items as item>
-                        <li><a href="${item.url}" class="footer-link">${item.name}</a></li>
+                        <li><a href="${item.url}" class="footer-link">${item.name?html}</a></li>
                     </#list>
                 </ul>
             </div>
