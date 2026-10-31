@@ -84,10 +84,11 @@ The server only collects what it needs to run and to enforce these rules. Data i
 
 ### Cookies
 
-The website uses only two cookies, both needed for it to work:
+The website uses only three cookies, all needed for it to work:
 
 - `shiina` keeps you logged in. It expires after 1 day without visiting the site, or after 30 days without a visit with "Remember me".
 - `lang` remembers the language you picked. It expires after a year.
+- `tsg_known` remembers which account was last used in this browser, also after logging out, so the site can remind you about the one-account rule before you register again. It expires after 2 years.
 
 There are no advertising or tracking cookies, which is why there is no cookie banner.
 

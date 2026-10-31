@@ -1,5 +1,6 @@
 package dev.osunolimits.routes.post;
 
+import dev.osunolimits.utils.KnownAccount;
 import java.sql.ResultSet;
 
 import dev.osunolimits.main.App;
@@ -92,6 +93,7 @@ public class HandleLogin extends Shiina {
         UserInfoCache.reloadUserIfNotPresent(userId);
 
         new SessionBuilder(userId, req).login(res, rememberMe);
+        KnownAccount.remember(res, userId);
 
         ResultSet dbPrivData = shiina.mysql.Query("SELECT priv FROM users WHERE id = ?", userId);
         int realPriv = 0;
