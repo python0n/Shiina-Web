@@ -1,3 +1,33 @@
+// Libraries only some pages need (charts, the userpage editor, the country picker) are loaded on
+// demand instead of on every page. Each file is fetched once; later calls reuse the same promise.
+const shiinaLoaded = {};
+function shiinaLoad(urls) {
+    const v = window.SHIINA_ASSET_V ? '?v=' + window.SHIINA_ASSET_V : '';
+    return [].concat(urls).reduce((chain, url) => chain.then(() => {
+        if (!shiinaLoaded[url]) {
+            shiinaLoaded[url] = new Promise((resolve) => {
+                let el;
+                if (url.endsWith('.css')) {
+                    el = document.createElement('link');
+                    el.rel = 'stylesheet';
+                    el.href = url + v;
+                } else {
+                    el = document.createElement('script');
+                    el.src = url + v;
+                }
+                el.onload = resolve;
+                el.onerror = resolve;
+                document.head.appendChild(el);
+            });
+        }
+        return shiinaLoaded[url];
+    }), Promise.resolve());
+}
+function shiinaWithChart(fn) {
+    if (window.Chart) { fn(); return; }
+    shiinaLoad('/js/chart.min.js').then(fn);
+}
+
 // escape text before putting it into innerHTML / template strings
 function shiinaEscape(value) {
     return String(value == null ? '' : value).replace(/[&<>"']/g, function (c) {
@@ -92,16 +122,24 @@ function performOnboarding() {
 
 function initUserpageEditor() {
     if(document.getElementById('editor') != undefined) {
-        if(document.getElementsByClassName('wysibb').length == 0) {
-            var wbbOpt = {
-                buttons: "bold,italic,underline,|,img,link,|,table,removeFormat",
-            };
-            $("#editor").wysibb(wbbOpt);
-        }
+        shiinaLoad(['/css/wbbtheme.css', '/css/wysibb-theme.css', '/js/jquery.wysibb.min.js']).then(() => {
+            if(document.getElementsByClassName('wysibb').length == 0 && document.getElementById('editor')) {
+                var wbbOpt = {
+                    buttons: "bold,italic,underline,|,img,link,|,table,removeFormat",
+                };
+                $("#editor").wysibb(wbbOpt);
+            }
+        });
     }
 }
 
 function loadContrySelectorIfPresent() {
+    if (document.getElementById('country-selector') != undefined) {
+        shiinaLoad(['/css/select2.min.css', '/js/select2.min.js']).then(initCountrySelect2);
+    }
+}
+
+function initCountrySelect2() {
     if (document.getElementById('country-selector') != undefined) {
         $('#country-selector').select2({
             templateResult: formatCountry,
@@ -136,7 +174,7 @@ function handleRelUpdate(relArray) {
     relArray.forEach(node => {
         let user = node.getAttribute('data-user');
         node.onclick = function () {
-            fetch("/api/v1/update_rel?u="+user)
+            fetch("/api/v1/update_rel?u="+user, { method: 'POST' })
             .then(response => response.text())
             .then(response => {
                 Turbo.visit(window.location.href);
@@ -557,6 +595,7 @@ function loadUserPage() {
 }
 
 function initPlayCountGraph() {
+    if (!window.Chart) { shiinaWithChart(initPlayCountGraph); return; }
 
     fetch(rankGraphUrl)
     .then(response => response.json())
@@ -948,7 +987,7 @@ function loadMoreComments() {
 }
 
 function handleClanManage(userid, clanid, action) {
-    fetch('/api/v1/manage_cl?userid=' + userid + '&clanid=' + clanid + "&action=" + action)
+    fetch('/api/v1/manage_cl?userid=' + userid + '&clanid=' + clanid + "&action=" + action, { method: 'POST' })
         .then(response => response.text())
         .then(response => {
             Turbo.visit(window.location.href);
@@ -956,7 +995,7 @@ function handleClanManage(userid, clanid, action) {
 }
 
 function handleClanJoinRequest(clanid, action) {
-    fetch('/api/v1/join_clan?clanid=' + clanid + "&action=" + action)
+    fetch('/api/v1/join_clan?clanid=' + clanid + "&action=" + action, { method: 'POST' })
         .then(response => response.text())
         .then(response => {
             Turbo.visit(window.location.href);
@@ -964,7 +1003,7 @@ function handleClanJoinRequest(clanid, action) {
 }
 
 function handleClanLeave(clanid) {
-    fetch('/api/v1/leave_clan?clanid=' + clanid)
+    fetch('/api/v1/leave_clan?clanid=' + clanid, { method: 'POST' })
         .then(response => response.text())
         .then(response => {
             Turbo.visit(window.location.href);
