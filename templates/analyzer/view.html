@@ -111,7 +111,7 @@
           <#else>
             <#list analysis.recommendedMaps as m>
             <a href="/b/${m.id?c}" class="d-flex align-items-center gap-3 px-4 py-2 text-decoration-none border-bottom hover-bg">
-              <img src="https://assets.ppy.sh/beatmaps/${m.set_id}/covers/list.jpg"
+              <img alt="" src="https://assets.ppy.sh/beatmaps/${m.set_id}/covers/list.jpg"
                    style="width:40px;height:40px;object-fit:cover;border-radius:4px;"
                    onerror="this.style.display='none'">
               <div class="flex-grow-1">
@@ -156,7 +156,8 @@ function analyzerLoadScript(src) {
 }
 function analyzerWithZoom(draw) {
   if (window.Chart && Chart.registry && Chart.registry.plugins.get('zoom')) { draw(); return; }
-  analyzerLoadScript('https://cdnjs.cloudflare.com/ajax/libs/hammer.js/2.0.8/hammer.min.js')
+  shiinaLoad('/js/chart.min.js')
+    .then(function() { return analyzerLoadScript('https://cdnjs.cloudflare.com/ajax/libs/hammer.js/2.0.8/hammer.min.js'); })
     .then(function() { return analyzerLoadScript('https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-zoom/2.0.1/chartjs-plugin-zoom.min.js'); })
     .then(draw);
 }
