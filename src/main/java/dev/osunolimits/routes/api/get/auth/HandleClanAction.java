@@ -1,5 +1,6 @@
 package dev.osunolimits.routes.api.get.auth;
 
+import dev.osunolimits.modules.pubsubs.SyncedAction;
 import dev.osunolimits.utils.Visibility;
 import java.sql.ResultSet;
 
@@ -153,6 +154,8 @@ public class HandleClanAction extends Shiina {
                         userid
                 );
 
+                SyncedAction.clanChanged(userid);
+
                 new OnUserJoinClanEvent(
                         leaderClanId,
                         userid,
@@ -188,6 +191,8 @@ public class HandleClanAction extends Shiina {
                         leaderClanId,
                         System.currentTimeMillis() / 1000
                 );
+
+                SyncedAction.clanChanged(userid);
 
                 new OnUserGetKickedClanEvent(
                         leaderClanId,
