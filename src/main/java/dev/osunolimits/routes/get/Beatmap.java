@@ -278,19 +278,21 @@ public class Beatmap extends Shiina {
                         """;
 
             case "score":
+                // best score of each player: status 3 (best score) or 2 (best pp),
+                // same as the in-game leaderboard
                 return """
                         SELECT s.id, s.pp, s.score, s.grade, s.play_time, s.userid, s.mods,
                                u.name, u.country, u.priv
                         FROM scores AS s
                         LEFT JOIN users AS u ON s.userid = u.id
-                        WHERE s.map_md5 = ? AND s.status = 2 AND s.mode = ?
+                        WHERE s.map_md5 = ? AND s.status IN (2, 3) AND s.mode = ?
                         AND (s.mods & 536870912) = 0
                         AND s.score = (
                             SELECT MAX(inner_s.score)
                             FROM scores AS inner_s
                             WHERE inner_s.map_md5 = s.map_md5
                             AND inner_s.userid = s.userid
-                            AND inner_s.status = 2
+                            AND inner_s.status IN (2, 3)
                             AND inner_s.mode = ?
                             AND (inner_s.mods & 536870912) = 0
                         )
