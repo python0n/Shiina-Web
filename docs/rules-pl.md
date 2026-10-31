@@ -84,10 +84,11 @@ Serwer zbiera tylko to, czego potrzebuje do działania i pilnowania tych zasad. 
 
 ### Ciasteczka
 
-Strona używa tylko dwóch ciasteczek, oba są niezbędne do działania:
+Strona używa tylko trzech ciasteczek, wszystkie są niezbędne do działania:
 
 - `shiina` - utrzymuje zalogowanie. Wygasa po 1 dniu bez wizyty na stronie, a z opcją „Zapamiętaj mnie” po 30 dniach bez wizyty.
 - `lang` - zapamiętuje wybrany język strony. Wygasa po roku.
+- `tsg_known` - zapamiętuje, jakie konto było ostatnio używane w tej przeglądarce (także po wylogowaniu), żeby przed ponowną rejestracją przypomnieć o zasadzie jednego konta. Wygasa po 2 latach.
 
 Nie ma ciasteczek reklamowych ani śledzących, dlatego strona nie pokazuje banera o ciasteczkach.
 

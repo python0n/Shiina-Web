@@ -43,7 +43,7 @@
                                      
                                 </td>
                                 <td>
-                                    ${detection.level}
+                                    <#if detection.level == 0>register warning ignored<#else>${detection.level}</#if>
                                 </td>
                                 <td>
                                     ${detection.detection}   

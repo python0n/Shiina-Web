@@ -1,5 +1,6 @@
 package dev.osunolimits.routes.post;
 
+import dev.osunolimits.utils.KnownAccount;
 import dev.osunolimits.utils.AccountRules;
 import java.sql.ResultSet;
 
@@ -100,10 +101,23 @@ public class HandleRegister extends Shiina {
 
         new OnRegisterEvent(userId, email, country, username, safeName, curUnixTime).callListeners();
 
+        // registered although this browser or network already had an account:
+        // note it for the admin (shown under Multi Accounts as a register warning)
+        Integer knownId = KnownAccount.fromCookie(req, shiina.mysql);
+        if (knownId == null) {
+            knownId = KnownAccount.fromIp(req, shiina.mysql);
+        }
+        if (knownId != null && knownId != userId) {
+            shiina.mysql.Exec(
+                    "INSERT IGNORE INTO `sh_detections`(`user`, `target`, `detection`, `score`) VALUES (?,?,CURRENT_TIMESTAMP(),0)",
+                    userId, knownId);
+        }
+
         UserInfoCache.reloadUser(userId);
 
         // same flags as HandleLogin without "remember me": 1 day, Secure, HttpOnly
         new SessionBuilder(userId, req).login(res, false);
+        KnownAccount.remember(res, userId);
 
         String refPath = req.queryParams("refPath");
         if(refPath != null && !refPath.isEmpty()) {
