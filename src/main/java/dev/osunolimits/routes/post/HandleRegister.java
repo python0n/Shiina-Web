@@ -1,5 +1,6 @@
 package dev.osunolimits.routes.post;
 
+import dev.osunolimits.utils.AccountRules;
 import java.sql.ResultSet;
 
 import dev.osunolimits.modules.Shiina;
@@ -51,31 +52,24 @@ public class HandleRegister extends Shiina {
             return renderTemplate("register.html", shiina, res, req);
         }
 
-        if (!username.matches("^(?! )[\\w\\[\\] -]{2,15}(?<! )$")) {
-            shiina.data.put("error", "Username contains invalid characters. Make sure it's 2-15 characters long.");
+        String nameError = AccountRules.checkName(shiina.mysql, username, null);
+        if (nameError != null) {
+            shiina.data.put("error", nameError);
             return renderTemplate("register.html", shiina, res, req);
         }
 
         // Check if the username or email already exists in the database
         String emailCheckSql = "SELECT `id` FROM `users` WHERE `email` = ?";
-        String usernameCheckSql = "SELECT `id` FROM `users` WHERE `name` = ?";
-
         ResultSet emailRs = shiina.mysql.Query(emailCheckSql, email);
-        ResultSet usernameRs = shiina.mysql.Query(usernameCheckSql, username);
 
         if (emailRs.next()) {
             shiina.data.put("error", "Email already taken");
             return renderTemplate("register.html", shiina, res, req);
         }
 
-        if (usernameRs.next()) {
-            shiina.data.put("error", "Username already taken");
-            return renderTemplate("register.html", shiina, res, req);
-        }
-
-        // Validate password strength (between 8-32 characters, at least 3 unique characters)
-        if (password.length() < 8 || password.length() > 32 || password.chars().distinct().count() < 3) {
-            shiina.data.put("error", "Password must be between 8-32 characters and have at least 3 unique characters");
+        String passwordError = AccountRules.checkPassword(password);
+        if (passwordError != null) {
+            shiina.data.put("error", passwordError);
             return renderTemplate("register.html", shiina, res, req);
         }
 
@@ -83,7 +77,7 @@ public class HandleRegister extends Shiina {
         String pwBcrypt = Auth.bcryptMd5(password);
 
         String country = "XX";
-        String safeName = username.toLowerCase().replaceAll(" ", "_");
+        String safeName = AccountRules.safeName(username);
         long curUnixTime = System.currentTimeMillis() / 1000L;
 
         DefaultGeoLocQuery geoLocQuery = new DefaultGeoLocQuery();
