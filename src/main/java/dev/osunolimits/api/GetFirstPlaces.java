@@ -13,42 +13,38 @@ import spark.Response;
 
 public class GetFirstPlaces extends MySQLRoute {
 
-    // Show only first places on maps that are NOT unranked.
-    // Assumption based on your DB: maps.status = 0 => unranked.
-    private static final String GET_FIRST_PLACES =
-            "SELECT s.id AS score_id, s.userid, s.map_md5, " +
+    // First places on ranked/approved/qualified/loved maps (status 2-5), the
+    // same maps bancho announces #1 for. Vanilla modes rank by each player's
+    // best score (status 2 or 3), rx/ap by best pp (status 2). Restricted
+    // players are left out, like on the in-game leaderboard.
+    private static String firstPlacesFrom(boolean byPp) {
+        String metric = byPp ? "pp" : "score";
+        String statuses = byPp ? "(2)" : "(2, 3)";
+        return "FROM scores s " +
+            "JOIN ( " +
+            "  SELECT sc.map_md5, MAX(sc." + metric + ") AS best " +
+            "  FROM scores sc JOIN users u ON u.id = sc.userid " +
+            "  WHERE sc.status IN " + statuses + " AND sc.mode = ? AND u.priv & 1 " +
+            "  GROUP BY sc.map_md5 " +
+            ") AS best_scores " +
+            "  ON s.map_md5 = best_scores.map_md5 " +
+            " AND s." + metric + " = best_scores.best " +
+            "JOIN maps m ON s.map_md5 = m.md5 " +
+            "WHERE s.userid = ? AND s.status IN " + statuses + " AND s.mode = ? " +
+            "  AND m.status IN (2, 3, 4, 5) ";
+    }
+
+    private static String getFirstPlacesQuery(boolean byPp, String sort) {
+        return "SELECT s.id AS score_id, s.userid, s.map_md5, " +
             "m.id AS map_id, m.set_id AS map_set_id, m.filename AS map_name, " +
             "s.score AS max_score, s.pp, s.acc, s.mods, s.grade, s.play_time " +
-            "FROM scores s " +
-            "JOIN ( " +
-            "  SELECT map_md5, mode, MAX(score) AS max_score " +
-            "  FROM scores " +
-            "  WHERE status = 2 " +
-            "  GROUP BY map_md5, mode " +
-            ") AS max_scores " +
-            "  ON s.map_md5 = max_scores.map_md5 " +
-            " AND s.mode = max_scores.mode " +
-            " AND s.score = max_scores.max_score " +
-            "JOIN maps m ON s.map_md5 = m.md5 " +
-            "WHERE s.userid = ? AND s.status = 2 AND s.mode = ? " +
-            "  AND m.status <> 0 " +
-            "ORDER BY s.play_time DESC LIMIT ? OFFSET ?;";
+            firstPlacesFrom(byPp) +
+            "ORDER BY s.play_time " + sort + " LIMIT ? OFFSET ?;";
+    }
 
-    private static final String COUNT_FIRST_PLACES =
-            "SELECT COUNT(DISTINCT s.map_md5) AS first_place_count " +
-            "FROM scores s " +
-            "JOIN ( " +
-            "  SELECT map_md5, mode, MAX(score) AS max_score " +
-            "  FROM scores " +
-            "  WHERE status = 2 " +
-            "  GROUP BY map_md5, mode " +
-            ") AS max_scores " +
-            "  ON s.map_md5 = max_scores.map_md5 " +
-            " AND s.mode = max_scores.mode " +
-            " AND s.score = max_scores.max_score " +
-            "JOIN maps m ON s.map_md5 = m.md5 " +
-            "WHERE s.userid = ? AND s.status = 2 AND s.mode = ? " +
-            "  AND m.status <> 0;";
+    private static String countFirstPlacesQuery(boolean byPp) {
+        return "SELECT COUNT(DISTINCT s.map_md5) AS first_place_count " + firstPlacesFrom(byPp) + ";";
+    }
 
     @Override
     public Object handle(Request req, Response res) throws Exception {
@@ -90,8 +86,8 @@ public class GetFirstPlaces extends MySQLRoute {
         boolean hasNextPage = false;
 
         // Fetch 6 to detect "next page", then drop the 6th item.
-        String finalQuery = GET_FIRST_PLACES.replace("ORDER BY s.play_time DESC", "ORDER BY s.play_time " + sort);
-        ResultSet firstPlacesQuery = shiina.mysql.Query(finalQuery, id, mode, 6, offset);
+        boolean byPp = mode >= 4;
+        ResultSet firstPlacesQuery = shiina.mysql.Query(getFirstPlacesQuery(byPp, sort), mode, id, mode, 6, offset);
         while (firstPlacesQuery.next()) {
             FirstPlace firstPlace = new FirstPlace();
             firstPlace.setScore_id(firstPlacesQuery.getInt("score_id"));
@@ -114,7 +110,7 @@ public class GetFirstPlaces extends MySQLRoute {
             firstPlaces.remove(5);
         }
 
-        ResultSet countQuery = shiina.mysql.Query(COUNT_FIRST_PLACES, id, mode);
+        ResultSet countQuery = shiina.mysql.Query(countFirstPlacesQuery(byPp), mode, id, mode);
         if (countQuery.next()) {
             response.setCount(countQuery.getInt("first_place_count"));
         }
