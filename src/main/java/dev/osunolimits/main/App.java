@@ -324,10 +324,10 @@ shiinaDocs.initializeDocs();
         WebServer.get("/api/v1/search", new Search());
 
         WebServer.get("/api/v1/onboarding", new HandleOnBoarding());
-        WebServer.get("/api/v1/manage_cl", new HandleClanAction());
-        WebServer.get("/api/v1/leave_clan", new HandleClanLeave());
-        WebServer.get("/api/v1/join_clan", new HandleClanRequest());
-        WebServer.get("/api/v1/update_rel", new HandleRelationship());
+        WebServer.post("/api/v1/manage_cl", new HandleClanAction());
+        WebServer.post("/api/v1/leave_clan", new HandleClanLeave());
+        WebServer.post("/api/v1/join_clan", new HandleClanRequest());
+        WebServer.post("/api/v1/update_rel", new HandleRelationship());
 
         WebServer.post("/api/v1/disband_clan", new HandleClanDisband());
         WebServer.post("/api/v1/handle_favorite", new HandleBeatmapFavorite());

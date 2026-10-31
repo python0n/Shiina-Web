@@ -5,11 +5,14 @@ import java.nio.file.Files;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.gson.Gson;
 
 import dev.osunolimits.main.App;
 import dev.osunolimits.modules.Shiina;
@@ -26,6 +29,8 @@ import spark.Request;
 import spark.Response;
 
 public class Analyzer extends Shiina {
+
+    private static final Gson JSON = new Gson();
 
     private static final Logger log = LoggerFactory.getLogger(Analyzer.class);
     private static final String OSR_PATH = dev.osunolimits.utils.BanchoData.replays();
@@ -90,24 +95,28 @@ public class Analyzer extends Shiina {
         }
 
         shiina.data.put("scores", scores);
-        // JSON dla wyszukiwarki
-        StringBuilder json = new StringBuilder("[");
-        for (int i = 0; i < scores.size(); i++) {
-            Map<String,Object> s = scores.get(i);
-            if (i > 0) json.append(",");
-            json.append(String.format(java.util.Locale.US,
-                "{\"id\":%d,\"title\":\"%s\",\"artist\":\"%s\",\"version\":\"%s\",\"diff\":\"%s\",\"acc\":\"%s\",\"pp\":\"%s\",\"grade\":\"%s\",\"n100\":%d,\"n50\":%d,\"nmiss\":%d,\"play_time\":\"%s\",\"set_id\":%d,\"hasReplay\":%b}",
-                (int)s.get("id"),
-                s.get("title").toString().replace("\"","\\\""),
-                s.get("artist").toString().replace("\"","\\\""),
-                s.get("version").toString().replace("\"","\\\""),
-                s.get("diff"), s.get("acc"), s.get("pp"), s.get("grade"),
-                (int)s.get("n100"), (int)s.get("n50"), (int)s.get("nmiss"),
-                s.get("play_time"), (int)s.get("set_id"), (boolean)s.get("hasReplay")
-            ));
+        // JSON for the search box; Gson also escapes < and > so a map title cannot end the <script> it sits in
+        List<Map<String, Object>> forJson = new ArrayList<>();
+        for (Map<String, Object> s : scores) {
+            Map<String, Object> o = new LinkedHashMap<>();
+            o.put("id", s.get("id"));
+            o.put("title", String.valueOf(s.get("title")));
+            o.put("artist", String.valueOf(s.get("artist")));
+            o.put("version", String.valueOf(s.get("version")));
+            o.put("diff", String.valueOf(s.get("diff")));
+            o.put("acc", String.valueOf(s.get("acc")));
+            o.put("pp", String.valueOf(s.get("pp")));
+            o.put("grade", String.valueOf(s.get("grade")));
+            o.put("n100", s.get("n100"));
+            o.put("n50", s.get("n50"));
+            o.put("nmiss", s.get("nmiss"));
+            o.put("play_time", String.valueOf(s.get("play_time")));
+            o.put("set_id", s.get("set_id"));
+            o.put("hasReplay", s.get("hasReplay"));
+            forJson.add(o);
         }
-        json.append("]");
-        shiina.data.put("scoresJson", json.toString());
+        String json = JSON.toJson(forJson);
+        shiina.data.put("scoresJson", json);
         shiina.data.put("seo", new SEOBuilder("Analyzer", "Analiza replayów"));
         return renderTemplate("analyzer/list.html", shiina, res, req);
     }
@@ -130,39 +139,31 @@ public class Analyzer extends Shiina {
             "ORDER BY s.id DESC LIMIT 30",
             shiina.user.id, like, like, like
         );
-        StringBuilder json = new StringBuilder("[");
-        boolean first = true;
+        List<Map<String, Object>> results = new ArrayList<>();
         while (rs != null && rs.next()) {
             int scoreId = rs.getInt("id");
-            boolean hasReplay = new java.io.File(OSR_PATH + scoreId + ".osr").exists();
-            String title = rs.getString("title").replace("\\", "\\\\").replace("\"", "\\\"");
-            String artist = rs.getString("artist").replace("\\", "\\\\").replace("\"", "\\\"");
-            String version = rs.getString("version").replace("\\", "\\\\").replace("\"", "\\\"");
-            if (!first) json.append(",");
-            first = false;
-            json.append("{");
-            json.append("\"id\":").append(scoreId).append(",");
-            json.append("\"title\":\"").append(title).append("\",");
-            json.append("\"artist\":\"").append(artist).append("\",");
-            json.append("\"version\":\"").append(version).append("\",");
-            json.append("\"diff\":\"").append(String.format(java.util.Locale.US, "%.2f", rs.getFloat("diff"))).append("\",");
-            json.append("\"acc\":\"").append(String.format(java.util.Locale.US, "%.2f", rs.getFloat("acc"))).append("\",");
-            json.append("\"pp\":\"").append(String.format(java.util.Locale.US, "%.0f", rs.getFloat("pp"))).append("\",");
-            json.append("\"grade\":\"").append(rs.getString("grade")).append("\",");
-            json.append("\"n100\":").append(rs.getInt("n100")).append(",");
-            json.append("\"n50\":").append(rs.getInt("n50")).append(",");
-            json.append("\"nmiss\":").append(rs.getInt("nmiss")).append(",");
-            json.append("\"play_time\":\"").append(rs.getString("play_time")).append("\",");
-            json.append("\"set_id\":").append(rs.getInt("set_id")).append(",");
-            json.append("\"map_id\":").append(rs.getInt("map_id")).append(",");
-            json.append("\"mods\":").append(rs.getInt("mods")).append(",");
-            json.append("\"mods_str\":\"").append(modString(rs.getInt("mods"))).append("\",");
-            json.append("\"hasReplay\":").append(hasReplay);
-            json.append("}");
+            Map<String, Object> o = new LinkedHashMap<>();
+            o.put("id", scoreId);
+            o.put("title", rs.getString("title"));
+            o.put("artist", rs.getString("artist"));
+            o.put("version", rs.getString("version"));
+            o.put("diff", String.format(java.util.Locale.US, "%.2f", rs.getFloat("diff")));
+            o.put("acc", String.format(java.util.Locale.US, "%.2f", rs.getFloat("acc")));
+            o.put("pp", String.format(java.util.Locale.US, "%.0f", rs.getFloat("pp")));
+            o.put("grade", rs.getString("grade"));
+            o.put("n100", rs.getInt("n100"));
+            o.put("n50", rs.getInt("n50"));
+            o.put("nmiss", rs.getInt("nmiss"));
+            o.put("play_time", rs.getString("play_time"));
+            o.put("set_id", rs.getInt("set_id"));
+            o.put("map_id", rs.getInt("map_id"));
+            o.put("mods", rs.getInt("mods"));
+            o.put("mods_str", modString(rs.getInt("mods")));
+            o.put("hasReplay", new java.io.File(OSR_PATH + scoreId + ".osr").exists());
+            results.add(o);
         }
-        json.append("]");
         res.type("application/json");
-        return json.toString();
+        return JSON.toJson(results);
     }
 
 
@@ -366,22 +367,18 @@ public class Analyzer extends Shiina {
 
 
     private String buildNoteResultsJson(AnalysisResult analysis) {
-        StringBuilder sb = new StringBuilder("[");
-        var notes = analysis.getNoteResults();
-        for (int i = 0; i < notes.size(); i++) {
-            var n = notes.get(i);
-            if (i > 0) sb.append(",");
-            sb.append("{")
-                .append("\"t\":").append(n.getNoteTimeMs()).append(",")
-                .append("\"te\":").append(String.format(java.util.Locale.ROOT, "%.1f", n.getTimingError())).append(",")
-                .append("\"ae\":").append(String.format(java.util.Locale.ROOT, "%.1f", n.getAimError())).append(",")
-                .append("\"sl\":").append(n.isSlider()).append(",")
-                .append("\"v\":\"").append(n.getVerdict()).append("\",")
-                .append("\"s\":").append(n.isInStream()).append(",")
-                .append("\"j\":").append(n.isInJump())
-                .append("}");
+        List<Map<String, Object>> out = new ArrayList<>();
+        for (var n : analysis.getNoteResults()) {
+            Map<String, Object> o = new LinkedHashMap<>();
+            o.put("t", n.getNoteTimeMs());
+            o.put("te", Math.round(n.getTimingError() * 10.0) / 10.0);
+            o.put("ae", Math.round(n.getAimError() * 10.0) / 10.0);
+            o.put("sl", n.isSlider());
+            o.put("v", String.valueOf(n.getVerdict()));
+            o.put("s", n.isInStream());
+            o.put("j", n.isInJump());
+            out.add(o);
         }
-        sb.append("]");
-        return sb.toString();
+        return JSON.toJson(out);
     }
 }
