@@ -167,6 +167,31 @@ public class SyncedAction {
         sleepQuietly(500);
     }
 
+    /**
+     * Tell bancho a clan changed (join, leave, kick, create), so online players
+     * get the new clan in game without logging in again.
+     */
+    public static void clanChanged(int... userIds) {
+        java.util.Map<String, Object> payload = new java.util.HashMap<>();
+        payload.put("ids", userIds);
+        publishQuietly("clan_change", gson.toJson(payload));
+    }
+
+    /** Same for every member of a clan (disband). Call before the members are removed. */
+    public static void clanDisbanded(int clanId) {
+        java.util.Map<String, Object> payload = new java.util.HashMap<>();
+        payload.put("clan_id", clanId);
+        publishQuietly("clan_change", gson.toJson(payload));
+    }
+
+    private static void publishQuietly(String channel, String json) {
+        try {
+            App.jedisPool.publish(channel, json);
+        } catch (Exception e) {
+            LoggerFactory.getLogger(SyncedAction.class).warn("Could not publish " + channel + ": " + e.getMessage());
+        }
+    }
+
     public static void changeName(int userId, String newName) {
         String newSafeName = newName.toLowerCase().replaceAll(" ", "_");
         NameChangeInput input = new NameChangeInput();

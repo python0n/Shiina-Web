@@ -1,5 +1,6 @@
 package dev.osunolimits.routes.post.settings.customization;
 
+import dev.osunolimits.modules.pubsubs.SyncedAction;
 import dev.osunolimits.utils.Visibility;
 import dev.osunolimits.common.Database;
 import dev.osunolimits.common.MySQL;
@@ -60,6 +61,7 @@ public class HandleClanCreation extends Shiina {
             if (clanResult.next()) {
                 int clanId = clanResult.getInt("id");
                 mysql.Exec("UPDATE `users` SET `clan_id` = ?, `clan_priv` = 3 WHERE `id` = ?", clanId, userId);
+                SyncedAction.clanChanged(userId);
 
                 Clan clan = new Clan(clanId, name, tag);
                 new OnUserClanCreatedEvent(clan, userId).callListeners();

@@ -1,5 +1,6 @@
 package dev.osunolimits.routes.api.get.auth;
 
+import dev.osunolimits.modules.pubsubs.SyncedAction;
 import java.sql.ResultSet;
 
 import dev.osunolimits.models.Clan;
@@ -40,6 +41,7 @@ public class HandleClanLeave extends Shiina {
         }
 
         shiina.mysql.Exec("UPDATE `users` SET `clan_id`=0,`clan_priv`=0 WHERE `id` = ?", shiina.user.id);
+        SyncedAction.clanChanged(shiina.user.id);
 
         return raw(res, shiina, "success");
     }
