@@ -8,6 +8,7 @@ import dev.osunolimits.modules.ShiinaRoute;
 import dev.osunolimits.modules.ShiinaRoute.ShiinaRequest;
 import dev.osunolimits.modules.utils.SEOBuilder;
 import dev.osunolimits.utils.Validation;
+import dev.osunolimits.utils.Visibility;
 import spark.Request;
 import spark.Response;
 
@@ -30,7 +31,7 @@ public class UserScore extends Shiina {
 
         ScoreQuery scoreQuery = new ScoreQuery(shiina.mysql);
         Score s = scoreQuery.getScore(id);
-        if(s == null) {
+        if(s == null || !Visibility.canSee(shiina, s.getUserId())) {
             return notFound(res, shiina);
         }
 

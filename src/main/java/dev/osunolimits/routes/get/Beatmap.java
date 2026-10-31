@@ -16,6 +16,7 @@ import dev.osunolimits.modules.ShiinaRoute.ShiinaRequest;
 import dev.osunolimits.modules.utils.SEOBuilder;
 import dev.osunolimits.modules.utils.ShiinaSupporterBadge;
 import dev.osunolimits.utils.Validation;
+import dev.osunolimits.utils.Visibility;
 import dev.osunolimits.utils.osu.OsuConverter;
 import dev.osunolimits.utils.osu.LazerScoreV3;
 import dev.osunolimits.utils.osu.PermissionHelper;
@@ -188,6 +189,8 @@ public class Beatmap extends Shiina {
         if (query.isEmpty()) {
             return new ArrayList<>();
         }
+        // restricted players are hidden from map leaderboards, except their own scores
+        query = query.replace("WHERE s.map_md5 = ?", "WHERE " + Visibility.sqlVisible(shiina, "u") + " AND s.map_md5 = ?");
         List<FullBeatmap.BeatmapScore> scores = new ArrayList<>();
         
         if (sort.equals("scorev3")) {

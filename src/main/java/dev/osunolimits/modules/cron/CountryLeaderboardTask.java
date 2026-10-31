@@ -31,7 +31,7 @@ public class CountryLeaderboardTask extends RunnableCronTask {
             try (MySQL mysql = Database.getConnection()) {
                 CountryLeaderboardResponse cacheObject = new CountryLeaderboardResponse();
                 ResultSet countriesResultSet = mysql.Query(
-                        "SELECT COUNT(`id`) AS `people`, `country` FROM `users` WHERE `id` IN ( SELECT `userid` FROM `scores` WHERE `mode` = ? AND `scores`.`status`!= 0 ) GROUP BY `country` ORDER BY `people` DESC;",
+                        "SELECT COUNT(`id`) AS `people`, `country` FROM `users` WHERE `priv` & 1 AND `id` IN ( SELECT `userid` FROM `scores` WHERE `mode` = ? AND `scores`.`status`!= 0 ) GROUP BY `country` ORDER BY `people` DESC;",
                         String.valueOf(mode));
 
                 List<String> countries = new ArrayList<>();
