@@ -11,6 +11,7 @@ import dev.osunolimits.modules.ShiinaRoute.ShiinaRequest;
 import dev.osunolimits.modules.utils.SEOBuilder;
 import dev.osunolimits.modules.utils.ShiinaSupporterBadge;
 import dev.osunolimits.utils.osu.PermissionHelper;
+import dev.osunolimits.utils.Visibility;
 import lombok.Data;
 import spark.Request;
 import spark.Response;
@@ -57,6 +58,9 @@ public class Relations extends Shiina {
             relation.latest_activity = relations.getLong("latest_activity");
             relation.relationship_status = relations.getString("status");
             relation.user = new UserInfoObject(relation.id);
+            if (Visibility.isRestricted(relation.user.priv)) {
+                continue; // restricted players don't show up in friend lists
+            }
             if (PermissionHelper.hasPrivileges(relation.user.priv, PermissionHelper.Privileges.SUPPORTER)) {
                 relation.user.groups.add(ShiinaSupporterBadge.getInstance().getGroup());
                 relation.setSupporter(true);

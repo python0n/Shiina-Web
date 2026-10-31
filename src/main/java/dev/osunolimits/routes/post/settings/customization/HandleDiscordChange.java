@@ -1,5 +1,6 @@
 package dev.osunolimits.routes.post.settings.customization;
 
+import dev.osunolimits.utils.Visibility;
 import java.util.regex.Pattern;
 
 import dev.osunolimits.modules.Shiina;
@@ -43,6 +44,10 @@ public class HandleDiscordChange extends Shiina {
 
         if (!shiina.loggedIn) {
             return redirect(res, shiina, "/login?path=/settings/customization");
+        }
+        // restricted players can still play, but not change their profile or interact with others
+        if (Visibility.isRestricted(shiina.user.priv)) {
+            return redirect(res, shiina, "/settings?error=Restricted accounts cannot change their profile");
         }
         int userId = shiina.user.id;
         String discord = normalize(req.queryParams("discord"));

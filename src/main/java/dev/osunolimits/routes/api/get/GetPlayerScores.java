@@ -5,7 +5,9 @@ import java.util.ArrayList;
 
 import dev.osunolimits.modules.ShiinaRoute.ShiinaRequest;
 import dev.osunolimits.modules.utils.MySQLRoute;
+import dev.osunolimits.modules.ShiinaRoute;
 import dev.osunolimits.utils.Validation;
+import dev.osunolimits.utils.Visibility;
 import dev.osunolimits.utils.osu.OsuConverter;
 import lombok.Data;
 import spark.Request;
@@ -42,7 +44,8 @@ public class GetPlayerScores extends MySQLRoute {
         "ORDER BY s.pin_order ASC, s.pp DESC LIMIT ? OFFSET ?;";
     @Override
     public Object handle(Request req, Response res) throws Exception {
-        ShiinaRequest shiina = getRequest();
+        // full request (with the session), so a restricted player still sees their own scores
+        ShiinaRequest shiina = new ShiinaRoute().handle(req, res);
         ShiinaAPIHandler shiinaAPIHandler = new ShiinaAPIHandler();
 
         String scope = req.queryParams("scope");
@@ -76,6 +79,10 @@ public class GetPlayerScores extends MySQLRoute {
 
         if (shiinaAPIHandler.hasIssues()) {
             return shiinaAPIHandler.renderIssues(shiina, res);
+        }
+
+        if (!Visibility.canSee(shiina, id)) {
+            return notFound(res, shiina);
         }
 
         String getScoresQuery = scope.equals("recent") ? GET_PLAYER_SCORES_RECENT : (scope.equals("pinned") ? GET_PLAYER_SCORES_PINNED : GET_PLAYER_SCORES_BEST);

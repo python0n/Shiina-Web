@@ -1,5 +1,6 @@
 package dev.osunolimits.routes.post.settings.customization;
 
+import dev.osunolimits.utils.Visibility;
 import dev.osunolimits.main.App;
 import dev.osunolimits.modules.Shiina;
 import dev.osunolimits.modules.ShiinaRoute;
@@ -37,6 +38,10 @@ public class HandleAvatarChange extends Shiina {
         if (!shiina.loggedIn) {
             res.redirect("/login?path=/settings/customization");
             return "";
+        }
+        // restricted players can still play, but not change their profile or interact with others
+        if (Visibility.isRestricted(shiina.user.priv)) {
+            return redirect(res, shiina, "/settings?error=Restricted accounts cannot change their profile");
         }
 
         int userId = shiina.user.id;

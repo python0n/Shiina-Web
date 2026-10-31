@@ -1,5 +1,6 @@
 package dev.osunolimits.routes.api.get.auth;
 
+import dev.osunolimits.utils.Visibility;
 import java.sql.ResultSet;
 
 import dev.osunolimits.main.App;
@@ -21,6 +22,10 @@ public class HandleRelationship extends Shiina {
         ShiinaRequest shiina = new ShiinaRoute().handle(req, res);
 
         if(shiina.user == null) {
+            return notFound(res, shiina);
+        }
+        // restricted players can still play, but not change their profile or interact with others
+        if (Visibility.isRestricted(shiina.user.priv)) {
             return notFound(res, shiina);
         }
 
