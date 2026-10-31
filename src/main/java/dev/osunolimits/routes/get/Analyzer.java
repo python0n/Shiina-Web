@@ -28,8 +28,8 @@ import spark.Response;
 public class Analyzer extends Shiina {
 
     private static final Logger log = LoggerFactory.getLogger(Analyzer.class);
-    private static final String OSR_PATH = "/mnt/storage/osu/bancho-py-ex/.data/osr/";
-    private static final String OSU_PATH = "/mnt/storage/osu/bancho-py-ex/.data/osu/";
+    private static final String OSR_PATH = dev.osunolimits.utils.BanchoData.replays();
+    private static final String OSU_PATH = dev.osunolimits.utils.BanchoData.beatmaps();
 
     @Override
     public Object handle(Request req, Response res) throws Exception {

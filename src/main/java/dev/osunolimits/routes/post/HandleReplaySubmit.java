@@ -19,7 +19,7 @@ import javax.servlet.http.Part;
 public class HandleReplaySubmit extends Shiina {
 
     private static final long MAX_SIZE = 10 * 1024 * 1024;
-    private static final String OSR_DIR = "/mnt/storage/osu/bancho-py-ex/.data/osr/pending/";
+    private static final String OSR_DIR = dev.osunolimits.utils.BanchoData.pendingReplays();
 
     @Override
     public Object handle(Request req, Response res) throws Exception {

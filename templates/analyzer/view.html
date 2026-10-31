@@ -138,14 +138,28 @@
   </#if>
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/hammer.js/2.0.8/hammer.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-zoom/2.0.1/chartjs-plugin-zoom.min.js"></script>
 <script>
-document.addEventListener('DOMContentLoaded', () => {
-  document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(el => {
-    new bootstrap.Tooltip(el, { placement: 'top', trigger: 'hover focus' });
-  });
+// works on a normal page load and after a Turbo visit (DOMContentLoaded only fires on the first one)
+document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(el => {
+  new bootstrap.Tooltip(el, { placement: 'top', trigger: 'hover focus' });
 });
+// zoom plugin loaded in order before the chart is drawn (plain script tags load
+// out of order after a Turbo visit, so the chart could be drawn without it)
+function analyzerLoadScript(src) {
+  return new Promise(function(resolve) {
+    var s = document.createElement('script');
+    s.src = src;
+    s.onload = resolve;
+    s.onerror = resolve;
+    document.head.appendChild(s);
+  });
+}
+function analyzerWithZoom(draw) {
+  if (window.Chart && Chart.registry && Chart.registry.plugins.get('zoom')) { draw(); return; }
+  analyzerLoadScript('https://cdnjs.cloudflare.com/ajax/libs/hammer.js/2.0.8/hammer.min.js')
+    .then(function() { return analyzerLoadScript('https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-zoom/2.0.1/chartjs-plugin-zoom.min.js'); })
+    .then(draw);
+}
 (function() {
   var e = document.querySelector('.js-stars');
   if (!e || (parseInt(e.dataset.mods, 10) & 1874) === 0) return;
@@ -159,7 +173,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }).catch(function() {});
 })();
 <#if noteResultsJson??>
-(function() {
+analyzerWithZoom(function() {
   const notes = ${noteResultsJson};
   if (!notes.length) return;
   const labels = notes.map((n, i) => i + 1);
@@ -216,8 +230,8 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
   });
-  ctx.addEventListener('dblclick', () => chart.resetZoom());
-})();
+  ctx.addEventListener('dblclick', () => { if (chart.resetZoom) chart.resetZoom(); });
+});
 </#if>
 </script>
 <#include "../assets/footer.html">

@@ -23,7 +23,7 @@ import spark.Response;
 
 public class HandleReplayAction extends Shiina {
 
-    private static final String OSR_FINAL_DIR = "/mnt/storage/osu/bancho-py-ex/.data/osr/";
+    private static final String OSR_FINAL_DIR = dev.osunolimits.utils.BanchoData.replays();
     private static final String BANCHO_API = "http://127.0.0.1/v1/calculate_pp";
     private static final String API_KEY = App.env.get("BANCHO_API_KEY");
 
