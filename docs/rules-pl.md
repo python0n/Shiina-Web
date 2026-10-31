@@ -99,7 +99,7 @@ Nie ma ciasteczek reklamowych ani śledzących, dlatego strona nie pokazuje bane
 ### Twoje dane
 
 - Kopię swoich danych pobierzesz w ustawieniach konta, w sekcji danych.
-- Konto usuniesz w ustawieniach albo pisząc do admina. Usunięcie kasuje konto razem z wynikami, statystykami i wiadomościami i nie da się go cofnąć.
+- O usunięcie konta poprosisz w ustawieniach albo pisząc do admina. Admin sprawdza prośbę i usuwa konto razem z wynikami, statystykami i wiadomościami. Potem nie da się tego cofnąć, ale do czasu rozpatrzenia możesz anulować prośbę.
 
 ## Zmiany regulaminu
 
