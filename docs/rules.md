@@ -99,7 +99,7 @@ There are no advertising or tracking cookies, which is why there is no cookie ba
 ### Your data
 
 - You can download a copy of your data in your account settings, in the data section.
-- You can delete your account in the settings or by asking the admin. Deleting removes the account together with its scores, statistics and messages and can't be undone.
+- You can ask for your account to be deleted in the settings or by writing to the admin. The admin reviews the request and then deletes the account together with its scores, statistics and messages. After that it can't be undone, but you can cancel the request until it is reviewed.
 
 ## Changes
 

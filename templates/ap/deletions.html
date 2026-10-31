@@ -1,0 +1,55 @@
+<#include "assets/base.html">
+
+<div class="container-fluid bg-body-tertiary border-bottom p-3">
+    <div class="row align-items-center">
+        <div class="col-auto">
+            <h5 class="mb-0">
+                <i class="fa-solid fa-user-xmark"></i> Account Deletion Requests
+            </h5>
+        </div>
+    </div>
+</div>
+
+<div class="container-fluid mt-3">
+    <#if info??>
+        <div class="alert alert-primary">${info?html}</div>
+    </#if>
+    <#if requests?size == 0>
+        <p class="text-muted">No pending requests.</p>
+    <#else>
+        <div class="table-responsive">
+            <table class="table align-middle">
+                <thead>
+                    <tr><th>Player</th><th>Scores</th><th>Requested</th><th class="text-end">Action</th></tr>
+                </thead>
+                <tbody>
+                <#list requests as r>
+                    <tr>
+                        <td>
+                            <a href="/ap/user?id=${r.userId?c}" class="text-decoration-none fw-medium">${r.name?html}</a>
+                            <span class="text-muted small">#${r.userId?c} (${r.country?upper_case?html})</span>
+                        </td>
+                        <td>${r.scoreCount?c}</td>
+                        <td><span data-timestamp-format="unix" data-timestamp="${r.requestedAt?c}">${r.requestedAt?c}</span></td>
+                        <td class="text-end">
+                            <form action="/ap/deletions/action" method="post" class="d-inline" onsubmit="return confirm('Delete account ${r.name?js_string} (#${r.userId?c}) with all its data? This cannot be undone.');">
+                                <input type="hidden" name="userId" value="${r.userId?c}">
+                                <input type="hidden" name="action" value="approve">
+                                <button type="submit" class="btn btn-sm btn-danger"><i class="fa-solid fa-trash me-1"></i>Delete account</button>
+                            </form>
+                            <form action="/ap/deletions/action" method="post" class="d-inline ms-1">
+                                <input type="hidden" name="userId" value="${r.userId?c}">
+                                <input type="hidden" name="action" value="reject">
+                                <button type="submit" class="btn btn-sm btn-outline-secondary">Reject</button>
+                            </form>
+                        </td>
+                    </tr>
+                </#list>
+                </tbody>
+            </table>
+        </div>
+    </#if>
+</div>
+
+</body>
+</html>

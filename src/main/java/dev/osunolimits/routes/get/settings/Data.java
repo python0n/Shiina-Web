@@ -34,6 +34,13 @@ public class Data extends Shiina {
             shiina.data.put("timestamp", Long.parseLong(req.queryParams("timestamp")));
         }
 
+        try (java.sql.ResultSet rs = shiina.mysql.Query(
+                "SELECT `requested_at` FROM `sh_deletion_requests` WHERE `user_id` = ?", shiina.user.id)) {
+            if (rs != null && rs.next()) {
+                shiina.data.put("deletionRequestedAt", rs.getLong("requested_at"));
+            }
+        }
+
         shiina.data.put("pluginNav", NavbarRegister.getSettingsItems());
         shiina.data.put("seo", new SEOBuilder("Settings | Data", App.customization.get("homeDescription").toString()));
         return renderTemplate("settings/data.html", shiina, res, req);

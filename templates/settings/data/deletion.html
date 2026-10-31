@@ -1,4 +1,4 @@
-<!-- Request Data Section -->
+<!-- Account deletion (needs an administrator's approval) -->
 <div class="card mb-4">
     <div class="card-header bg-transparent">
         <h5 class="mb-0">
@@ -7,14 +7,28 @@
         </h5>
     </div>
     <div class="card-body">
-        <form data-turbo-method="POST" data-turbo-confirm action="/settings/data/delete" method="post"> 
-            <button type="submit" class="btn btn-danger">
-                <i class="fas fa-save me-2"></i>
-                ${t["settings.delete_account"]?html}
-            </button>
-            <div class="form-text">
-                ${t["settings.delete_account_hint"]?html}
-            </div> 
-        </form>
+        <#if deletionRequestedAt??>
+            <p class="mb-2">
+                ${t["settings.delete_pending"]?html}
+                <span class="text-muted" data-timestamp-format="unix" data-timestamp="${deletionRequestedAt?c}">${deletionRequestedAt?c}</span>
+            </p>
+            <form data-turbo-method="POST" action="/settings/data/delete" method="post">
+                <input type="hidden" name="action" value="cancel">
+                <button type="submit" class="btn btn-outline-secondary">
+                    <i class="fas fa-undo me-2"></i>
+                    ${t["settings.delete_cancel"]?html}
+                </button>
+            </form>
+        <#else>
+            <form data-turbo-method="POST" data-turbo-confirm action="/settings/data/delete" method="post">
+                <button type="submit" class="btn btn-danger">
+                    <i class="fas fa-trash me-2"></i>
+                    ${t["settings.delete_account"]?html}
+                </button>
+                <div class="form-text">
+                    ${t["settings.delete_account_hint"]?html}
+                </div>
+            </form>
+        </#if>
     </div>
 </div>
