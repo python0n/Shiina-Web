@@ -1,6 +1,7 @@
 package dev.osunolimits.routes.post.settings.customization;
 
 
+import dev.osunolimits.utils.AccountRules;
 import dev.osunolimits.utils.Visibility;
 import dev.osunolimits.modules.Shiina;
 import dev.osunolimits.modules.ShiinaRoute;
@@ -30,13 +31,9 @@ public class HandleNameChange extends Shiina {
         }
 
         String newName = req.queryParams("newname");
-        if (newName == null || newName.isEmpty() || !newName.matches("^(?! )[\\w\\[\\] -]{2,15}(?<! )$")) {
-            return redirect(res, shiina, "/settings?error=Invalid name");
-        }
-
-        String usernameCheckSql = "SELECT `id` FROM `users` WHERE `name` = ?";
-        if(shiina.mysql.Query(usernameCheckSql, newName).next()) {
-            return redirect(res, shiina, "/settings?error=Name already taken");
+        String nameError = AccountRules.checkName(shiina.mysql, newName, shiina.user.id);
+        if (nameError != null) {
+            return redirect(res, shiina, "/settings?error=" + java.net.URLEncoder.encode(nameError, java.nio.charset.StandardCharsets.UTF_8));
         }
         
         SyncedAction.changeName(shiina.user.id, newName);
