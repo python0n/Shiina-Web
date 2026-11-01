@@ -24,7 +24,9 @@ still applies. This page lists what the fork changes and the extra settings it n
 - Active sessions list in the settings, with logging out of single sessions.
 
 ### Replays
-- Replay submission: players upload `.osr` files, admins review them in the admin panel.
+- Replay submission: players upload `.osr` files, admins review them in the admin panel. An accepted
+  replay is saved by bancho (`/v1/approve_replay`) like a score sent from the game: Relax and Autopilot
+  modes, pp, best score rules, the time it was played and the player's stats and rank.
 - Replay analyzer (`/analyzer`): timing error and aim per note, stability (UR), early and late hits,
   and map recommendations for the weakest skill (stream, jump, burst, tech).
 
@@ -79,7 +81,7 @@ still applies. This page lists what the fork changes and the extra settings it n
 | Setting | What it does |
 | --- | --- |
 | `BANCHO_DATA_DIR` | bancho's `.data` folder (replays, `.osu` files) |
-| `INTERNAL_API_KEY` | same value as in bancho's `.env`; lets Shiina see restricted players through the API |
+| `INTERNAL_API_KEY` | same value as in bancho's `.env`; lets Shiina see restricted players through the API and save accepted replays |
 | `DISALLOWED_NAMES`, `DISALLOWED_PASSWORDS` | comma separated, checked on registration and nick changes |
 | `CRON_THREADS` | threads for the background jobs (default 3) |
 

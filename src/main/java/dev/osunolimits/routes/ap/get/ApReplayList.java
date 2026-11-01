@@ -26,6 +26,10 @@ public class ApReplayList extends Shiina {
         }
 
         String filter = req.queryParamOrDefault("status", "0"); // default: pending
+        shiina.data.put("flashAction", req.queryParamOrDefault("action", ""));
+        shiina.data.put("flashError", req.queryParamOrDefault("error", ""));
+        String flashScore = req.queryParamOrDefault("score", "");
+        shiina.data.put("flashScore", flashScore.matches("\\d{1,19}") ? flashScore : "");
 
         ResultSet rs = shiina.mysql.Query(
                 "SELECT pr.id, pr.userid, pr.map_md5, pr.player_name, pr.mode, pr.mods, pr.score, " +
