@@ -251,10 +251,19 @@ public final class ChatApi {
             if (shiina == null) {
                 return error(res, "unauthorized");
             }
-            close(shiina);
             String name = req.queryParams("name");
             List<Object> list = new ArrayList<>();
+            // only channels this player may read (bancho keeps no history of staff channels either)
+            boolean allowed = false;
             if (name != null && name.matches("#[A-Za-z0-9_#\\-]{1,32}")) {
+                ResultSet ch = shiina.mysql.Query("SELECT read_priv FROM channels WHERE name = ?", name);
+                if (ch != null && ch.next()) {
+                    int readPriv = ch.getInt("read_priv");
+                    allowed = readPriv == 0 || (shiina.user.priv & readPriv) != 0;
+                }
+            }
+            close(shiina);
+            if (allowed) {
                 List<String> raw = App.jedisPool.lrange("chat:history:" + name, 0, PAGE - 1);
                 for (int i = raw.size() - 1; i >= 0; i--) {
                     try {
