@@ -36,6 +36,13 @@ still applies. This page lists what the fork changes and the extra settings it n
 - Map statuses follow bancho (Pending, Update available, Ranked, Approved, Qualified, Loved),
   with osu-web like colours.
 
+### Chat
+- `/chat`: the in-game chat in the browser, laid out like the osu-web chat. Channels, private messages
+  with history, BanchoBot and `!mp` rooms (the match tab opens after `!mp make` and closes after
+  `!mp close`). It talks to bancho's `/ws/chat` (IRC over WebSocket) after getting a one-time ticket
+  from `/api/v1/chat/ticket`, so the IRC key never reaches the browser.
+- Unread private messages are counted on the chat icon in the navbar.
+
 ### Multiplayer
 - Match list (`/matches`) and match view (`/matches/<id>`, `/mp<id>`) with the full event log.
 - Accuracy, grade and mods of match scores computed from hit counts.
@@ -84,6 +91,7 @@ still applies. This page lists what the fork changes and the extra settings it n
 | `INTERNAL_API_KEY` | same value as in bancho's `.env`; lets Shiina see restricted players through the API and save accepted replays |
 | `DISALLOWED_NAMES`, `DISALLOWED_PASSWORDS` | comma separated, checked on registration and nick changes |
 | `CRON_THREADS` | threads for the background jobs (default 3) |
+| `CHAT_WS_URL` | address of bancho's chat WebSocket, e.g. `wss://api.taksiegra.ovh/ws/chat`; empty = `/ws/chat` on the site's own host |
 
 Everything else is described in `.config/.env.example`.
 

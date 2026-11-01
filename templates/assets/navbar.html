@@ -49,6 +49,9 @@
           <li class="nav-item">
             <a class="nav-link" href="/replays">${t["nav.score_submit"]?html}</a>
           </li>
+          <li class="nav-item d-lg-none">
+            <a class="nav-link" data-turbo="false" href="/chat">${t["nav.chat"]?html}</a>
+          </li>
         </#if>
 
         <li class="nav-item">
@@ -109,8 +112,11 @@
       </div>
       </#if>
 
-      <div class="d-flex mt-3 my-lg-0">
+      <div class="d-flex mt-3 my-lg-0 align-items-center">
         <#if user??>
+          <a class="shiina-nav-chat d-none d-lg-inline-block me-2" data-turbo="false" href="/chat" title="${t["nav.chat"]?html}" aria-label="${t["nav.chat"]?html}">
+            <i class="fa-regular fa-comments fa-lg"></i><span class="shiina-chat-badge d-none" id="shiina-chat-unread"></span>
+          </a>
           <button class="btn btn-secondary dropdown-toggle" style="background-color: transparent; color: white; padding: 5px; padding-left: 10px; padding-right: 5px;" type="button" data-bs-toggle="dropdown" aria-expanded="false">
             <img class="me-2 rounded" src="${avatarServer}/${user.id?c}?v=${avatarV!""}" alt="Profile Image" width="28" height="28">${user.name?html}
           </button>

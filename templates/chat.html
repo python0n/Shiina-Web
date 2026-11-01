@@ -1,0 +1,79 @@
+<#include "assets/base.html">
+<div class="container-xl mb-4 mt-3">
+<#if !chatAllowed>
+  <div class="card">
+    <div class="card-body text-center py-5">
+      <i class="fa-solid fa-comment-slash fa-2x mb-3 text-secondary"></i>
+      <p class="mb-0">${t["chat.restricted"]?html}</p>
+    </div>
+  </div>
+<#else>
+  <div id="shiina-chat" class="shiina-chat"
+       data-ws="${chatWsUrl?html}"
+       data-me-id="${user.id?c}"
+       data-me-name="${user.name?html}"
+       data-open-with="${chatOpenWith?html}"
+       data-avatar="${avatarServer?html}"
+       data-avatar-v="${avatarV!""}">
+
+    <aside class="shiina-chat-side">
+      <div class="shiina-chat-title"><i class="fa-regular fa-comments me-2"></i>${t["chat.title"]?html}</div>
+
+      <div class="shiina-chat-section">${t["chat.channels"]?html}</div>
+      <div id="chat-list-channel"></div>
+      <button type="button" class="shiina-chat-item shiina-chat-add" id="chat-join-btn">
+        <span class="shiina-chat-icon"><i class="fa-solid fa-plus"></i></span><span>${t["chat.join_channel"]?html}</span>
+      </button>
+
+      <div class="shiina-chat-section" id="chat-section-multi">${t["chat.multiplayer"]?html}</div>
+      <div id="chat-list-multi"></div>
+
+      <div class="shiina-chat-section">${t["chat.direct"]?html}</div>
+      <form id="chat-new-pm" class="shiina-chat-newpm" autocomplete="off">
+        <input type="text" class="form-control form-control-sm" id="chat-new-pm-name" maxlength="32" placeholder="${t["chat.new_pm"]?html}">
+      </form>
+      <div id="chat-list-pm"></div>
+    </aside>
+
+    <section class="shiina-chat-main">
+      <header class="shiina-chat-head" id="chat-head"></header>
+      <div class="shiina-chat-status" id="chat-status">${t["chat.connecting"]?html}</div>
+      <div class="shiina-chat-log" id="chat-log"></div>
+      <form class="shiina-chat-input" id="chat-form" autocomplete="off">
+        <input type="text" id="chat-text" class="form-control" maxlength="2000" placeholder="${t["chat.placeholder"]?html}" disabled>
+        <button type="submit" class="btn btn-primary" id="chat-send" disabled><span class="d-none d-sm-inline me-2">${t["chat.send"]?html}</span><i class="fa-solid fa-paper-plane"></i></button>
+      </form>
+    </section>
+
+    <div class="shiina-chat-join d-none" id="chat-join-panel" role="dialog" aria-label="${t["chat.join_channel"]?html}">
+      <div class="shiina-chat-join-box">
+        <div class="d-flex align-items-center justify-content-between mb-2">
+          <strong>${t["chat.join_channel"]?html}</strong>
+          <button type="button" class="btn-close" id="chat-join-close" aria-label="${t["chat.close"]?html}"></button>
+        </div>
+        <div id="chat-join-list" class="shiina-chat-join-list"><div class="text-secondary small">${t["chat.loading"]?html}</div></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    window.SHIINA_CHAT_T = {
+      connecting: "${t["chat.connecting"]?js_string}",
+      reconnecting: "${t["chat.reconnecting"]?js_string}",
+      disconnected: "${t["chat.disconnected"]?js_string}",
+      empty: "${t["chat.empty"]?js_string}",
+      older: "${t["chat.older"]?js_string}",
+      history: "${t["chat.history"]?js_string}",
+      noChannels: "${t["chat.no_channels"]?js_string}",
+      users: "${t["chat.users"]?js_string}",
+      leave: "${t["chat.leave"]?js_string}",
+      profile: "${t["chat.profile"]?js_string}",
+      readonly: "${t["chat.readonly"]?js_string}",
+      unknownUser: "${t["chat.unknown_user"]?js_string}",
+      help: "${t["chat.help"]?js_string}"
+    };
+  </script>
+  <script src="/js/chat.js?v=${assetV!""}"></script>
+</#if>
+</div>
+<#include "assets/footer.html">
