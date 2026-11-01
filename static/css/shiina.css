@@ -3161,6 +3161,14 @@ END LEADERBOARD */
   .shiina-chat-nick { max-width: 44px; }
 }
 
+.shiina-chat-day {
+  display: flex; align-items: center; gap: 12px; margin: 16px 0 12px;
+  font-size: .75rem; font-weight: 700; color: var(--bs-secondary-color);
+}
+.shiina-chat-day::before, .shiina-chat-day::after {
+  content: ""; flex: 1; height: 1px; background: var(--bs-border-color-translucent, rgba(255, 255, 255, .1));
+}
+
 /* ---------- the bell in the navbar ---------- */
 .shiina-notif-menu { width: 360px; max-width: 92vw; padding: 0; overflow: hidden; }
 .shiina-notif-head {

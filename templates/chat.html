@@ -14,7 +14,8 @@
        data-me-name="${user.name?html}"
        data-open-with="${chatOpenWith?html}"
        data-avatar="${avatarServer?html}"
-       data-avatar-v="${avatarV!""}">
+       data-avatar-v="${avatarV!""}"
+       data-lang="${(lang!"en")?html}">
 
     <aside class="shiina-chat-side">
       <div class="shiina-chat-title"><i class="fa-regular fa-comments me-2"></i>${t["chat.title"]?html}</div>
@@ -70,7 +71,9 @@
       profile: "${t["chat.profile"]?js_string}",
       readonly: "${t["chat.readonly"]?js_string}",
       unknownUser: "${t["chat.unknown_user"]?js_string}",
-      help: "${t["chat.help"]?js_string}"
+      help: "${t["chat.help"]?js_string}",
+      today: "${t["chat.today"]?js_string}",
+      yesterday: "${t["chat.yesterday"]?js_string}"
     };
   </script>
   <script src="/js/chat.js?v=${assetV!""}"></script>

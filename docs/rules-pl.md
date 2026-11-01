@@ -42,7 +42,8 @@ Przekleństwa i czarny humor są w porządku, dopóki nie celują w konkretne gr
 ## Czat
 
 - Bez spamu, nękania innych graczy i wklejania cudzych danych osobowych.
-- Wiadomości prywatne są zapisywane na serwerze, między innymi po to, żeby dotarły do osób offline.
+- Wiadomości prywatne są zapisywane na serwerze bez limitu czasu: dzięki temu docierają do osób offline, a w czacie na stronie widzisz historię swoich rozmów. Historię rozmowy widzą tylko jej uczestnicy.
+- Ostatnie wiadomości z kanałów publicznych (np. #osu) są widoczne w czacie na stronie przez 7 dni.
 
 ## Mapy wysyłane na serwer
 
@@ -77,7 +78,9 @@ Serwer zbiera tylko to, czego potrzebuje do działania i pilnowania tych zasad. 
 | Hasło | Logowanie. Zapisane wyłącznie w postaci zaszyfrowanej, admin go nie widzi. |
 | Wyniki, powtórki, statystyki, ulubione mapy, oceny map | Rankingi i profil |
 | Avatar, baner, opis profilu, nick Discorda (jeśli go podasz) | Profil |
-| Komentarze i wiadomości prywatne | Komentarze na stronie, dostarczanie wiadomości |
+| Komentarze i wiadomości prywatne | Komentarze na stronie, dostarczanie wiadomości, historia rozmów w czacie na stronie |
+| Ostatnie wiadomości z kanałów publicznych (7 dni) | Historia kanałów w czacie na stronie |
+| Powiadomienia (np. o zaakceptowanym replayu albo zabranym #1) | Dzwonek na stronie |
 | Adres IP i wersja klienta przy logowaniu z gry | Bezpieczeństwo i wykrywanie nadużyć |
 | Skróty identyfikatorów sprzętu wysyłane przez klienta osu! (karty sieciowej, dysku, instalacji) | Wykrywanie niezgłoszonych drugich kont. Serwer dostaje tylko skróty (hashe), nie same numery. |
 | Adres IP, przeglądarka i przybliżony kraj przy logowaniu na stronę | Lista aktywnych sesji w ustawieniach konta |
