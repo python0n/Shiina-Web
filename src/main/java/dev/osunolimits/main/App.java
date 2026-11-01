@@ -231,6 +231,7 @@ shiinaDocs.initializeDocs();
         WebServer.get("/leaderboard", new Leaderboard());
         WebServer.get("/hypo", new Hypo());
         WebServer.get("/reworks", new Reworks());
+        WebServer.get("/pp", new dev.osunolimits.routes.get.PpCalc());
 
         WebServer.get("/clans", new Clans());
         WebServer.get("/clan/:id", new Clan());

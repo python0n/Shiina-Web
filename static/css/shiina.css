@@ -3189,3 +3189,16 @@ END LEADERBOARD */
 .shiina-notif-icon { width: 18px; margin-top: 3px; text-align: center; flex-shrink: 0; }
 .shiina-notif-body { min-width: 0; overflow-wrap: anywhere; }
 .shiina-notif-time { font-size: .72rem; color: var(--bs-secondary-color); margin-top: 2px; }
+
+/* ---------- pp calculator (/pp) ---------- */
+.pc-modes, .pc-mods { display: flex; flex-wrap: wrap; gap: 6px; }
+.pc-modes img { width: 18px; height: 18px; }
+.pc-modes .btn.active, .pc-mods .btn.active { background: var(--bs-primary); border-color: var(--bs-primary); color: #fff; }
+.pc-mods .btn { min-width: 44px; font-weight: 600; }
+.pc-map-card { overflow: hidden; }
+.pc-cover { height: 110px; background: var(--bs-tertiary-bg) center / cover no-repeat; }
+.pc-map-body { position: relative; }
+.pc-variant.base { border-color: var(--bs-primary); }
+.pc-pp { font-size: 1.9rem; font-weight: 700; line-height: 1.2; margin: 4px 0; }
+.pc-pp span { font-size: .9rem; font-weight: 600; margin-left: 2px; color: var(--bs-secondary-color); }
+.pc-table td, .pc-table th { padding: 6px 12px; white-space: nowrap; }
