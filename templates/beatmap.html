@@ -185,6 +185,9 @@
                 <a href="<#if (beatmap.setId >= 1073741824)>https://c.taksiegra.ovh/d/${beatmap.setId?c}<#else>https://osu.direct/api/d/${beatmap.setId?c}</#if>" class="btn btn-outline-secondary">
                     <i class="fa-solid fa-floppy-disk me-2"></i>${t["beatmap.download_file"]?html}
                 </a>
+                <a href="/pp?map=${id?c}" class="btn btn-outline-secondary">
+                    <i class="fa-solid fa-calculator me-2"></i>${t["calc.open"]?html}
+                </a>
             </div>
         </div>
     </div>

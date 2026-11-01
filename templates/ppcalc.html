@@ -1,0 +1,308 @@
+<#include "assets/base.html">
+<div class="container mb-5" id="pc-root" data-lang="${(lang!"en")?html}">
+    <div class="card mb-4">
+        <div class="card-body d-flex align-items-center gap-3 flex-wrap">
+            <div class="me-auto">
+                <h4 class="mb-1"><i class="fa-solid fa-calculator me-2 text-primary"></i>${t["calc.title"]?html}</h4>
+                <p class="text-muted mb-0 small">${t["calc.subtitle"]?html}</p>
+            </div>
+            <a href="/reworks" class="btn btn-sm btn-outline-secondary"><i class="fa-solid fa-flask me-1"></i>${t["reworks.title"]?html}</a>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-12 col-lg-5">
+            <div class="card">
+                <div class="card-body">
+                    <label class="form-label small text-muted" for="pc-map">${t["calc.map"]?html}</label>
+                    <input type="text" class="form-control mb-3" id="pc-map" maxlength="200" placeholder="${t["calc.map_placeholder"]?html}" autocomplete="off">
+
+                    <div class="form-label small text-muted">${t["calc.mode"]?html}</div>
+                    <div class="pc-modes mb-3" id="pc-modes">
+                        <button type="button" class="btn btn-sm btn-outline-secondary active" data-mode="">${t["calc.mode_auto"]?html}</button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary" data-mode="0" title="osu!"><img src="/img/modes/osu.svg" alt="osu!"></button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary" data-mode="1" title="osu!taiko"><img src="/img/modes/taiko.svg" alt="osu!taiko"></button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary" data-mode="2" title="osu!catch"><img src="/img/modes/catch.svg" alt="osu!catch"></button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary" data-mode="3" title="osu!mania"><img src="/img/modes/mania.svg" alt="osu!mania"></button>
+                    </div>
+
+                    <div class="form-label small text-muted">${t["calc.mods"]?html}</div>
+                    <div class="pc-mods mb-3" id="pc-mods">
+                        <#list ["NF","EZ","HD","HR","DT","NC","HT","FL","SO"] as mod>
+                        <button type="button" class="btn btn-sm btn-outline-secondary" data-mod="${mod}">${mod}</button>
+                        </#list>
+                    </div>
+
+                    <div class="btn-group btn-group-sm w-100 mb-3" role="group" id="pc-input-kind">
+                        <button type="button" class="btn btn-primary" data-kind="acc">${t["calc.by_acc"]?html}</button>
+                        <button type="button" class="btn btn-secondary" data-kind="hits">${t["calc.by_hits"]?html}</button>
+                    </div>
+
+                    <div id="pc-acc-box" class="row g-2 mb-2">
+                        <div class="col-6">
+                            <label class="form-label small text-muted" for="pc-acc">${t["calc.acc"]?html}</label>
+                            <input type="number" class="form-control" id="pc-acc" min="0" max="100" step="0.01" value="100">
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label small text-muted" for="pc-miss-a">${t["calc.miss"]?html}</label>
+                            <input type="number" class="form-control" id="pc-miss-a" min="0" step="1" value="0">
+                        </div>
+                    </div>
+                    <div id="pc-hits-box" class="row g-2 mb-2" hidden>
+                        <div class="col-4">
+                            <label class="form-label small text-muted" for="pc-n100">100</label>
+                            <input type="number" class="form-control" id="pc-n100" min="0" step="1" value="0">
+                        </div>
+                        <div class="col-4">
+                            <label class="form-label small text-muted" for="pc-n50">50</label>
+                            <input type="number" class="form-control" id="pc-n50" min="0" step="1" value="0">
+                        </div>
+                        <div class="col-4">
+                            <label class="form-label small text-muted" for="pc-miss">${t["calc.miss"]?html}</label>
+                            <input type="number" class="form-control" id="pc-miss" min="0" step="1" value="0">
+                        </div>
+                    </div>
+                    <label class="form-label small text-muted" for="pc-combo">${t["calc.combo"]?html}</label>
+                    <input type="number" class="form-control" id="pc-combo" min="0" step="1" placeholder="${t["calc.combo_full"]?html}">
+                    <div class="form-text" id="pc-acc-note"></div>
+                </div>
+            </div>
+            <p class="text-muted small mt-2 mb-0">${t["calc.note"]?html}</p>
+        </div>
+
+        <div class="col-12 col-lg-7">
+            <div class="card" id="pc-empty">
+                <div class="card-body text-center text-muted py-5">
+                    <i class="fa-solid fa-music fa-2x mb-3 opacity-50"></i>
+                    <p class="mb-0" id="pc-empty-text">${t["calc.empty"]?html}</p>
+                </div>
+            </div>
+
+            <div id="pc-result" hidden>
+                <div class="card mb-3 pc-map-card">
+                    <div class="pc-cover" id="pc-cover"></div>
+                    <div class="card-body pc-map-body">
+                        <div class="small text-muted" id="pc-artist"></div>
+                        <h5 class="mb-1"><a id="pc-title" class="text-decoration-none"></a></h5>
+                        <div class="small" id="pc-meta"></div>
+                    </div>
+                </div>
+
+                <div class="row g-3 mb-3" id="pc-variants"></div>
+
+                <div class="card mb-3">
+                    <div class="card-header bg-body small fw-semibold" id="pc-acc-head"></div>
+                    <div class="table-responsive">
+                        <table class="table table-sm mb-0 pc-table" id="pc-acc-table"></table>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header bg-body small fw-semibold">${t["calc.table_mods"]?html}</div>
+                    <div class="table-responsive">
+                        <table class="table table-sm mb-0 pc-table" id="pc-mod-table"></table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>window.PC_T = {<#list t?keys as k><#if k?starts_with("calc.")>"${k?js_string}": "${t[k]?js_string}", </#if></#list>};</script>
+<#noparse>
+<script>
+(function () {
+    var root = document.getElementById('pc-root');
+    if (!root || root.dataset.ready) return;
+    root.dataset.ready = '1';
+    var T = window.PC_T || {};
+    var API = '/hypo/api';
+    var lang = root.dataset.lang || 'en';
+    var names = {};
+    var state = { map: '', mode: '', mods: [], kind: 'acc' };
+    var timer = null, seq = 0;
+    var $ = function (id) { return document.getElementById(id); };
+
+    function esc(s) {
+        return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+            return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+        });
+    }
+    function fmt(pp) { return Number(pp).toLocaleString(lang, { maximumFractionDigits: 2, minimumFractionDigits: 0 }); }
+    function variantName(id) { return T['calc.variant.' + id] || names[id] || id; }
+
+    fetch(API + '/variants').then(function (r) { return r.json(); }).then(function (d) {
+        (d.variants || []).forEach(function (v) { names[v.id] = (v.name && (v.name[lang] || v.name.en)) || v.id; });
+        if (state.last) render(state.last);
+    }).catch(function () {});
+
+    // initial state from the address (shareable links)
+    var qs = new URLSearchParams(location.search);
+    $('pc-map').value = qs.get('map') || '';
+    if (qs.get('mods')) state.mods = (qs.get('mods').toUpperCase().match(/.{2}/g) || []);
+    if (qs.get('mode') !== null && /^[0-3]$/.test(qs.get('mode'))) state.mode = qs.get('mode');
+    if (qs.get('acc')) $('pc-acc').value = qs.get('acc');
+    if (qs.get('n100') || qs.get('n50')) {
+        state.kind = 'hits';
+        $('pc-n100').value = qs.get('n100') || 0;
+        $('pc-n50').value = qs.get('n50') || 0;
+        $('pc-miss').value = qs.get('miss') || 0;
+    } else if (qs.get('miss')) {
+        $('pc-miss-a').value = qs.get('miss');
+    }
+    if (qs.get('combo')) $('pc-combo').value = qs.get('combo');
+
+    function syncButtons() {
+        root.querySelectorAll('#pc-mods [data-mod]').forEach(function (b) {
+            b.classList.toggle('active', state.mods.indexOf(b.dataset.mod) >= 0);
+        });
+        root.querySelectorAll('#pc-modes [data-mode]').forEach(function (b) {
+            b.classList.toggle('active', b.dataset.mode === state.mode);
+        });
+        root.querySelectorAll('#pc-input-kind [data-kind]').forEach(function (b) {
+            b.classList.toggle('btn-primary', b.dataset.kind === state.kind);
+            b.classList.toggle('btn-secondary', b.dataset.kind !== state.kind);
+        });
+        $('pc-acc-box').hidden = state.kind !== 'acc';
+        $('pc-hits-box').hidden = state.kind !== 'hits';
+    }
+
+    var EXCLUSIVE = { EZ: ['HR'], HR: ['EZ'], DT: ['HT', 'NC'], NC: ['HT', 'DT'], HT: ['DT', 'NC'], NF: ['SO'], SO: ['NF'] };
+    root.querySelector('#pc-mods').addEventListener('click', function (e) {
+        var b = e.target.closest('[data-mod]');
+        if (!b) return;
+        var m = b.dataset.mod, i = state.mods.indexOf(m);
+        if (i >= 0) state.mods.splice(i, 1);
+        else {
+            state.mods = state.mods.filter(function (x) { return (EXCLUSIVE[m] || []).indexOf(x) < 0; });
+            state.mods.push(m);
+        }
+        syncButtons(); schedule(0);
+    });
+    root.querySelector('#pc-modes').addEventListener('click', function (e) {
+        var b = e.target.closest('[data-mode]');
+        if (!b) return;
+        state.mode = b.dataset.mode; syncButtons(); schedule(0);
+    });
+    root.querySelector('#pc-input-kind').addEventListener('click', function (e) {
+        var b = e.target.closest('[data-kind]');
+        if (!b) return;
+        state.kind = b.dataset.kind; syncButtons(); schedule(0);
+    });
+    ['pc-map', 'pc-acc', 'pc-miss-a', 'pc-n100', 'pc-n50', 'pc-miss', 'pc-combo'].forEach(function (id) {
+        $(id).addEventListener('input', function () { schedule(350); });
+    });
+
+    function params() {
+        var p = new URLSearchParams();
+        p.set('map', $('pc-map').value.trim());
+        var order = ['NF', 'EZ', 'HD', 'HR', 'DT', 'NC', 'HT', 'FL', 'SO'];
+        var mods = order.filter(function (m) { return state.mods.indexOf(m) >= 0; }).join('');
+        if (mods) p.set('mods', mods);
+        if (state.mode !== '') p.set('mode', state.mode);
+        if (state.kind === 'acc') {
+            p.set('acc', $('pc-acc').value || '100');
+            if (+$('pc-miss-a').value > 0) p.set('miss', $('pc-miss-a').value);
+        } else {
+            p.set('n100', $('pc-n100').value || '0');
+            p.set('n50', $('pc-n50').value || '0');
+            p.set('miss', $('pc-miss').value || '0');
+        }
+        if (+$('pc-combo').value > 0) p.set('combo', $('pc-combo').value);
+        return p;
+    }
+
+    function schedule(delay) {
+        clearTimeout(timer);
+        timer = setTimeout(run, delay);
+    }
+
+    function showEmpty(text) {
+        $('pc-result').hidden = true;
+        $('pc-empty').hidden = false;
+        $('pc-empty-text').textContent = text;
+    }
+
+    function run() {
+        var p = params();
+        if (!/\d/.test(p.get('map'))) { showEmpty(T['calc.empty']); history.replaceState(null, '', '/pp'); return; }
+        history.replaceState(null, '', '/pp?' + p.toString());
+        var my = ++seq;
+        fetch(API + '/calc?' + p.toString())
+            .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, status: r.status, d: d }; }); })
+            .then(function (res) {
+                if (my !== seq) return;
+                if (!res.ok) {
+                    var msg = res.status === 404 ? T['calc.not_found'] : res.status === 429 ? T['calc.too_many'] : (res.d && res.d.detail) || T['calc.error'];
+                    showEmpty(msg);
+                    return;
+                }
+                state.last = res.d;
+                render(res.d);
+            })
+            .catch(function () { if (my === seq) showEmpty(T['calc.error']); });
+    }
+
+    var MODES = ['osu!', 'osu!taiko', 'osu!catch', 'osu!mania'];
+
+    function render(d) {
+        $('pc-empty').hidden = true;
+        $('pc-result').hidden = false;
+        var m = d.map;
+        var cover = m.set_id >= 1073741824
+            ? 'https://c.taksiegra.ovh/api/v1/bss/bg/' + m.set_id
+            : 'https://assets.ppy.sh/beatmaps/' + m.set_id + '/covers/cover.jpg';
+        $('pc-cover').style.backgroundImage = m.set_id ? 'url("' + cover + '")' : '';
+        $('pc-artist').textContent = m.artist;
+        $('pc-title').textContent = m.title + ' [' + m.version + ']';
+        $('pc-title').href = m.on_server ? '/b/' + m.id : 'https://osu.ppy.sh/b/' + m.id;
+        var meta = [
+            T['calc.mapped_by'].replace('{creator}', m.creator),
+            MODES[d.play.mode] + (d.play.mode !== m.mode ? ' (' + T['calc.converted'] + ')' : ''),
+            '<b>' + m.stars.toFixed(2) + '★</b> ' + esc(d.play.mods),
+            T['calc.max_combo'].replace('{combo}', m.max_combo)
+        ];
+        if (m.bpm) meta.push('BPM ' + m.bpm);
+        $('pc-meta').innerHTML = meta.map(function (x, i) { return i === 2 ? x : esc(x); }).join(' &middot; ');
+
+        var note = '';
+        if (state.kind === 'hits' && d.play.acc != null) note = T['calc.acc_result'].replace('{acc}', d.play.acc.toFixed(2));
+        $('pc-acc-note').textContent = note;
+
+        var boxes = '';
+        d.variants.forEach(function (v) {
+            var r = d.results[v], base = v === d.base;
+            var parts = [];
+            ['aim', 'speed', 'acc', 'fl', 'reading'].forEach(function (k) {
+                if (r.parts[k] > 0) parts.push(k + ' ' + fmt(r.parts[k]));
+            });
+            boxes += '<div class="col-12 col-md-4"><div class="card h-100 pc-variant' + (base ? ' base' : '') + '"><div class="card-body">' +
+                '<div class="small text-muted">' + esc(variantName(v)) + (base ? ' <span class="badge text-bg-primary">' + esc(T['calc.server']) + '</span>' : '') + '</div>' +
+                '<div class="pc-pp">' + (r.error ? '-' : fmt(r.pp) + '<span>pp</span>') + '</div>' +
+                '<div class="small text-muted">' + (r.error ? esc(r.error) : r.stars.toFixed(2) + '★' + (parts.length ? ' &middot; ' + esc(parts.join(', ')) : '')) + '</div>' +
+                '</div></div></div>';
+        });
+        $('pc-variants').innerHTML = boxes;
+
+        $('pc-acc-head').textContent = T['calc.table_acc'].replace('{mods}', d.play.mods);
+        var head = '<thead><tr><th></th>' + d.variants.map(function (v) { return '<th class="text-end">' + esc(variantName(v)) + '</th>'; }).join('') + '</tr></thead>';
+        var rows = d.results[d.base].acc_table.map(function (row, i) {
+            return '<tr><td>' + (row.acc === 100 ? 'SS' : row.acc + '%') + '</td>' + d.variants.map(function (v) {
+                return '<td class="text-end">' + fmt(d.results[v].acc_table[i].pp) + '</td>';
+            }).join('') + '</tr>';
+        }).join('');
+        $('pc-acc-table').innerHTML = head + '<tbody>' + rows + '</tbody>';
+
+        var mrows = d.results[d.base].mod_table.map(function (row, i) {
+            return '<tr><td>' + esc(row.mods) + ' <span class="text-muted small">' + row.stars.toFixed(2) + '★</span></td>' + d.variants.map(function (v) {
+                return '<td class="text-end">' + fmt(d.results[v].mod_table[i].pp) + '</td>';
+            }).join('') + '</tr>';
+        }).join('');
+        $('pc-mod-table').innerHTML = head + '<tbody>' + mrows + '</tbody>';
+    }
+
+    syncButtons();
+    if ($('pc-map').value) run();
+})();
+</script>
+</#noparse>
+<#include "assets/footer.html">
