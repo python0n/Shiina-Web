@@ -1,12 +1,22 @@
 <#include "assets/base.html">
 <div class="container mb-4">
 
-  <#if requestParam("action")??>
-    <#if requestParam("action") == "approved">
-    <div class="alert alert-success"><i class="fa-solid fa-check me-2"></i>Score approved and added to the database.</div>
-    <#elseif requestParam("action") == "rejected">
-    <div class="alert alert-warning"><i class="fa-solid fa-xmark me-2"></i>Replay rejected.</div>
+  <#if flashAction == "approved">
+  <div class="alert alert-success"><i class="fa-solid fa-check me-2"></i>Replay accepted: the score was saved by bancho and the player's stats were updated.<#if flashScore?has_content> <a href="/scores/${flashScore}" class="alert-link">Score ${flashScore}</a></#if></div>
+  <#elseif flashAction == "rejected">
+  <div class="alert alert-warning"><i class="fa-solid fa-xmark me-2"></i>Replay rejected.</div>
+  </#if>
+  <#if flashError?has_content>
+  <div class="alert alert-danger"><i class="fa-solid fa-triangle-exclamation me-2"></i>
+    <#if flashError == "not_found">This replay is not waiting for review any more.
+    <#elseif flashError == "no_player">The player does not exist.
+    <#elseif flashError == "no_map">The beatmap does not exist on the server.
+    <#elseif flashError == "no_replay">The replay file is missing in bancho's .data/osr/pending folder.
+    <#elseif flashError == "duplicate">This score is already on the server.
+    <#elseif flashError == "config">APIURL or INTERNAL_API_KEY is missing in Shiina's .env.
+    <#else>Bancho did not save the score, see the Shiina and bancho logs.
     </#if>
+  </div>
   </#if>
 
   <div class="card rounded mb-3">
