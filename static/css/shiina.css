@@ -3042,3 +3042,116 @@ END LEADERBOARD */
 .shiina-diff-dots__dot { width: 9px; height: 14px; border-radius: 5px; box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.25); }
 .shiina-diff-dots__count { font-size: 12px; font-weight: 700; }
 .shiina-bss-badge { background: rgba(23, 131, 163, 0.85); margin-left: 4px; }
+
+/* ---------- website chat (/chat), laid out like the osu-web chat ---------- */
+.shiina-chat {
+  position: relative;
+  display: flex;
+  height: calc(100vh - 140px);
+  min-height: 480px;
+  background: var(--bs-content-bg, var(--bs-body-bg));
+  border: var(--bs-border-width) solid var(--bs-content-border-color, var(--bs-border-color));
+  border-radius: 10px;
+  overflow: hidden;
+}
+.shiina-chat-side {
+  width: 270px;
+  flex-shrink: 0;
+  overflow-y: auto;
+  padding: 10px 8px 16px;
+  background: var(--bs-tertiary-bg);
+  border-right: var(--bs-border-width) solid var(--bs-content-border-color, var(--bs-border-color));
+}
+.shiina-chat-title { font-size: 1.15rem; font-weight: 600; padding: 4px 8px 6px; }
+.shiina-chat-section {
+  font-size: .72rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase;
+  color: var(--bs-secondary-color); padding: 14px 8px 6px;
+}
+.shiina-chat-item {
+  display: flex; align-items: center; gap: 10px; width: 100%;
+  padding: 6px 8px; border: 0; border-radius: 8px; background: transparent;
+  color: var(--bs-body-color); text-align: left; font-weight: 500;
+}
+.shiina-chat-item:hover { background: var(--bs-secondary-bg); }
+.shiina-chat-item.active { background: var(--bs-secondary-bg); box-shadow: inset 3px 0 0 var(--bs-primary); }
+.shiina-chat-item.unread .shiina-chat-label { font-weight: 700; color: var(--bs-emphasis-color); }
+.shiina-chat-label { flex-grow: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.shiina-chat-add { color: var(--bs-secondary-color); }
+.shiina-chat-icon {
+  width: 32px; height: 32px; flex-shrink: 0; border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: var(--bs-secondary-bg); color: var(--bs-secondary-color); font-weight: 700;
+}
+.shiina-chat-icon.lg { width: 40px; height: 40px; font-size: 1.1rem; }
+.shiina-chat-avatar {
+  width: 32px; height: 32px; flex-shrink: 0; border-radius: 50%; object-fit: cover;
+  background: var(--bs-secondary-bg);
+}
+.shiina-chat-avatar.lg { width: 40px; height: 40px; }
+.shiina-chat-badge {
+  min-width: 20px; padding: 1px 6px; border-radius: 10px; font-size: .72rem; font-weight: 700;
+  background: var(--bs-primary); color: #fff; text-align: center;
+}
+.shiina-chat-newpm { padding: 0 8px 6px; }
+.shiina-chat-main { flex-grow: 1; min-width: 0; display: flex; flex-direction: column; }
+.shiina-chat-head {
+  display: flex; align-items: center; gap: 12px; min-height: 62px; padding: 10px 18px;
+  border-bottom: var(--bs-border-width) solid var(--bs-content-border-color, var(--bs-border-color));
+}
+.shiina-chat-head:empty { display: none; }
+.shiina-chat-status {
+  padding: 6px 18px; font-size: .85rem; text-align: center;
+  background: var(--bs-secondary-bg); color: var(--bs-secondary-color);
+}
+.shiina-chat-log { flex-grow: 1; overflow-y: auto; padding: 14px 18px; }
+.shiina-chat-empty, .shiina-chat-system {
+  text-align: center; font-size: .82rem; color: var(--bs-secondary-color); margin: 8px 0;
+}
+.shiina-chat-system { color: var(--bs-warning-text-emphasis, #e7b86b); }
+.shiina-chat-group { display: flex; gap: 14px; margin-bottom: 14px; }
+.shiina-chat-who {
+  width: 64px; flex-shrink: 0; display: flex; flex-direction: column; align-items: center;
+  text-decoration: none; color: var(--bs-body-color);
+}
+.shiina-chat-nick {
+  margin-top: 3px; max-width: 64px; font-size: .72rem; font-weight: 700; text-align: center;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.shiina-chat-bubbles { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; min-width: 0; }
+.shiina-chat-bubble {
+  max-width: min(640px, 100%); padding: 7px 12px 5px; border-radius: 8px;
+  background: var(--bs-body-bg); overflow-wrap: anywhere;
+}
+.shiina-chat-group.mine .shiina-chat-bubble { background: var(--bs-secondary-bg); }
+.shiina-chat-bubble.history { opacity: .85; }
+.shiina-chat-bubble.action .shiina-chat-text { font-style: italic; color: var(--bs-secondary-color); }
+.shiina-chat-text { white-space: pre-wrap; }
+.shiina-chat-time { font-size: .68rem; color: var(--bs-secondary-color); margin-top: 1px; }
+.shiina-chat-input {
+  display: flex; gap: 10px; padding: 12px 18px;
+  border-top: var(--bs-border-width) solid var(--bs-content-border-color, var(--bs-border-color));
+}
+.shiina-chat-join {
+  position: absolute; inset: 0; z-index: 5; display: flex; align-items: flex-start; justify-content: center;
+  padding-top: 70px; background: rgba(0, 0, 0, .45);
+}
+.shiina-chat-join.d-none { display: none !important; }
+.shiina-chat-join-box {
+  width: min(460px, 92%); max-height: 70%; overflow-y: auto; padding: 14px;
+  border-radius: 10px; background: var(--bs-content-bg, var(--bs-body-bg));
+  border: var(--bs-border-width) solid var(--bs-border-color);
+}
+.shiina-chat-join-item {
+  display: block; width: 100%; text-align: left; padding: 8px 10px; margin-bottom: 4px;
+  border: 0; border-radius: 8px; background: transparent; color: var(--bs-body-color);
+}
+.shiina-chat-join-item:hover { background: var(--bs-secondary-bg); }
+.shiina-chat-join-item.joined { opacity: .6; }
+.shiina-nav-chat { position: relative; color: var(--bs-body-color); padding: 6px 10px; }
+.shiina-nav-chat .shiina-chat-badge { position: absolute; top: -2px; right: -4px; font-size: .62rem; min-width: 17px; padding: 1px 4px; }
+@media (max-width: 767.98px) {
+  .shiina-chat { flex-direction: column; height: calc(100vh - 110px); }
+  .shiina-chat-side { width: 100%; max-height: 34vh; border-right: 0; border-bottom: var(--bs-border-width) solid var(--bs-border-color); }
+  .shiina-chat-who { width: 44px; }
+  .shiina-chat-nick { max-width: 44px; }
+}

@@ -1127,3 +1127,29 @@ function shiinaPreview(btn) {
     shiinaPreviewAudio.play().catch(shiinaPreviewStop);
 }
 document.addEventListener('turbo:before-cache', shiinaPreviewStop);
+
+// unread private messages on the chat icon in the navbar (website chat, /chat)
+if (!window.shiinaChatUnread) (function () {
+    var last = 0;
+    function apply() {
+        var el = document.getElementById('shiina-chat-unread');
+        if (!el) return;
+        var n = window.shiinaChatUnreadCount || 0;
+        el.textContent = n > 99 ? '99+' : String(n);
+        el.classList.toggle('d-none', n === 0);
+    }
+    function update(force) {
+        if (!document.getElementById('shiina-chat-unread')) return;
+        if (!force && Date.now() - last < 20000) { apply(); return; }
+        last = Date.now();
+        fetch('/api/v1/chat/unread', { credentials: 'same-origin' })
+            .then(function (r) { return r.ok ? r.json() : null; })
+            .then(function (d) { if (d) { window.shiinaChatUnreadCount = d.unread; apply(); } })
+            .catch(function () {});
+    }
+    window.shiinaChatUnread = update;
+    document.addEventListener('turbo:load', function () { update(false); });
+    setInterval(function () { if (!document.hidden) update(true); }, 60000);
+    if (document.readyState !== 'loading') update(false);
+    else document.addEventListener('DOMContentLoaded', function () { update(false); });
+})();
