@@ -199,6 +199,8 @@ analyzerWithZoom(function() {
         backgroundColor: colors,
         borderWidth: 0,
         barPercentage: 0.8,
+        // a hit right on time (0 ms) would have no height and look like a gap
+        minBarLength: 3,
       }]
     },
     options: {

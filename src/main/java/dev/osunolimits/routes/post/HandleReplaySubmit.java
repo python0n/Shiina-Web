@@ -78,8 +78,8 @@ public class HandleReplaySubmit extends Shiina {
         }
 
         ResultSet existRs = shiina.mysql.Query(
-                "SELECT id FROM pending_replays WHERE userid = ? AND map_md5 = ? AND status = 0",
-                String.valueOf(shiina.user.id), osr.getMapMd5());
+                "SELECT id FROM pending_replays WHERE status = 0 AND ((userid = ? AND map_md5 = ?) OR replay_md5 = ?)",
+                String.valueOf(shiina.user.id), osr.getMapMd5(), osr.getReplayMd5());
         if (existRs != null && existRs.next()) {
             shiina.data.put("error", "You already have a pending replay for this map.");
             return renderTemplate("replays.html", shiina, res, req);
