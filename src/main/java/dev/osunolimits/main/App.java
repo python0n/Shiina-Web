@@ -250,6 +250,8 @@ shiinaDocs.initializeDocs();
         WebServer.get("/api/v1/chat/unread", new dev.osunolimits.routes.api.chat.ChatApi.Unread());
         WebServer.get("/api/v1/chat/channel", new dev.osunolimits.routes.api.chat.ChatApi.ChannelHistory());
         WebServer.get("/api/v1/chat/users", new dev.osunolimits.routes.api.chat.ChatApi.Users());
+        WebServer.get("/api/v1/notifications", new dev.osunolimits.routes.api.chat.NotificationsApi.ListRoute());
+        WebServer.post("/api/v1/notifications/read", new dev.osunolimits.routes.api.chat.NotificationsApi.ReadRoute());
         WebServer.get("/analyzer", new Analyzer());
         WebServer.get("/analyzer/:score_id", new Analyzer());
         WebServer.get("/matches/:id", new MatchView());

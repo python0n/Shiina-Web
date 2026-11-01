@@ -111,8 +111,9 @@
                     <form data-turbo="false" method="post" action="/ap/replays/action" style="display:inline">
                       <input type="hidden" name="id" value="${r.id}">
                       <input type="hidden" name="action" value="reject">
-                      <button type="submit" class="btn btn-sm btn-danger"
-                        onclick="return confirm('Reject replay from ${r.username?html}?')">
+                      <input type="hidden" name="reason" value="">
+                      <button type="submit" class="btn btn-sm btn-danger" title="Reject (the player gets a notification with the reason)"
+                        onclick="var why = prompt('Reject replay from ${r.username?js_string?html}? Reason for the player (optional):', ''); if (why === null) return false; this.form.reason.value = why; return true;">
                         <i class="fa-solid fa-xmark"></i>
                       </button>
                     </form>

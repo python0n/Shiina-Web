@@ -43,6 +43,12 @@ still applies. This page lists what the fork changes and the extra settings it n
   from `/api/v1/chat/ticket`, so the IRC key never reaches the browser.
 - Unread private messages are counted on the chat icon in the navbar.
 
+### Notifications
+- A bell in the navbar like on osu-web: replay accepted or rejected (the admin can give a reason),
+  someone took your #1, your BSS map changed status, someone commented on your BSS map, your account
+  deletion request was rejected. Stored in the `notifications` table (created by bancho), texts in
+  `lang/*.properties` (`notif.*`).
+
 ### Multiplayer
 - Match list (`/matches`) and match view (`/matches/<id>`, `/mp<id>`) with the full event log.
 - Accuracy, grade and mods of match scores computed from hit counts.
