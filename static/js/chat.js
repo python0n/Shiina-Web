@@ -26,10 +26,21 @@
   }
   function fmtTime(sec) {
     var d = new Date(sec * 1000);
-    var now = new Date();
-    var hm = ('0' + d.getHours()).slice(-2) + ':' + ('0' + d.getMinutes()).slice(-2);
-    if (d.toDateString() === now.toDateString()) return hm;
-    return ('0' + d.getDate()).slice(-2) + '.' + ('0' + (d.getMonth() + 1)).slice(-2) + ' ' + hm;
+    return ('0' + d.getHours()).slice(-2) + ':' + ('0' + d.getMinutes()).slice(-2);
+  }
+  // day separator like on osu-web: "Today", "Yesterday" or the full date
+  function dayKey(sec) { return new Date(sec * 1000).toDateString(); }
+  function fmtDay(sec) {
+    var d = new Date(sec * 1000);
+    var today = new Date();
+    var yesterday = new Date(); yesterday.setDate(today.getDate() - 1);
+    if (d.toDateString() === today.toDateString()) return T.today || 'Today';
+    if (d.toDateString() === yesterday.toDateString()) return T.yesterday || 'Yesterday';
+    var opts = { weekday: 'long', day: 'numeric', month: 'long' };
+    if (d.getFullYear() !== today.getFullYear()) opts.year = 'numeric';
+    var txt;
+    try { txt = d.toLocaleDateString(S.lang || undefined, opts); } catch (e) { txt = d.toLocaleDateString(); }
+    return txt.charAt(0).toUpperCase() + txt.slice(1);
   }
   function nowSec() { return Math.floor(Date.now() / 1000); }
 
@@ -279,8 +290,15 @@
   function messageRows(tab) {
     var html = '';
     var group = null;
+    var lastDay = null;
     function close() { if (group) { html += '</div></div>'; group = null; } }
     tab.messages.forEach(function (m) {
+      var day = dayKey(m.time);
+      if (day !== lastDay) {
+        close();
+        html += '<div class="shiina-chat-day"><span>' + esc(fmtDay(m.time)) + '</span></div>';
+        lastDay = day;
+      }
       if (m.system) {
         close();
         html += '<div class="shiina-chat-system">' + richText(m.msg) + '</div>';
@@ -524,6 +542,7 @@
       me: { id: parseInt(root.getAttribute('data-me-id'), 10), name: meName, safe: safe(meName) },
       avatar: root.getAttribute('data-avatar'),
       avatarV: root.getAttribute('data-avatar-v'),
+      lang: root.getAttribute('data-lang'),
       tabs: new Map(), active: null, users: {}, resolving: {}, list: [],
       wanted: loadChannels(), connected: false, retry: 0, fatal: false, ws: null,
       head: root.querySelector('#chat-head'), log: root.querySelector('#chat-log'),
