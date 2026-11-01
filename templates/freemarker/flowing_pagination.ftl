@@ -8,7 +8,7 @@
             </a>
         </li>
         <#assign maxPagesBtn=0>
-        <#assign maxPages=entries / 100>
+        <#assign maxPages=entries / (pageSize!100)>
         <#list page-3..maxPages + 1 as pages>
             <#if (pages> 0)>
             <#assign maxPagesBtn=maxPagesBtn+1>
