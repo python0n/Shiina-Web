@@ -68,8 +68,12 @@ public class HandleComment extends Shiina {
 
         String encodedMessage = Encode.forHtmlContent(message);
         
-        if(message.length() > 0)
+        if(message.length() > 0) {
             shiina.mysql.Exec("INSERT INTO `comments`(`target_id`, `target_type`, `userid`, `time`, `comment`) VALUES (?,?,?,?,?)", targetId, target.toLowerCase(), shiina.user.id, 0, encodedMessage);
+            if (targetType == Target.MAP) {
+                notifyMapOwner(shiina, Integer.parseInt(targetId));
+            }
+        }
         
         String redirectUrl = "";
 
@@ -84,5 +88,24 @@ public class HandleComment extends Shiina {
         redirectUrl += targetId;
 
         return redirect(res, shiina, redirectUrl);
+    }
+
+    /** The owner of a map uploaded through BSS gets a notification about the comment. */
+    private void notifyMapOwner(ShiinaRequest shiina, int mapId) {
+        try {
+            java.sql.ResultSet rs = shiina.mysql.Query(
+                    "SELECT m.artist, m.title, m.version, b.owner_id FROM maps m "
+                            + "JOIN bss_sets b ON b.set_id = m.set_id WHERE m.id = ? AND m.set_id >= "
+                            + dev.osunolimits.routes.api.chat.NotificationsApi.BSS_SET_ID_MIN,
+                    mapId);
+            if (rs != null && rs.next() && rs.getInt("owner_id") != shiina.user.id) {
+                java.util.Map<String, Object> data = new java.util.LinkedHashMap<>();
+                data.put("user", shiina.user.name);
+                data.put("map", rs.getString("artist") + " - " + rs.getString("title") + " [" + rs.getString("version") + "]");
+                dev.osunolimits.routes.api.chat.NotificationsApi.add(shiina.mysql, rs.getInt("owner_id"), "map_comment", data, "/b/" + mapId);
+            }
+        } catch (Exception e) {
+            dev.osunolimits.main.App.log.warn("Comment notification failed: " + e.getMessage());
+        }
     }
 }

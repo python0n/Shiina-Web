@@ -220,6 +220,7 @@ public final class ChatApi {
             res.type("application/json");
             res.header("Cache-Control", "no-store");
             int count = 0;
+            int notifications = 0;
             if (shiina.loggedIn) {
                 ResultSet rs = shiina.mysql.Query(
                         "SELECT COUNT(*) AS c FROM mail m JOIN users u ON u.id = m.from_id "
@@ -228,9 +229,16 @@ public final class ChatApi {
                 if (rs != null && rs.next()) {
                     count = rs.getInt("c");
                 }
+                ResultSet n = shiina.mysql.Query(
+                        "SELECT COUNT(*) AS c FROM notifications WHERE user_id = ? AND `read` = 0",
+                        shiina.user.id);
+                if (n != null && n.next()) {
+                    notifications = n.getInt("c");
+                }
             }
             Map<String, Object> m = new LinkedHashMap<>();
             m.put("unread", count);
+            m.put("notifications", notifications);
             return json(shiina, m);
         }
     }

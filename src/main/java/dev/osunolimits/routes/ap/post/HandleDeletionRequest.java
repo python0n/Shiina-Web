@@ -50,6 +50,8 @@ public class HandleDeletionRequest extends Shiina {
         }
         if ("reject".equals(action)) {
             shiina.mysql.Exec("DELETE FROM `sh_deletion_requests` WHERE `user_id` = ?", userId);
+            dev.osunolimits.routes.api.chat.NotificationsApi.add(shiina.mysql, userId, "deletion_rejected",
+                    new java.util.LinkedHashMap<>(), "/settings/data");
             return redirect(res, shiina, "/ap/deletions?info=Request of " + userId + " rejected");
         }
         return redirect(res, shiina, "/ap/deletions?info=Invalid action");

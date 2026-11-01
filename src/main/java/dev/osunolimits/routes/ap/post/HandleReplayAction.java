@@ -56,7 +56,7 @@ public class HandleReplayAction extends Shiina {
         }
 
         ResultSet rs = shiina.mysql.Query(
-                "SELECT id FROM pending_replays WHERE id = ? AND status = 0", String.valueOf(pendingId));
+                "SELECT id, userid, map_md5 FROM pending_replays WHERE id = ? AND status = 0", String.valueOf(pendingId));
 
         if (rs == null || !rs.next()) {
             return redirect(res, shiina, "/ap/replays?error=not_found");
@@ -67,6 +67,17 @@ public class HandleReplayAction extends Shiina {
             shiina.mysql.Exec(
                     "UPDATE pending_replays SET status = 2, reviewed_at = ? WHERE id = ?",
                     now, (Long) pendingId);
+            String reason = req.queryParams("reason");
+            reason = reason == null ? "" : reason.trim();
+            if (reason.length() > 300) {
+                reason = reason.substring(0, 300);
+            }
+            int playerId = rs.getInt("userid");
+            String mapMd5 = rs.getString("map_md5");
+            java.util.Map<String, Object> data = new java.util.LinkedHashMap<>();
+            data.put("map", dev.osunolimits.routes.api.chat.NotificationsApi.mapNameByMd5(shiina.mysql, mapMd5));
+            data.put("reason", reason);
+            dev.osunolimits.routes.api.chat.NotificationsApi.add(shiina.mysql, playerId, "replay_rejected", data, "/replays");
             App.log.info("Replay " + pendingId + " rejected by " + shiina.user.name);
             return redirect(res, shiina, "/ap/replays?action=rejected");
         }

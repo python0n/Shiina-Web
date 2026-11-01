@@ -3120,13 +3120,18 @@ END LEADERBOARD */
 .shiina-chat-bubbles { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; min-width: 0; }
 .shiina-chat-bubble {
   max-width: min(640px, 100%); padding: 7px 12px 5px; border-radius: 8px;
-  background: var(--bs-body-bg); overflow-wrap: anywhere;
+  background: var(--bs-tertiary-bg); border: 1px solid var(--bs-border-color-translucent, rgba(255, 255, 255, .08));
+  overflow-wrap: anywhere;
 }
-.shiina-chat-group.mine .shiina-chat-bubble { background: var(--bs-secondary-bg); }
+.shiina-chat-group.mine .shiina-chat-bubble {
+  background: rgba(var(--bs-primary-rgb, 13, 110, 253), .14);
+  border-color: rgba(var(--bs-primary-rgb, 13, 110, 253), .28);
+}
 .shiina-chat-bubble.history { opacity: .85; }
 .shiina-chat-bubble.action .shiina-chat-text { font-style: italic; color: var(--bs-secondary-color); }
 .shiina-chat-text { white-space: pre-wrap; }
 .shiina-chat-time { font-size: .68rem; color: var(--bs-secondary-color); margin-top: 1px; }
+.shiina-chat-input .btn { display: inline-flex; align-items: center; white-space: nowrap; flex-shrink: 0; }
 .shiina-chat-input {
   display: flex; gap: 10px; padding: 12px 18px;
   border-top: var(--bs-border-width) solid var(--bs-content-border-color, var(--bs-border-color));
@@ -3155,3 +3160,24 @@ END LEADERBOARD */
   .shiina-chat-who { width: 44px; }
   .shiina-chat-nick { max-width: 44px; }
 }
+
+/* ---------- the bell in the navbar ---------- */
+.shiina-notif-menu { width: 360px; max-width: 92vw; padding: 0; overflow: hidden; }
+.shiina-notif-head {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 14px; font-weight: 600;
+  border-bottom: var(--bs-border-width) solid var(--bs-border-color);
+}
+.shiina-notif-list { max-height: 420px; overflow-y: auto; }
+.shiina-notif-empty { padding: 18px 14px; text-align: center; font-size: .85rem; color: var(--bs-secondary-color); }
+.shiina-notif-item {
+  display: flex; gap: 12px; align-items: flex-start; padding: 10px 14px;
+  color: var(--bs-body-color); text-decoration: none; font-size: .88rem;
+  border-bottom: var(--bs-border-width) solid var(--bs-border-color-translucent, rgba(255, 255, 255, .06));
+}
+.shiina-notif-item:hover { background: var(--bs-secondary-bg); color: var(--bs-body-color); }
+.shiina-notif-item.unread { background: rgba(var(--bs-primary-rgb, 13, 110, 253), .10); }
+.shiina-notif-item.unread .shiina-notif-body > div:first-child { font-weight: 600; color: var(--bs-emphasis-color); }
+.shiina-notif-icon { width: 18px; margin-top: 3px; text-align: center; flex-shrink: 0; }
+.shiina-notif-body { min-width: 0; overflow-wrap: anywhere; }
+.shiina-notif-time { font-size: .72rem; color: var(--bs-secondary-color); margin-top: 2px; }

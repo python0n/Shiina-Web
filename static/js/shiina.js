@@ -1137,14 +1137,21 @@ if (!window.shiinaChatUnread) (function () {
         var n = window.shiinaChatUnreadCount || 0;
         el.textContent = n > 99 ? '99+' : String(n);
         el.classList.toggle('d-none', n === 0);
+        var bell = document.getElementById('shiina-notif-unread');
+        if (bell) {
+            var b = window.shiinaNotifUnreadCount || 0;
+            bell.textContent = b > 99 ? '99+' : String(b);
+            bell.classList.toggle('d-none', b === 0);
+        }
     }
+    window.shiinaUnreadApply = apply;
     function update(force) {
         if (!document.getElementById('shiina-chat-unread')) return;
         if (!force && Date.now() - last < 20000) { apply(); return; }
         last = Date.now();
         fetch('/api/v1/chat/unread', { credentials: 'same-origin' })
             .then(function (r) { return r.ok ? r.json() : null; })
-            .then(function (d) { if (d) { window.shiinaChatUnreadCount = d.unread; apply(); } })
+            .then(function (d) { if (d) { window.shiinaChatUnreadCount = d.unread; window.shiinaNotifUnreadCount = d.notifications || 0; apply(); } })
             .catch(function () {});
     }
     window.shiinaChatUnread = update;
@@ -1152,4 +1159,90 @@ if (!window.shiinaChatUnread) (function () {
     setInterval(function () { if (!document.hidden) update(true); }, 60000);
     if (document.readyState !== 'loading') update(false);
     else document.addEventListener('DOMContentLoaded', function () { update(false); });
+})();
+
+// the bell in the navbar: notifications (replays, #1 lost, BSS maps, comments, account)
+if (!window.shiinaNotifInit) (function () {
+    window.shiinaNotifInit = true;
+    var ICONS = {
+        replay_accepted: 'fa-circle-check text-success',
+        replay_rejected: 'fa-circle-xmark text-danger',
+        first_place_lost: 'fa-crown text-warning',
+        map_status: 'fa-music text-info',
+        map_comment: 'fa-comment',
+        deletion_rejected: 'fa-user-shield'
+    };
+    function when(sec) {
+        var d = new Date(sec * 1000), now = new Date();
+        var hm = ('0' + d.getHours()).slice(-2) + ':' + ('0' + d.getMinutes()).slice(-2);
+        if (d.toDateString() === now.toDateString()) return hm;
+        return ('0' + d.getDate()).slice(-2) + '.' + ('0' + (d.getMonth() + 1)).slice(-2) + '.' + d.getFullYear() + ' ' + hm;
+    }
+    function render(data) {
+        var list = document.getElementById('shiina-notif-list');
+        if (!list) return;
+        window.shiinaNotifUnreadCount = data.unread || 0;
+        if (window.shiinaUnreadApply) window.shiinaUnreadApply();
+        list.innerHTML = '';
+        if (!data.items || !data.items.length) {
+            var empty = document.createElement('div');
+            empty.className = 'shiina-notif-empty';
+            empty.textContent = list.getAttribute('data-empty') || '';
+            list.appendChild(empty);
+            return;
+        }
+        data.items.forEach(function (n) {
+            var a = document.createElement('a');
+            a.className = 'shiina-notif-item' + (n.read ? '' : ' unread');
+            a.href = n.link || '#';
+            a.setAttribute('data-notif-id', n.id);
+            var icon = document.createElement('i');
+            icon.className = 'fa-solid ' + (ICONS[n.type] || 'fa-bell') + ' shiina-notif-icon';
+            var body = document.createElement('div');
+            body.className = 'shiina-notif-body';
+            var text = document.createElement('div');
+            text.textContent = n.text;
+            var time = document.createElement('div');
+            time.className = 'shiina-notif-time';
+            time.textContent = when(n.time);
+            body.appendChild(text);
+            body.appendChild(time);
+            a.appendChild(icon);
+            a.appendChild(body);
+            list.appendChild(a);
+        });
+    }
+    function load() {
+        fetch('/api/v1/notifications', { credentials: 'same-origin' })
+            .then(function (r) { return r.ok ? r.json() : null; })
+            .then(function (d) { if (d) render(d); })
+            .catch(function () {});
+    }
+    document.addEventListener('show.bs.dropdown', function (e) {
+        if (e.target && e.target.id === 'shiina-notif-toggle') load();
+    });
+    document.addEventListener('click', function (e) {
+        var clear = e.target.closest && e.target.closest('#shiina-notif-clear');
+        if (clear) {
+            e.preventDefault();
+            fetch('/api/v1/notifications/read?all=1', { method: 'POST', credentials: 'same-origin' })
+                .then(function () { load(); }).catch(function () {});
+            return;
+        }
+        var item = e.target.closest && e.target.closest('.shiina-notif-item');
+        if (item) {
+            var id = item.getAttribute('data-notif-id');
+            var href = item.getAttribute('href');
+            e.preventDefault();
+            fetch('/api/v1/notifications/read?id=' + encodeURIComponent(id), { method: 'POST', credentials: 'same-origin', keepalive: true })
+                .catch(function () {})
+                .then(function () {
+                    if (href && href !== '#') {
+                        if (window.Turbo) window.Turbo.visit(href); else window.location.href = href;
+                    } else {
+                        load();
+                    }
+                });
+        }
+    });
 })();
