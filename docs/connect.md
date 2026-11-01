@@ -55,7 +55,7 @@ your account status will automatically change from **Pending** to active.
 
 - **osu!direct is free** for everyone on taksiegra, no supporter tag needed.
 - **Going back to official osu!**: start the game with your normal shortcut. osu! remembers one saved login for both servers, so if your passwords differ you will have to type the right one again.
-- **IRC**: your IRC key is on the website under Settings, Authentication.
+- **IRC**: your IRC key is on the website under Settings, Authentication. Connect to `c.taksiegra.ovh` on port `6697` with TLS (encryption) turned on, so the key never travels in plain text. Without an IRC client you can use the [chat on the website](/chat).
 
 # Troubleshooting
 
