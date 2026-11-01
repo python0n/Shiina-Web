@@ -55,7 +55,7 @@ status konta automatycznie zmieni się z **Pending** na aktywny.
 
 - **osu!direct jest darmowy** dla wszystkich na taksiegra, bez supportera.
 - **Powrót do oficjalnego osu!**: uruchom grę zwykłym skrótem. osu! pamięta jeden zapisany login dla obu serwerów, więc jeśli hasła się różnią, trzeba będzie wpisać właściwe jeszcze raz.
-- **IRC**: klucz IRC znajdziesz na stronie w Ustawieniach, w zakładce Logowanie.
+- **IRC**: klucz IRC znajdziesz na stronie w Ustawieniach, w zakładce Logowanie. Łącz się z `c.taksiegra.ovh` na porcie `6697` z włączonym TLS (szyfrowanie), wtedy klucz nie idzie otwartym tekstem. Bez klienta IRC możesz pisać w [czacie na stronie](/chat).
 
 # Rozwiązywanie problemów
 
