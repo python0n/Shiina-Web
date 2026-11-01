@@ -1105,3 +1105,25 @@ function initPinnedSortable() {
         });
     });
 }
+
+// music preview on the beatmap list (official sets only, from b.ppy.sh)
+let shiinaPreviewAudio = null, shiinaPreviewBtn = null;
+function shiinaPreviewStop() {
+    if (shiinaPreviewAudio) shiinaPreviewAudio.pause();
+    if (shiinaPreviewBtn) shiinaPreviewBtn.querySelector('i').className = 'fas fa-play';
+    shiinaPreviewAudio = null;
+    shiinaPreviewBtn = null;
+}
+function shiinaPreview(btn) {
+    if (shiinaPreviewBtn === btn) { shiinaPreviewStop(); return; }
+    shiinaPreviewStop();
+    shiinaPreviewBtn = btn;
+    btn.querySelector('i').className = 'fas fa-spinner fa-spin';
+    shiinaPreviewAudio = new Audio(btn.dataset.preview);
+    shiinaPreviewAudio.volume = 0.45;
+    shiinaPreviewAudio.addEventListener('playing', () => { if (shiinaPreviewBtn === btn) btn.querySelector('i').className = 'fas fa-stop'; });
+    shiinaPreviewAudio.addEventListener('ended', shiinaPreviewStop);
+    shiinaPreviewAudio.addEventListener('error', shiinaPreviewStop);
+    shiinaPreviewAudio.play().catch(shiinaPreviewStop);
+}
+document.addEventListener('turbo:before-cache', shiinaPreviewStop);

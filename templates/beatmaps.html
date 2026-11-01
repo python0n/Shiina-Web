@@ -5,6 +5,8 @@
                 <#include "/freemarker/selector.ftl">
                 <div class="col col-12 col-md-auto my-2 my-lg-0 d-flex align-items-center justify-content-center ">
                     <div class="btn-group flex-wrap" role="group" aria-label="Mixed example">
+                        <button type="button" onclick="selectParam('status', -2)"
+                            class="btn btn-<#if status == -2>primary<#else>secondary</#if>">${t["beatmaps.leaderboard_filter"]?html}</button>
                         <button type="button" onclick="selectParam('status', 999)"
                             class="btn btn-<#if status == 999>primary<#else>secondary</#if>">${t["beatmaps.no_filter"]?html}</button>
                         <button type="button" onclick="selectParam('status', 2)"
@@ -20,21 +22,31 @@
                     </div>
 
                 </div>
-                <div class="my-2 my-lg-0 col col-auto d-flex align-items-center justify-content-center ">
-                    <div class="btn-group my-auto input-group shiina-beatmaps-input" role="group" aria-label="Mixed example">
-                        <span class="input-group-text" id="add-on-1"><i class="fa-solid fa-user"></i></span>
-                        <input id="artist" onfocusout="checkForArtist()" type="text" class="form-control"
-                            value="<#if artist??>${artist?html}</#if>" placeholder="${t["beatmaps.artist"]?html}" aria-label="${t["beatmaps.artist"]?html}"
-                            aria-describedby="Artist">
-                    </div>
+            </div>
+            <div class="row m-2 mt-0 g-2 align-items-center justify-content-center justify-content-lg-start">
+                <div class="col-12 col-lg">
+                    <form class="input-group" role="search" onsubmit="event.preventDefault(); shiinaBeatmapSearch(this.q.value);">
+                        <span class="input-group-text"><i class="fa-solid fa-magnifying-glass"></i></span>
+                        <input name="q" type="search" class="form-control" value="${q?html}" placeholder="${t["beatmaps.search"]?html}" aria-label="${t["beatmaps.search"]?html}">
+                        <button class="btn btn-primary" type="submit">${t["beatmaps.search_button"]?html}</button>
+                    </form>
                 </div>
-                <div class="my-2 my-lg-0 col col-auto d-flex align-items-center justify-content-center ">
-                    <div class="btn-group my-auto input-group shiina-beatmaps-input" role="group" aria-label="Mixed example">
-                        <span class="input-group-text" id="add-on-1"><i class="fa-solid fa-user"></i></span>
-                        <input id="creator" onfocusout="checkForCreator()" type="text" class="form-control"
-                            value="<#if creator??>${creator?html}</#if>" placeholder="${t["beatmaps.creator"]?html}" aria-label="${t["beatmaps.creator"]?html}"
-                            aria-describedby="Creator">
-                    </div>
+                <div class="col-auto">
+                    <select class="form-select" aria-label="${t["beatmaps.sort"]?html}" onchange="selectParam('sort', this.value)">
+                        <#list ["updated", "plays", "stars", "stars_asc", "title", "artist"] as s>
+                            <option value="${s}" <#if sort == s>selected</#if>>${t["beatmaps.sort_" + s]?html}</option>
+                        </#list>
+                    </select>
+                </div>
+                <div class="col-auto">
+                    <button type="button" class="btn btn-<#if bss>primary<#else>secondary</#if>" onclick="<#if bss>removeParam('bss')<#else>selectParam('bss', 1)</#if>" title="${t["beatmaps.bss_title"]?html}">
+                        <i class="fa-solid fa-cloud-arrow-up me-1"></i>${t["beatmaps.bss_filter"]?html}
+                    </button>
+                </div>
+                <div class="col-auto">
+                    <button type="button" class="btn btn-<#if played>primary<#else>secondary</#if>" onclick="<#if played>removeParam('played')<#else>selectParam('played', 1)</#if>">
+                        <i class="fa-solid fa-play me-1"></i>${t["beatmaps.played_filter"]?html}
+                    </button>
                 </div>
             </div>
         </div>
@@ -45,9 +57,12 @@
 
        
             <div class="row mb-4 g-3" refresh="morph">
-            <#list beatmaps as beatmap>
-                <#include "/freemarker/models/beatmap.ftl">
+            <#list beatmaps as set>
+                <#include "/freemarker/models/beatmapset.ftl">
             </#list>
+            <#if beatmaps?size == 0>
+                <div class="col-12 text-center text-muted py-5">${t["beatmaps.nothing_found"]?html}</div>
+            </#if>
             </div>
 
 
@@ -56,22 +71,12 @@
 
 <#include "assets/footer.html">
 <script>
-    function checkForArtist() {
-        artist = document.getElementById('artist');
-        if (artist.value.length > 0) {
-            selectParam('artist', artist.value);
-        } else {
-            removeParam('artist');
-        }
-    }
-
-    function checkForCreator() {
-        artist = document.getElementById('creator');
-        if (artist.value.length > 0) {
-            selectParam('creator', artist.value);
-
-        } else {
-            removeParam('creator');
-        }
+    function shiinaBeatmapSearch(value) {
+        let url = new URL(window.location.href);
+        url.searchParams.delete('artist');
+        url.searchParams.delete('creator');
+        url.searchParams.set('page', 1);
+        if (value.trim().length > 0) url.searchParams.set('q', value.trim()); else url.searchParams.delete('q');
+        Turbo.visit(url);
     }
 </script>
