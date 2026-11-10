@@ -77,6 +77,34 @@
             </div>
         </div>
 
+        <#if staffView?? && staffView>
+        <!-- Match chat, staff only -->
+        <div class="col-12 order-last">
+            <div class="card">
+                <div class="card-header fw-semibold d-flex align-items-center gap-2">
+                    <i class="fa-solid fa-comments me-1"></i> ${t["match.chat"]?html}
+                    <span class="badge bg-secondary ms-auto">${t["match.chat_staff"]?html}</span>
+                </div>
+                <div class="card-body p-0" style="max-height: 480px; overflow-y: auto;">
+                    <#if chat?? && chat?size gt 0>
+                        <ul class="list-group list-group-flush small">
+                            <#list chat as c>
+                                <li class="list-group-item py-1 px-3<#if c.hidden> text-muted fst-italic</#if>">
+                                    <span class="text-muted">${c.created_at?substring(11,19)}</span>
+                                    <a href="/u/${c.user_id?c}" class="fw-semibold">${(c.username!c.user_id?c)?html}</a>:
+                                    <span style="white-space: pre-wrap; word-break: break-word;">${c.msg?html}</span>
+                                    <#if c.hidden> <span class="badge bg-dark">${t["match.chat_hidden"]?html}</span></#if>
+                                </li>
+                            </#list>
+                        </ul>
+                    <#else>
+                        <div class="p-3 text-muted text-center small">${t["match.no_chat"]?html}</div>
+                    </#if>
+                </div>
+            </div>
+        </div>
+        </#if>
+
         <!-- Games -->
         <div class="col-lg-8">
             <#if games?? && games?size gt 0>

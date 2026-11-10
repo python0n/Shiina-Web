@@ -17,6 +17,7 @@ import spark.Request;
 import spark.Response;
 import dev.osunolimits.utils.osu.LegacyScoreCalc;
 import dev.osunolimits.utils.osu.OsuConverter;
+import dev.osunolimits.utils.osu.PermissionHelper;
 
 public class MatchView extends Shiina {
     private static final int MOD_SCOREV2 = 536870912;
@@ -64,6 +65,29 @@ public class MatchView extends Shiina {
             events.add(ev);
         }
         shiina.data.put("events", events);
+
+        // match chat: only for the staff, like private messages in /ap/chat
+        boolean staffView = shiina.loggedIn
+                && PermissionHelper.hasPrivileges(shiina.user.priv, PermissionHelper.Privileges.MODERATOR);
+        shiina.data.put("staffView", staffView);
+        if (staffView) {
+            ResultSet chatRs = shiina.mysql.Query(
+                "SELECT c.user_id, c.msg, c.hidden, c.created_at, u.name AS username " +
+                "FROM mp_match_chat c LEFT JOIN users u ON u.id = c.user_id " +
+                "WHERE c.match_id = ? ORDER BY c.id ASC LIMIT 2000", matchId
+            );
+            List<Map<String, Object>> chat = new ArrayList<>();
+            while (chatRs != null && chatRs.next()) {
+                Map<String, Object> line = new HashMap<>();
+                line.put("user_id", chatRs.getInt("user_id"));
+                line.put("username", chatRs.getString("username"));
+                line.put("msg", chatRs.getString("msg"));
+                line.put("hidden", chatRs.getInt("hidden") == 1);
+                line.put("created_at", chatRs.getString("created_at"));
+                chat.add(line);
+            }
+            shiina.data.put("chat", chat);
+        }
 
         // gry
         ResultSet gamesRs = shiina.mysql.Query(

@@ -44,6 +44,7 @@ Swearing and dark humour are fine as long as they don't target groups of people.
 - No spam, harassment of other players or posting other people's personal data.
 - Private messages are stored on the server with no time limit: this way they reach players who are offline, and the chat on the website shows the history of your conversations. Only the people in a conversation can see its history.
 - The latest messages of public channels (e.g. #osu) are visible in the chat on the website for 7 days.
+- The chat of multiplayer matches (from the game, the website and IRC, also in rooms with a password) is saved with the match history. Only the server staff can see it, for example when checking reports.
 
 ## Uploaded beatmaps
 
@@ -80,6 +81,7 @@ The server only collects what it needs to run and to enforce these rules. Data i
 | Avatar, banner, profile page, Discord name (if you add it) | Your profile |
 | Comments and private messages | Comments on the website, delivering messages, conversation history in the website chat |
 | Latest messages of public channels (7 days) | Channel history in the website chat |
+| Chat of multiplayer matches | Match history, visible only to the staff |
 | Notifications (e.g. an accepted replay or a lost #1) | The bell on the website |
 | IP address and client version when you log in from the game | Security and abuse detection |
 | Hashes of hardware identifiers sent by the osu! client (network adapter, disk, installation) | Detecting undeclared second accounts. The server only receives hashes, never the raw values. |
