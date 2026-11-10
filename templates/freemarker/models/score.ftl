@@ -35,7 +35,7 @@
                 <!-- Score Info -->
                 <div class="osu-score-info">
                     <div class="osu-beatmap-title">
-                        ${sanitizedName}<#if score.mods?has_content> <span class="mod-pill badge bg-warning bg-opacity-50 text-warning border border-warning">${score.mods?join(", ")}</span></#if>
+                        ${sanitizedName?html}<#if score.mods?has_content> <span class="mod-pill badge bg-warning bg-opacity-50 text-warning border border-warning">${score.mods?join(", ")}</span></#if>
                     </div>
 
                     <div class="osu-score-stats">

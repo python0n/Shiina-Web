@@ -119,11 +119,11 @@
                             <#elseif log.action == "WIPE" && log.mode??>
                                 <span class="badge bg-light text-dark">${convertModeBack(log.mode)?upper_case}</span>
                             <#elseif log.action == "GIVEDONATOR" && log.reason??>
-                                <span class="text-success fw-medium">${log.reason}</span>
+                                <span class="text-success fw-medium">${log.reason?html}</span>
                             <#elseif log.action == "ALERT_ALL" && log.reason??>
-                                <span class="fst-italic">"${log.reason}"</span>
+                                <span class="fst-italic">"${log.reason?html}"</span>
                             <#elseif log.reason?? && log.reason != "">
-                                <span class="text-muted fst-italic">"${log.reason}"</span>
+                                <span class="text-muted fst-italic">"${log.reason?html}"</span>
                             </#if>
                             
                             <#if log.status?? && log.status != 0>

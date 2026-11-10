@@ -32,7 +32,7 @@
               </div>
               <div class="flex-grow-1">
                 <h4 class="mb-1 fw-bold text-primary">${aname}</h4>
-                <p class="mb-1 text-muted fs-6">${safe_name}  <#if userPriv?seq_contains("ADMINISTRATOR")><#if email??>(${email})</#if></#if></p> 
+                <p class="mb-1 text-muted fs-6">${safe_name}  <#if userPriv?seq_contains("ADMINISTRATOR")><#if email??>(${email?html})</#if></#if></p> 
                 <span class="badge bg-secondary">
                   <i class="fa-solid fa-globe me-1"></i>${country}
                 </span>
@@ -80,7 +80,7 @@
                   <img src="${avatarServer}/${standing.targetId?c}?v=${avatarV!""}" class="img-fluid" width="20">
                   <a href="/ap/user?id=${standing.targetId?c}">${standing.targetName}</a>
                   for
-                  "${standing.reason}"
+                  "${standing.reason?html}"
                   <#if standing.action=="WIPE">
                     on mode (${convertModeBack(standing.mode)?upper_case})
                   </#if>

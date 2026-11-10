@@ -58,7 +58,7 @@
                                 <span class="fw-medium">
                                     <#if status.player_status.status.action==0>${t["profile.idle"]?html}
                                         <#elseif status.player_status.status.action==1>${t["profile.online"]?html}
-                                            <#else>${t["profile.playing"]?html} ${status.player_status.status.info_text}
+                                            <#else>${t["profile.playing"]?html} ${status.player_status.status.info_text?html}
                                     </#if>
                                 </span>
                             </div>

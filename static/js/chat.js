@@ -410,7 +410,14 @@
       case 'PRIVMSG': {
         var target = p.params[0] || '';
         var text = p.trailing == null ? '' : p.trailing;
-        if (isMe) break; // our own messages are shown when sent
+        if (isMe) {
+          // the server never sends back what this page typed, so a line with our
+          // own nick was written in the game (or in another tab): show it as ours
+          var own = target.charAt(0) === '#' ? getTab(channelType(target), target, true) : getTab('pm', target, true);
+          renderSide();
+          addMessage(own, { from: S.me.name, msg: text, time: nowSec() }, { self: true });
+          break;
+        }
         var t;
         if (target.charAt(0) === '#') t = getTab(channelType(target), target, true);
         else t = getTab('pm', p.nick, true);
