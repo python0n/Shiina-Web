@@ -68,7 +68,8 @@ public class MatchView extends Shiina {
 
         // match chat: only for the staff, like private messages in /ap/chat
         boolean staffView = shiina.loggedIn
-                && PermissionHelper.hasPrivileges(shiina.user.priv, PermissionHelper.Privileges.MODERATOR);
+                && (PermissionHelper.hasPrivileges(shiina.user.priv, PermissionHelper.Privileges.MODERATOR)
+                    || PermissionHelper.hasPrivileges(shiina.user.priv, PermissionHelper.Privileges.ADMINISTRATOR));
         shiina.data.put("staffView", staffView);
         if (staffView) {
             ResultSet chatRs = shiina.mysql.Query(
