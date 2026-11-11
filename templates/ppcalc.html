@@ -131,7 +131,7 @@
     function fmt(pp) { return Number(pp).toLocaleString(lang, { maximumFractionDigits: 2, minimumFractionDigits: 0 }); }
     function variantName(id) { return T['calc.variant.' + id] || names[id] || id; }
 
-    fetch(API + '/variants').then(function (r) { return r.json(); }).then(function (d) {
+    fetch(API + '/calc/variants').then(function (r) { return r.json(); }).then(function (d) {
         (d.variants || []).forEach(function (v) { names[v.id] = (v.name && (v.name[lang] || v.name.en)) || v.id; });
         // RX only when pp-lab has RELAX_PP=true
         var rx = root.querySelector('#pc-mods [data-mod="RX"]');
