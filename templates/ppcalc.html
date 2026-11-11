@@ -31,6 +31,7 @@
                         <#list ["NF","EZ","HD","HR","DT","NC","HT","FL","SO"] as mod>
                         <button type="button" class="btn btn-sm btn-outline-secondary" data-mod="${mod}">${mod}</button>
                         </#list>
+                        <button type="button" class="btn btn-sm btn-outline-secondary" data-mod="RX" hidden>RX</button>
                     </div>
 
                     <div class="btn-group btn-group-sm w-100 mb-3" role="group" id="pc-input-kind">
@@ -132,6 +133,9 @@
 
     fetch(API + '/variants').then(function (r) { return r.json(); }).then(function (d) {
         (d.variants || []).forEach(function (v) { names[v.id] = (v.name && (v.name[lang] || v.name.en)) || v.id; });
+        // RX only when pp-lab has RELAX_PP=true
+        var rx = root.querySelector('#pc-mods [data-mod="RX"]');
+        if (rx) rx.hidden = !d.relax;
         if (state.last) render(state.last);
     }).catch(function () {});
 
@@ -166,7 +170,7 @@
         $('pc-hits-box').hidden = state.kind !== 'hits';
     }
 
-    var EXCLUSIVE = { EZ: ['HR'], HR: ['EZ'], DT: ['HT', 'NC'], NC: ['HT', 'DT'], HT: ['DT', 'NC'], NF: ['SO'], SO: ['NF'] };
+    var EXCLUSIVE = { EZ: ['HR'], HR: ['EZ'], DT: ['HT', 'NC'], NC: ['HT', 'DT'], HT: ['DT', 'NC'], NF: ['SO', 'RX'], SO: ['NF'], RX: ['NF'] };
     root.querySelector('#pc-mods').addEventListener('click', function (e) {
         var b = e.target.closest('[data-mod]');
         if (!b) return;
@@ -195,7 +199,7 @@
     function params() {
         var p = new URLSearchParams();
         p.set('map', $('pc-map').value.trim());
-        var order = ['NF', 'EZ', 'HD', 'HR', 'DT', 'NC', 'HT', 'FL', 'SO'];
+        var order = ['NF', 'EZ', 'HD', 'HR', 'DT', 'NC', 'HT', 'FL', 'SO', 'RX'];
         var mods = order.filter(function (m) { return state.mods.indexOf(m) >= 0; }).join('');
         if (mods) p.set('mods', mods);
         if (state.mode !== '') p.set('mode', state.mode);
