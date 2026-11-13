@@ -269,15 +269,25 @@ shiinaDocs.initializeDocs();
         // requests authenticated only by the session cookie. Reject anything a
         // browser marks as coming from another site (links/forms on Discord,
         // other websites). Server-to-server calls send no Sec-Fetch-Site and pass.
-        WebServer.before("/ap/*", App::blockCrossSiteRequest);
-        WebServer.before("/api/v1/*", App::blockCrossSiteRequest);
+        // The admin panel changes state with plain GET links too, so it only
+        // accepts requests from this site itself, not from other subdomains.
+        WebServer.before("/ap/*", App::requireSameOrigin);
+        // read-only API calls may come from the other taksiegra subdomains,
+        // anything that changes data only from this site
+        WebServer.before("/api/v1/*", (req, res) -> {
+            if ("GET".equals(req.requestMethod())) {
+                blockCrossSiteRequest(req, res);
+            } else {
+                requireSameOrigin(req, res);
+            }
+        });
         // settings/comment pages may be linked from anywhere; only their form posts are protected
         WebServer.before("/settings/*", (req, res) -> {
             if (!"GET".equals(req.requestMethod())) {
-                blockCrossSiteRequest(req, res);
+                requireSameOrigin(req, res);
             }
         });
-        WebServer.before("/post/*", App::blockCrossSiteRequest);
+        WebServer.before("/post/*", App::requireSameOrigin);
 
         // Support osu-style /mp<id> URLs (no slash)
         WebServer.before("/mp*", (req, res) -> {
@@ -412,5 +422,57 @@ shiinaDocs.initializeDocs();
         }
         log.warn("Blocked cross-site request to " + req.pathInfo() + " (Sec-Fetch-Site: " + site + ")");
         spark.Spark.halt(403, "Cross-site request blocked");
+    }
+
+    /**
+     * GET routes under /ap/ that change data. A link opened from an app
+     * outside the browser (Discord desktop, mail client) arrives with
+     * Sec-Fetch-Site "none", so these must never be reachable that way.
+     */
+    private static final java.util.Set<String> STATE_CHANGING_GET = java.util.Set.of(
+            "/ap/groups/delete", "/ap/groups/process", "/ap/users/recovery");
+
+    /**
+     * The path the way the router sees it. Routes are matched on the raw
+     * request URI with empty segments ignored, so "/ap//groups/delete" still
+     * reaches the "/ap/groups/delete" handler. The checks below must compare
+     * the same thing, otherwise a doubled slash walks around them.
+     */
+    static String routedPath(spark.Request req) {
+        String uri = req.uri() == null ? "" : req.uri();
+        StringBuilder sb = new StringBuilder();
+        for (String part : uri.split("/")) {
+            if (!part.isEmpty()) {
+                sb.append('/').append(part);
+            }
+        }
+        return sb.length() == 0 ? "/" : sb.toString();
+    }
+
+    /**
+     * Stricter check for the admin panel and for requests that change data:
+     * only "same-origin" passes. A page on another taksiegra subdomain
+     * ("same-site") is refused, so an HTML injection there cannot click admin
+     * links for a logged-in moderator. A typed URL or bookmark ("none") opens
+     * pages with GET, but never an action (/ap/api/* and STATE_CHANGING_GET).
+     * A missing header (curl, old browsers) passes everywhere except actions:
+     * a forged request needs the victim's browser, and every current browser
+     * sends the header.
+     */
+    static void requireSameOrigin(spark.Request req, spark.Response res) {
+        String site = req.headers("Sec-Fetch-Site");
+        String path = routedPath(req);
+        boolean action = path.startsWith("/ap/api/") || STATE_CHANGING_GET.contains(path);
+        if ("same-origin".equals(site)) {
+            return;
+        }
+        if (site == null && !action) {
+            return;
+        }
+        if ("none".equals(site) && "GET".equals(req.requestMethod()) && !action) {
+            return;
+        }
+        log.warn("Blocked request to " + path + " (Sec-Fetch-Site: " + site + ")");
+        spark.Spark.halt(403, "Request blocked: open this page from the website itself");
     }
 }
