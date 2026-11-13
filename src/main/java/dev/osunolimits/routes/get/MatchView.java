@@ -32,11 +32,18 @@ public class MatchView extends Shiina {
         long matchId = Long.parseLong(idStr);
 
         ResultSet matchRs = shiina.mysql.Query(
-            "SELECT m.id, m.name, m.created_at, m.ended_at, u.name as creator_name, m.creator_id " +
+            "SELECT m.id, m.name, m.created_at, m.ended_at, m.hidden, u.name as creator_name, m.creator_id " +
             "FROM mp_matches m LEFT JOIN users u ON u.id = m.creator_id " +
             "WHERE m.id = ?", matchId
         );
         if (matchRs == null || !matchRs.next()) return notFound(res, shiina);
+
+        boolean staffView = shiina.loggedIn
+                && (PermissionHelper.hasPrivileges(shiina.user.priv, PermissionHelper.Privileges.MODERATOR)
+                    || PermissionHelper.hasPrivileges(shiina.user.priv, PermissionHelper.Privileges.ADMINISTRATOR)
+                    || PermissionHelper.hasPrivileges(shiina.user.priv, PermissionHelper.Privileges.DEVELOPER));
+        // a hidden match does not exist for anyone but the staff, also by direct link
+        if (matchRs.getInt("hidden") == 1 && !staffView) return notFound(res, shiina);
 
         Map<String, Object> match = new HashMap<>();
         match.put("id", matchRs.getLong("id"));
@@ -67,11 +74,11 @@ public class MatchView extends Shiina {
         shiina.data.put("events", events);
 
         // match chat: only for the staff, like private messages in /ap/chat
-        boolean staffView = shiina.loggedIn
+        boolean chatView = shiina.loggedIn
                 && (PermissionHelper.hasPrivileges(shiina.user.priv, PermissionHelper.Privileges.MODERATOR)
                     || PermissionHelper.hasPrivileges(shiina.user.priv, PermissionHelper.Privileges.ADMINISTRATOR));
-        shiina.data.put("staffView", staffView);
-        if (staffView) {
+        shiina.data.put("staffView", chatView);
+        if (chatView) {
             ResultSet chatRs = shiina.mysql.Query(
                 "SELECT c.user_id, c.msg, c.hidden, c.created_at, u.name AS username " +
                 "FROM mp_match_chat c LEFT JOIN users u ON u.id = c.user_id " +

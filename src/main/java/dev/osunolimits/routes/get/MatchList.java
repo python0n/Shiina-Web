@@ -21,10 +21,20 @@ public class MatchList extends Shiina {
         ShiinaRequest shiina = new ShiinaRoute().handle(req, res);
         shiina.data.put("actNav", 0);
 
+        boolean isAdmin = shiina.loggedIn && PermissionHelper.hasPrivileges(
+            shiina.user.priv, PermissionHelper.Privileges.DEVELOPER
+        );
+        // hidden matches are sent only to the staff. everyone else must not
+        // get the rows at all: hiding them with css still left them in the page
+        boolean canSeeHidden = isAdmin || (shiina.loggedIn
+                && (PermissionHelper.hasPrivileges(shiina.user.priv, PermissionHelper.Privileges.MODERATOR)
+                    || PermissionHelper.hasPrivileges(shiina.user.priv, PermissionHelper.Privileges.ADMINISTRATOR)));
+
         ResultSet rs = shiina.mysql.Query(
             "SELECT m.id, m.name, m.created_at, m.ended_at, m.hidden, u.name as creator_name, " +
             "(SELECT COUNT(*) FROM mp_match_games WHERE match_id = m.id) as game_count " +
             "FROM mp_matches m LEFT JOIN users u ON u.id = m.creator_id " +
+            (canSeeHidden ? "" : "WHERE m.hidden = 0 ") +
             "ORDER BY m.created_at DESC"
         );
 
@@ -41,12 +51,9 @@ public class MatchList extends Shiina {
             matches.add(m);
         }
 
-        boolean isAdmin = shiina.loggedIn && PermissionHelper.hasPrivileges(
-            shiina.user.priv, PermissionHelper.Privileges.DEVELOPER
-        );
-
         shiina.data.put("matches", matches);
         shiina.data.put("isAdmin", isAdmin);
+        shiina.data.put("canSeeHidden", canSeeHidden);
         shiina.data.put("seo", new SEOBuilder("Match List", ""));
         return renderTemplate("matches.html", shiina, res, req);
     }
