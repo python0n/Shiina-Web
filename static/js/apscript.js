@@ -1,7 +1,15 @@
+// Panel actions are POST requests. The parameters stay in the address, the
+// server reads them the same way; afterwards the page is loaded again.
+function apPost(url) {
+    return fetch(url, { method: 'POST', credentials: 'same-origin' })
+        .then(function () { window.location.reload(); })
+        .catch(function () { alert('Request failed.'); });
+}
+
 function confirmation(location) {
     result = confirm('Are you sure you want to delete this?');
     if(result) {
-        window.location = location;
+        apPost(location);
     }
 }
 

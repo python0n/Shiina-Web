@@ -205,12 +205,12 @@
                             <span>${group.emoji} ${group.name?html}</span>
                             <#if groups?seq_contains(group)>
                                 <a class="btn btn-danger btn-sm"
-                                    href="/ap/groups/process?id=${id}&group=${group.id}&action=remove" role="button">
+                                    href="#" onclick="apPost('/ap/groups/process?id=${id}&group=${group.id}&action=remove'); return false;" role="button">
                                     Remove
                                 </a>
                                 <#else>
                                     <a class="btn btn-primary btn-sm"
-                                        href="/ap/groups/process?id=${id}&group=${group.id}&action=add" role="button">
+                                        href="#" onclick="apPost('/ap/groups/process?id=${id}&group=${group.id}&action=add'); return false;" role="button">
                                         Add
                                     </a>
                             </#if>
@@ -245,13 +245,13 @@
                             <span>${apriv}</span>
                             <#if priv?seq_contains(apriv.privilege)>
                                 <a class="btn btn-danger btn-sm"
-                                    href="/ap/api/handler?type=removepriv&id=${id}&privs=${apriv?lower_case}"
+                                    href="#" onclick="apPost('/ap/api/handler?type=removepriv&id=${id}&privs=${apriv?lower_case}'); return false;"
                                     role="button">
                                     Remove
                                 </a>
                             <#else>
                                 <a class="btn btn-primary btn-sm"
-                                    href="/ap/api/handler?type=addpriv&id=${id}&privs=${apriv?lower_case}" role="button">
+                                    href="#" onclick="apPost('/ap/api/handler?type=addpriv&id=${id}&privs=${apriv?lower_case}'); return false;" role="button">
                                     Add
                                 </a>
                             </#if>
@@ -277,7 +277,7 @@
         button.disabled = true;
         temp = button.innerHTML;
         button.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>';
-        fetch("/ap/api/handler?type=rmpb&id=${id}&reason=" + document.getElementById('reasonInputPb').value)
+        fetch("/ap/api/handler?type=rmpb&id=${id}&reason=" + encodeURIComponent(document.getElementById('reasonInputPb').value), { method: 'POST' })
             .then((data) => {
 
             });
@@ -292,7 +292,7 @@
         button.disabled = true;
         temp = button.innerHTML;
         button.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>';
-        fetch("/ap/api/handler?type=rmup&id=${id}&reason=" + document.getElementById('reasonInputPb').value)
+        fetch("/ap/api/handler?type=rmup&id=${id}&reason=" + encodeURIComponent(document.getElementById('reasonInputPb').value), { method: 'POST' })
             .then((data) => {
 
             });
@@ -307,7 +307,7 @@
         button.disabled = true;
         temp = button.innerHTML;
         button.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>';
-        fetch("/ap/api/handler?type=wipe&id=${id}&mode=" + document.getElementById('modeInput').value + "&reason=" + document.getElementById('reasonInputWipe').value)
+        fetch("/ap/api/handler?type=wipe&id=${id}&mode=" + encodeURIComponent(document.getElementById('modeInput').value) + "&reason=" + encodeURIComponent(document.getElementById('reasonInputWipe').value), { method: 'POST' })
             .then((data) => {
 
             });
@@ -322,7 +322,7 @@
         button.disabled = true;
         temp = button.innerHTML;
         button.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>';
-        fetch("/ap/api/handler?type=givedonator&id=${id}&duration=" + document.getElementById('durationInput').value)
+        fetch("/ap/api/handler?type=givedonator&id=${id}&duration=" + encodeURIComponent(document.getElementById('durationInput').value), { method: 'POST' })
             .then((data) => {
 
             });
@@ -337,7 +337,7 @@
         button.disabled = true;
         temp = button.innerHTML;
         button.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>';
-        fetch("/ap/api/handler?type=restrict&id=${id}&reason=" + document.getElementById('reasonInput').value)
+        fetch("/ap/api/handler?type=restrict&id=${id}&reason=" + encodeURIComponent(document.getElementById('reasonInput').value), { method: 'POST' })
             .then((data) => {
 
             });
@@ -353,7 +353,7 @@
         temp = button.innerHTML;
         button.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>';
 
-        fetch("/ap/api/handler?type=unrestrict&id=${id}&reason=" + document.getElementById('reasonInput').value)
+        fetch("/ap/api/handler?type=unrestrict&id=${id}&reason=" + encodeURIComponent(document.getElementById('reasonInput').value), { method: 'POST' })
             .then((data) => {
 
             });
@@ -365,7 +365,7 @@
     }
 
     function generateRecoveryUrl(input) {
-        fetch("/ap/users/recovery?id=${id}")
+        fetch("/ap/users/recovery?id=${id}", { method: 'POST' })
             .then((res) => res.json())
             .then((data) => {
                 input.value = 'https://' + window.location.host + data.url;

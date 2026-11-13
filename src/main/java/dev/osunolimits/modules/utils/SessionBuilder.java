@@ -36,7 +36,18 @@ public class SessionBuilder {
 
     /** Creates the session and sets the "shiina" cookie on the response. */
     public void login(Response res, boolean remember) {
-        res.cookie("/", "shiina", build(remember), lifetime(remember), true, true);
+        setCookie(res, build(remember), lifetime(remember));
+    }
+
+    /**
+     * Writes the session cookie with SameSite=Lax. The cookie API of the web
+     * framework has no SameSite parameter, so the header is written by hand.
+     * Lax: the cookie is sent when someone opens a link to the site, but not
+     * with a form or script request started by another website.
+     */
+    private static void setCookie(Response res, String token, int maxAge) {
+        res.header("Set-Cookie", "shiina=" + token + "; Path=/; Max-Age=" + maxAge
+                + "; Secure; HttpOnly; SameSite=Lax");
     }
 
     /**
@@ -52,7 +63,7 @@ public class SessionBuilder {
         boolean remember = user.remember == null || user.remember;
         user.refreshed = now;
         App.appCache.set("shiina:auth:" + token, gson.toJson(user), lifetime(remember));
-        res.cookie("/", "shiina", token, lifetime(remember), true, true);
+        setCookie(res, token, lifetime(remember));
     }
 
     public String build(boolean remember) {

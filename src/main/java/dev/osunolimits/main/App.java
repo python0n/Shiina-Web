@@ -353,10 +353,12 @@ shiinaDocs.initializeDocs();
         WebServer.post("/api/v1/disband_clan", new HandleClanDisband());
         WebServer.post("/api/v1/handle_favorite", new HandleBeatmapFavorite());
 
-        WebServer.get("/ap/users/recovery", new RecoverAccount());
+        // actions of the panel change data, so they are POST only (a link or an
+        // image on another page can only ever cause a GET)
+        WebServer.post("/ap/users/recovery", new RecoverAccount());
 
         WebServer.get("/ap/bancho", new Bancho());
-        WebServer.get("/ap/api/handler", new PubSubHandler());
+        WebServer.post("/ap/api/handler", new PubSubHandler());
         WebServer.get("/ap/settings", new ModularSettings());
 
         WebServer.get("/ap/maprequests", new MapRequests());
@@ -378,9 +380,9 @@ shiinaDocs.initializeDocs();
         WebServer.get("/ap/groups", new Groups());
         WebServer.get("/ap/groups/create", new ManageGroup(Action.CREATE));
         WebServer.get("/ap/groups/edit", new ManageGroup(Action.EDIT));
-        WebServer.get("/ap/groups/delete", new ManageGroup(Action.DELETE));
+        WebServer.post("/ap/groups/delete", new ManageGroup(Action.DELETE));
         WebServer.post("/ap/groups/manage", new ProcessManageGroup());
-        WebServer.get("/ap/groups/process", new ProcessGroup());
+        WebServer.post("/ap/groups/process", new ProcessGroup());
         WebServer.get("/ap/users", new Users());
         WebServer.get("/ap/user", new ApUser());
         WebServer.post("/ap/user/badge/add", new dev.osunolimits.routes.ap.post.HandleBadgeAdd());

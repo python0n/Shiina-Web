@@ -89,7 +89,7 @@
         const alertInput = document.getElementById('alertInput').value;
         const alertStatus = document.getElementById('alertStatus');
         alertStatus.innerText = 'Sending...';
-        const res = await fetch('/ap/api/handler?type=alert_all&message='+document.getElementById('alertInput').value);
+        const res = await fetch('/ap/api/handler?type=alert_all&message=' + encodeURIComponent(document.getElementById('alertInput').value), { method: 'POST' });
         
         document.getElementById('alertStatus').innerText = "'" + document.getElementById('alertInput').value + "' has been sent to all users.";
         
