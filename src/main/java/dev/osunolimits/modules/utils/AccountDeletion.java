@@ -47,7 +47,30 @@ public class AccountDeletion {
         App.jedisPool.del("shiina:user:" + userId);
 
         try {
+            // files on disk: avatar, replays of the player's scores, pending replays
+            dev.osunolimits.modules.pubsubs.SyncedAction.removeProfilePicture(userId);
+            try (ResultSet replayRs = mysql.Query("SELECT `id` FROM `scores` WHERE `userid` = ?", userId)) {
+                while (replayRs != null && replayRs.next()) {
+                    deleteQuietly(new java.io.File(dev.osunolimits.utils.BanchoData.replays(), replayRs.getLong("id") + ".osr"));
+                }
+            }
+            try (ResultSet pendingRs = mysql.Query("SELECT `osr_path` FROM `pending_replays` WHERE `userid` = ?", userId)) {
+                while (pendingRs != null && pendingRs.next()) {
+                    String osrPath = pendingRs.getString("osr_path");
+                    if (osrPath != null) {
+                        // only the file name is trusted, the folder is always bancho's pending folder
+                        deleteQuietly(new java.io.File(dev.osunolimits.utils.BanchoData.pendingReplays(),
+                                new java.io.File(osrPath).getName()));
+                    }
+                }
+            }
+
             // Delete from all related tables
+            mysql.Exec("DELETE FROM `pending_replays` WHERE `userid` = ?", userId);
+            mysql.Exec("DELETE FROM `notifications` WHERE `user_id` = ?", userId);
+            mysql.Exec("DELETE FROM `user_badges` WHERE `userid` = ?", userId);
+            mysql.Exec("DELETE FROM `sh_user_socials` WHERE `user_id` = ?", userId);
+            mysql.Exec("DELETE FROM `map_requests` WHERE `player_id` = ?", userId);
             mysql.Exec("DELETE FROM `client_hashes` WHERE `userid` = ?", userId);
             mysql.Exec("DELETE FROM `comments` WHERE `userid` = ?", userId);
             mysql.Exec("DELETE FROM `favourites` WHERE `userid` = ?", userId);
@@ -78,6 +101,12 @@ public class AccountDeletion {
             throw e;
         } finally {
             mysql.close();
+        }
+    }
+
+    private static void deleteQuietly(java.io.File file) {
+        if (file.isFile() && !file.delete()) {
+            logger.warn("Could not delete {}", file.getPath());
         }
     }
 }

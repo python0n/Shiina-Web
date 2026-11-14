@@ -88,7 +88,12 @@ public class DataExporter {
             rs = mysql.Query("SELECT * FROM `userpages` WHERE `user_id` = ?", userId);
             exportResultSetAsCSVZip("userpages", rs);
 
-            rs = mysql.Query("SELECT * FROM `users` WHERE `id` = ?", userId);
+            // without pw_bcrypt, api_key and irc_key: the archive leaves the
+            // server (mail, cloud drives) and must not carry the password hash or keys
+            rs = mysql.Query("SELECT `id`, `name`, `safe_name`, `email`, `priv`, `country`, "
+                    + "`silence_end`, `donor_end`, `creation_time`, `latest_activity`, `clan_id`, "
+                    + "`clan_priv`, `preferred_mode`, `play_style`, `custom_badge_name`, "
+                    + "`custom_badge_icon`, `userpage_content` FROM `users` WHERE `id` = ?", userId);
             exportResultSetAsCSVZip("users", rs);
 
             rs = mysql.Query("SELECT * FROM `user_achievements` WHERE `userid` = ?", userId);

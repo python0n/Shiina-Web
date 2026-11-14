@@ -19,6 +19,8 @@ import javax.servlet.http.Part;
 public class HandleReplaySubmit extends Shiina {
 
     private static final long MAX_SIZE = 10 * 1024 * 1024;
+    // replays one player may have waiting for review (each up to MAX_SIZE on disk)
+    private static final int MAX_PENDING_PER_PLAYER = 10;
     private static final String OSR_DIR = dev.osunolimits.utils.BanchoData.pendingReplays();
 
     @Override
@@ -31,6 +33,21 @@ public class HandleReplaySubmit extends Shiina {
 
         if (!shiina.loggedIn) {
             return redirect(res, shiina, "/login?path=/replays");
+        }
+
+        // restricted players can still play, but not send scores for review
+        if (dev.osunolimits.utils.Visibility.isRestricted(shiina.user.priv)) {
+            shiina.data.put("error", "Restricted accounts cannot upload replays.");
+            return renderTemplate("replays.html", shiina, res, req);
+        }
+
+        try (ResultSet countRs = shiina.mysql.Query(
+                "SELECT COUNT(*) AS c FROM pending_replays WHERE userid = ? AND status = 0", shiina.user.id)) {
+            if (countRs != null && countRs.next() && countRs.getInt("c") >= MAX_PENDING_PER_PLAYER) {
+                shiina.data.put("error", "You already have " + MAX_PENDING_PER_PLAYER
+                        + " replays waiting for review. Wait until they are checked.");
+                return renderTemplate("replays.html", shiina, res, req);
+            }
         }
 
         req.raw().setAttribute("org.eclipse.jetty.multipartConfig",

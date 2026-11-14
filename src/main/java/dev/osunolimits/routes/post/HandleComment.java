@@ -13,11 +13,9 @@ import spark.Response;
 
 public class HandleComment extends Shiina {
 
-    private enum Target {
-        USER,
-        MAP,
-        REPLAY
-    }
+    // the site only has comments under maps. comments.comment is varchar(80)
+    // and keeps the HTML-encoded text, so the encoded form must fit in it
+    private static final int MAX_COMMENT_LENGTH = 80;
 
     @Override
     public Object handle(Request req, Response res) throws Exception {
@@ -57,8 +55,9 @@ public class HandleComment extends Shiina {
             shiinaAPIHandler.addRequiredParameter("target_id", "int", "missing or invalid");
         }
 
-        Target targetType = Target.valueOf(target.toUpperCase());
-        if (targetType == null) {
+        // only map comments exist on the site: anything else is refused before
+        // it reaches the database (earlier it was saved and then answered "ERROR")
+        if (target != null && !"map".equalsIgnoreCase(target)) {
             shiinaAPIHandler.addRequiredParameter("target", "string", "invalid");
         }
 
@@ -66,26 +65,25 @@ public class HandleComment extends Shiina {
             return shiinaAPIHandler.renderIssues(shiina, res);
         }
 
+        String redirectUrl = "/b/" + targetId;
+        message = message.trim();
+        if (message.isEmpty()) {
+            return redirect(res, shiina, redirectUrl);
+        }
+
         String encodedMessage = Encode.forHtmlContent(message);
-        
-        if(message.length() > 0) {
-            shiina.mysql.Exec("INSERT INTO `comments`(`target_id`, `target_type`, `userid`, `time`, `comment`) VALUES (?,?,?,?,?)", targetId, target.toLowerCase(), shiina.user.id, 0, encodedMessage);
-            if (targetType == Target.MAP) {
-                notifyMapOwner(shiina, Integer.parseInt(targetId));
+        if (encodedMessage.length() > MAX_COMMENT_LENGTH) {
+            return redirect(res, shiina, redirectUrl + "?error=Comment is too long");
+        }
+
+        try (java.sql.ResultSet mapRs = shiina.mysql.Query("SELECT 1 FROM `maps` WHERE `id` = ?", targetId)) {
+            if (mapRs == null || !mapRs.next()) {
+                return notFound(res, shiina);
             }
         }
-        
-        String redirectUrl = "";
 
-        switch (targetType) {
-            case MAP:
-                redirectUrl += "/b/";
-                break;
-            default:
-                return "ERROR";
-        }
-
-        redirectUrl += targetId;
+        shiina.mysql.Exec("INSERT INTO `comments`(`target_id`, `target_type`, `userid`, `time`, `comment`) VALUES (?,?,?,?,?)", targetId, "map", shiina.user.id, 0, encodedMessage);
+        notifyMapOwner(shiina, Integer.parseInt(targetId));
 
         return redirect(res, shiina, redirectUrl);
     }
