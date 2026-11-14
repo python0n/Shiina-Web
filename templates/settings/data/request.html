@@ -3,17 +3,17 @@
     <div class="card-header bg-transparent">
         <h5 class="mb-0">
             <i class="fa-solid fa-file-export me-2"></i>
-            ${t["settings.request_data"]?html}
+            ${t["settings.request_data"]}
         </h5>
     </div>
     <div class="card-body">
         <form data-turbo="false" action="/settings/data/export" method="post"> 
             <button type="submit" class="btn btn-primary">
                 <i class="fas fa-save me-2"></i>
-                ${t["settings.download_data"]?html}
+                ${t["settings.download_data"]}
             </button>
             <div class="form-text">
-                ${t["settings.download_data_hint"]?html}
+                ${t["settings.download_data_hint"]}
             </div> 
         </form>
     </div>

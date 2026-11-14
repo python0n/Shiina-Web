@@ -18,8 +18,8 @@
     src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit"
     data-turbo-track="reload">
     </script>
-    <script data-turbo-track="reload">window.SHIINA_ASSET_V = "${(assetV!"")?js_string}";</script>
-    <script data-turbo-track="reload">window.SHIINA_T = {<#if t??><#list t?keys as k><#if k?starts_with("js.")>"${k?js_string}": "${t[k]?js_string}", </#if></#list></#if>};</script>
+    <script data-turbo-track="reload"><#noautoesc>window.SHIINA_ASSET_V = "${(assetV!"")?js_string}";</#noautoesc></script>
+    <script data-turbo-track="reload"><#noautoesc>window.SHIINA_T = {<#if t??><#list t?keys as k><#if k?starts_with("js.")>"${k?js_string}": "${t[k]?js_string}", </#if></#list></#if>};</#noautoesc></script>
     <script src="/js/shiina.js?v=${assetV!""}" data-turbo-track="reload"></script>
     <script src="/js/jquery.min.js?v=${assetV!""}"></script>
     <script src="/js/bootstrap.bundle.min.js?v=${assetV!""}"></script>
@@ -36,20 +36,20 @@
     </#if>
 
     <#if seo??>
-    <title>${seo.title?html}</title>
-    <meta property="og:title" content="${seo.title?html}">
-    <meta name="twitter:title" content="${seo.title?html}">
+    <title>${seo.title}</title>
+    <meta property="og:title" content="${seo.title}">
+    <meta name="twitter:title" content="${seo.title}">
     <meta name="robots" content="index, follow">
     <meta property="og:type" content="website" />
     <meta name="twitter:card" content="summary">
     <!-- <meta property="og:url" content="" />
     <meta name="twitter:url" content="" />
     <link rel="canonical" href=""/> -->
-    <meta name="description" content="${seo.description?html}">
-    <meta property="og:description" content="${seo.description?html}">
-    <meta name="twitter:description" content="${seo.description?html}">
-    <meta property="og:image" content="${seo.image?html}">
-    <meta name="twitter:image" content="${seo.image?html}">
+    <meta name="description" content="${seo.description}">
+    <meta property="og:description" content="${seo.description}">
+    <meta name="twitter:description" content="${seo.description}">
+    <meta property="og:image" content="${seo.image}">
+    <meta name="twitter:image" content="${seo.image}">
     <meta name="keywords" content='${seo.keywords?join(",")}'>
     </#if>
 </head>

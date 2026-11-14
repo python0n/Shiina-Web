@@ -3,10 +3,10 @@
     <div class="card mb-4">
         <div class="card-body d-flex align-items-center gap-3 flex-wrap">
             <div class="me-auto">
-                <h4 class="mb-1"><i class="fa-solid fa-flask me-2 text-primary"></i>${t["reworks.title"]?html}</h4>
-                <p class="text-muted mb-0 small">${t["reworks.subtitle"]?html}</p>
+                <h4 class="mb-1"><i class="fa-solid fa-flask me-2 text-primary"></i>${t["reworks.title"]}</h4>
+                <p class="text-muted mb-0 small">${t["reworks.subtitle"]}</p>
             </div>
-            <a href="/pp" class="btn btn-sm btn-outline-primary"><i class="fa-solid fa-calculator me-1"></i>${t["calc.title"]?html}</a>
+            <a href="/pp" class="btn btn-sm btn-outline-primary"><i class="fa-solid fa-calculator me-1"></i>${t["calc.title"]}</a>
             <div class="rw-modes" id="rw-modes">
                 <img src="/img/modes/osu.svg" class="sort-button" data-mode="0" alt="osu!">
                 <img src="/img/modes/taiko.svg" class="sort-button" data-mode="1" alt="osu!taiko">
@@ -20,7 +20,7 @@
         <div class="col-12 col-lg-4">
             <div class="card">
                 <div class="list-group list-group-flush" id="rw-variants">
-                    <div class="list-group-item text-muted small">${t["reworks.loading"]?html}</div>
+                    <div class="list-group-item text-muted small">${t["reworks.loading"]}</div>
                 </div>
             </div>
         </div>
@@ -44,25 +44,25 @@
             <div id="rw-empty" class="card" hidden>
                 <div class="card-body text-center text-muted py-5">
                     <i class="fa-solid fa-hourglass-half fa-2x mb-3 opacity-50"></i>
-                    <p class="mb-0">${t["reworks.not_calculated"]?html}</p>
+                    <p class="mb-0">${t["reworks.not_calculated"]}</p>
                 </div>
             </div>
 
             <div id="rw-main" hidden>
                 <ul class="nav nav-pills mb-3 gap-1" id="rw-tabs">
-                    <li class="nav-item"><button class="nav-link active" data-tab="players">${t["reworks.tab_players"]?html}</button></li>
-                    <li class="nav-item"><button class="nav-link" data-tab="scores">${t["reworks.tab_scores"]?html}</button></li>
-                    <li class="nav-item ms-auto" id="rw-me-wrap" hidden><button class="btn btn-sm btn-outline-primary" id="rw-me">${t["reworks.my_scores"]?html}</button></li>
+                    <li class="nav-item"><button class="nav-link active" data-tab="players">${t["reworks.tab_players"]}</button></li>
+                    <li class="nav-item"><button class="nav-link" data-tab="scores">${t["reworks.tab_scores"]}</button></li>
+                    <li class="nav-item ms-auto" id="rw-me-wrap" hidden><button class="btn btn-sm btn-outline-primary" id="rw-me">${t["reworks.my_scores"]}</button></li>
                 </ul>
 
                 <div id="rw-tab-players">
-                    <input type="search" class="form-control form-control-sm mb-3" id="rw-search" placeholder="${t["reworks.search"]?html}" maxlength="32">
+                    <input type="search" class="form-control form-control-sm mb-3" id="rw-search" placeholder="${t["reworks.search"]}" maxlength="32">
                     <div class="card">
                         <div class="rw-table-head d-none d-md-grid rw-player-grid">
-                            <span>#</span><span>${t["reworks.player"]?html}</span>
-                            <span class="text-end">${t["reworks.old_pp"]?html}</span>
-                            <span class="text-end">${t["reworks.new_pp"]?html}</span>
-                            <span class="text-end">${t["reworks.change"]?html}</span>
+                            <span>#</span><span>${t["reworks.player"]}</span>
+                            <span class="text-end">${t["reworks.old_pp"]}</span>
+                            <span class="text-end">${t["reworks.new_pp"]}</span>
+                            <span class="text-end">${t["reworks.change"]}</span>
                         </div>
                         <div class="list-group list-group-flush" id="rw-players"></div>
                     </div>
@@ -71,16 +71,16 @@
 
                 <div id="rw-tab-scores" hidden>
                     <div class="btn-group btn-group-sm mb-3" id="rw-score-order">
-                        <button class="btn btn-primary" data-order="gain">${t["reworks.order_gain"]?html}</button>
-                        <button class="btn btn-secondary" data-order="loss">${t["reworks.order_loss"]?html}</button>
-                        <button class="btn btn-secondary" data-order="top">${t["reworks.order_top"]?html}</button>
+                        <button class="btn btn-primary" data-order="gain">${t["reworks.order_gain"]}</button>
+                        <button class="btn btn-secondary" data-order="loss">${t["reworks.order_loss"]}</button>
+                        <button class="btn btn-secondary" data-order="top">${t["reworks.order_top"]}</button>
                     </div>
                     <div class="card"><div class="list-group list-group-flush" id="rw-scores"></div></div>
-                    <p class="text-muted small mt-2">${t["reworks.scores_note"]?html}</p>
+                    <p class="text-muted small mt-2">${t["reworks.scores_note"]}</p>
                 </div>
 
                 <div id="rw-player" hidden>
-                    <button class="btn btn-sm btn-secondary mb-3" id="rw-back"><i class="fa-solid fa-arrow-left me-1"></i>${t["reworks.back"]?html}</button>
+                    <button class="btn btn-sm btn-secondary mb-3" id="rw-back"><i class="fa-solid fa-arrow-left me-1"></i>${t["reworks.back"]}</button>
                     <div class="card mb-3">
                         <div class="card-body d-flex align-items-center gap-3 flex-wrap" id="rw-player-head"></div>
                     </div>
@@ -92,7 +92,7 @@
     </div>
 </div>
 
-<script>window.RW_T = {<#list t?keys as k><#if k?starts_with("reworks.")>"${k?js_string}": "${t[k]?js_string}", </#if></#list>};</script>
+<script><#noautoesc>window.RW_T = {<#list t?keys as k><#if k?starts_with("reworks.")>"${k?js_string}": "${t[k]?js_string}", </#if></#list>};</#noautoesc></script>
 <#noparse>
 <script>
 (function () {

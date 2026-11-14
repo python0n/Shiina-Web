@@ -6,7 +6,7 @@
         </div>
         <div class="col-auto d-flex align-items-center">
             <span class="h6">
-                ${score.name?html}
+                ${score.name}
             </span>
             <small class="ms-2" data-timestamp-format="date" data-timestamp="${score.playTime}">
                 ${score.playTime}
@@ -35,7 +35,7 @@
                 <!-- Score Info -->
                 <div class="osu-score-info">
                     <div class="osu-beatmap-title">
-                        ${sanitizedName?html}<#if score.mods?has_content> <span class="mod-pill badge bg-warning bg-opacity-50 text-warning border border-warning">${score.mods?join(", ")}</span></#if>
+                        ${sanitizedName}<#if score.mods?has_content> <span class="mod-pill badge bg-warning bg-opacity-50 text-warning border border-warning">${score.mods?join(", ")}</span></#if>
                     </div>
 
                     <div class="osu-score-stats">
@@ -52,7 +52,7 @@
                 <div class="osu-action-buttons">
                     <a download href="${apiUrlPub}/v1/get_replay?id=${score.score_id?c}"
                        class="osu-action-btn osu-download-btn"
-                       title="${t["score.download_replay"]?html}"
+                       title="${t["score.download_replay"]}"
                        onclick="event.stopPropagation();"
                        onkeydown="event.stopPropagation();"
                        onmouseover="this.style.background='rgba(46,204,113,0.3)'; this.style.borderColor='#2ecc71';"

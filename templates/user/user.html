@@ -10,13 +10,13 @@
 
         <#if restricted && !self>
             <div class="alert alert-danger mt-4" role="alert">
-                ${t["profile.restricted_staff"]?html}
+                ${t["profile.restricted_staff"]}
             </div>
         </#if>
         <#if restricted && self>
             <div class="alert alert-danger mt-4" role="alert">
-                ${t["profile.restricted_self"]?html}
-                <#if (c.discordUrl!"")?has_content>${t["profile.restricted_visit"]?html} <a href="${c.discordUrl}">Discord</a>.<#else>${t["profile.restricted_contact"]?html}</#if>
+                ${t["profile.restricted_self"]}
+                <#if (c.discordUrl!"")?has_content>${t["profile.restricted_visit"]} <a href="${c.discordUrl}">Discord</a>.<#else>${t["profile.restricted_contact"]}</#if>
             </div>
         </#if>
 
@@ -41,13 +41,13 @@
                     <div class="col-12 col-md-9 d-flex flex-column justify-content-center text-white">
                         <div class="mb-2">
                             <h1 class="display-4 fw-bold mb-2 shiina-player-name <#if uprivs?seq_contains("SUPPORTER")>supporter</#if>">
-                                ${u.player.info.name?html}
+                                ${u.player.info.name}
                             </h1>
                             <div class="groupPlace d-flex flex-wrap gap-2 mt-2 mb-3">
                                 <#list groups as group>
                                     <span
                                         class="badge shiina-badge bg-light bg-opacity-25 text-white py-2 rounded-pill pe-3"><span
-                                            class="groupEmoji me-2">${group.emoji}</span>${group.name?html}</span>
+                                            class="groupEmoji me-2">${group.emoji}</span>${group.name}</span>
                                 </#list>
                             </div>
                         </div>
@@ -56,9 +56,9 @@
                                 class="d-flex align-items-center bg-gradient bg-opacity-20 rounded-pill px-3 py-2 w-fit">
                                 <div class="bg-success rounded-circle me-2" style="width: 8px; height: 8px;"></div>
                                 <span class="fw-medium">
-                                    <#if status.player_status.status.action==0>${t["profile.idle"]?html}
-                                        <#elseif status.player_status.status.action==1>${t["profile.online"]?html}
-                                            <#else>${t["profile.playing"]?html} ${status.player_status.status.info_text?html}
+                                    <#if status.player_status.status.action==0>${t["profile.idle"]}
+                                        <#elseif status.player_status.status.action==1>${t["profile.online"]}
+                                            <#else>${t["profile.playing"]} ${status.player_status.status.info_text}
                                     </#if>
                                 </span>
                             </div>
@@ -78,7 +78,7 @@
             <#include "user/badges.html">
 
             <#list modulesTop as module>
-                ${module}
+                ${module?no_esc}
             </#list>
 
             <#include "user/rankgraph.html">
@@ -98,7 +98,7 @@
             <#include "user/achievements.html">
 
             <#list modulesBottom as module>
-                ${module}
+                ${module?no_esc}
             </#list>
 
         </div>
@@ -110,7 +110,7 @@
 
 <#include "/assets/footer.html">
 
-<script>
+<script><#noautoesc>
     var bootstrapTextColor = getBootstrapTextColor();
     var bootstrapTextTransparent = getBootstrapTextTransparent();
     var noBeatmapIcon = '${noBeatmapIcon}';
@@ -120,4 +120,4 @@
     var loggedUserId = ${loggedUserId?c};
     var playCountGraphUrl = "/api/v1/get_playcount_graph?id=${id?c}&mode=${mode?c}";
     var rankGraphUrl = "/api/v1/get_rank_cache?id=${id?c}&mode=${mode?c}";
-</script>
+</#noautoesc></script>

@@ -2,7 +2,7 @@
     <div style="min-height: 600px;" class="home-video d-flex flex-grow-1 mb-4">
 
         <div id="spinner" class="spinner-grow position-absolute" role="status">
-            <span style="left: 50%; right: 50%; z-index: 200;" class="visually-hidden">${t["common.loading"]?html}</span>
+            <span style="left: 50%; right: 50%; z-index: 200;" class="visually-hidden">${t["common.loading"]}</span>
         </div>
             <video style="object-fit: cover; height: 600px;" src="${c.homeVideoUrl}" id="video" class="video lazy-video" autoplay loop muted></video>
      
@@ -11,21 +11,21 @@
                 <div class="col lol col-6" >
                     <div class="m-3 m-sm-5">
                         <h1 class="display-4">${c.serverName}</h1>
-                        <div class="lead-h">${c.homeDescription}</div>
+                        <div class="lead-h">${c.homeDescription?no_esc}</div>
                             <div class="badge-grp">
-                                <span class="home-badge"><span class="purple">${playerCount.total}</span> ${t["home.registered"]?html}</span>
-                                <span class="home-badge"><span class="green">${playerCount.online}</span> ${t["home.online"]?html}</span>
-                                <span class="home-badge d-none d-sm-inline"><span class="yellow">${customCount.clans}</span> ${t["home.clans"]?html}</span>
+                                <span class="home-badge"><span class="purple">${playerCount.total}</span> ${t["home.registered"]}</span>
+                                <span class="home-badge"><span class="green">${playerCount.online}</span> ${t["home.online"]}</span>
+                                <span class="home-badge d-none d-sm-inline"><span class="yellow">${customCount.clans}</span> ${t["home.clans"]}</span>
                             </div>
                             <div class="badge-grp">
-                                <span class="home-badge"><span class="red">${customCount.plays}</span> ${t["home.plays"]?html}</span>
-                                <span class="home-badge"><span class="cyan">${customCount.beatmaps}</span> ${t["home.beatmaps"]?html}</span>
+                                <span class="home-badge"><span class="red">${customCount.plays}</span> ${t["home.plays"]}</span>
+                                <span class="home-badge"><span class="cyan">${customCount.beatmaps}</span> ${t["home.beatmaps"]}</span>
                             </div>
                             <div class="mt-2">
                                 <#if !loggedIn>
-                                <a class="btn btn-primary" href="/register" role="button">${t["nav.register"]?html}</a>
+                                <a class="btn btn-primary" href="/register" role="button">${t["nav.register"]}</a>
                             </#if>
-                            <a class="btn btn-secondary" href="/docs/connect">${t["home.how_to_connect"]?html}</a>
+                            <a class="btn btn-secondary" href="/docs/connect">${t["home.how_to_connect"]}</a>
                             </div>
                        
                     </div>

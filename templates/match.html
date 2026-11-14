@@ -7,7 +7,7 @@
     <div class="alert alert-warning d-flex align-items-center gap-2 mb-3">
         <i class="fa-solid fa-triangle-exclamation fa-lg"></i>
         <div>
-            ${t["match.old_notice"]?html} <strong>#52</strong>.
+            ${t["match.old_notice"]} <strong>#52</strong>.
         </div>
     </div>
     </#if>
@@ -16,9 +16,9 @@
     <div class="card mb-3">
         <div class="card-body d-flex align-items-center justify-content-between flex-wrap gap-2">
             <div>
-                <h1 class="h4 mb-1"><i class="fa-solid fa-gamepad me-2"></i>${match.name?html}</h1>
+                <h1 class="h4 mb-1"><i class="fa-solid fa-gamepad me-2"></i>${match.name}</h1>
                 <div class="text-muted small">
-                    ${t["match.created_by"]?html} <a href="/u/${match.creator_id?c}">${match.creator_name!match.creator_id?c}</a>
+                    ${t["match.created_by"]} <a href="/u/${match.creator_id?c}">${match.creator_name!match.creator_id?c}</a>
                     &nbsp;•&nbsp;
                     <span data-timestamp-format="date" data-timestamp="${match.created_at}">${match.created_at}</span>
                     <#if match.ended_at??>
@@ -43,7 +43,7 @@
         <div class="col-lg-4">
             <div class="card h-100">
                 <div class="card-header fw-semibold">
-                    <i class="fa-solid fa-list me-1"></i> ${t["match.events"]?html}
+                    <i class="fa-solid fa-list me-1"></i> ${t["match.events"]}
                 </div>
                 <div class="card-body p-0">
                     <#if events?? && events?size gt 0>
@@ -53,15 +53,15 @@
                                     <#if ev.type == "join">
                                         <span class="text-success"><i class="fa-solid fa-right-to-bracket"></i></span>
                                         <span class="text-muted small">${ev.created_at?substring(11,19)}</span>
-                                        <span><a href="/u/${ev.user_id?c}">${ev.username!ev.user_id?c}</a> ${t["match.ev_joined"]?html}</span>
+                                        <span><a href="/u/${ev.user_id?c}">${ev.username!ev.user_id?c}</a> ${t["match.ev_joined"]}</span>
                                     <#elseif ev.type == "leave">
                                         <span class="text-danger"><i class="fa-solid fa-right-from-bracket"></i></span>
                                         <span class="text-muted small">${ev.created_at?substring(11,19)}</span>
-                                        <span><a href="/u/${ev.user_id?c}">${ev.username!ev.user_id?c}</a> ${t["match.ev_left"]?html}</span>
+                                        <span><a href="/u/${ev.user_id?c}">${ev.username!ev.user_id?c}</a> ${t["match.ev_left"]}</span>
                                     <#elseif ev.type == "host_change">
                                         <span class="text-warning"><i class="fa-solid fa-crown"></i></span>
                                         <span class="text-muted small">${ev.created_at?substring(11,19)}</span>
-                                        <span><a href="/u/${ev.user_id?c}">${ev.username!ev.user_id?c}</a> ${t["match.ev_host"]?html}</span>
+                                        <span><a href="/u/${ev.user_id?c}">${ev.username!ev.user_id?c}</a> ${t["match.ev_host"]}</span>
                                     <#else>
                                         <span class="text-muted"><i class="fa-solid fa-circle-info"></i></span>
                                         <span class="text-muted small">${ev.created_at?substring(11,19)}</span>
@@ -71,7 +71,7 @@
                             </#list>
                         </ul>
                     <#else>
-                        <div class="p-3 text-muted text-center small">${t["match.no_events"]?html}</div>
+                        <div class="p-3 text-muted text-center small">${t["match.no_events"]}</div>
                     </#if>
                 </div>
             </div>
@@ -82,8 +82,8 @@
         <div class="col-12 order-last">
             <div class="card">
                 <div class="card-header fw-semibold d-flex align-items-center gap-2">
-                    <i class="fa-solid fa-comments me-1"></i> ${t["match.chat"]?html}
-                    <span class="badge bg-secondary ms-auto">${t["match.chat_staff"]?html}</span>
+                    <i class="fa-solid fa-comments me-1"></i> ${t["match.chat"]}
+                    <span class="badge bg-secondary ms-auto">${t["match.chat_staff"]}</span>
                 </div>
                 <div class="card-body p-0" style="max-height: 480px; overflow-y: auto;">
                     <#if chat?? && chat?size gt 0>
@@ -91,14 +91,14 @@
                             <#list chat as c>
                                 <li class="list-group-item py-1 px-3<#if c.hidden> text-muted fst-italic</#if>">
                                     <span class="text-muted">${c.created_at?substring(11,19)}</span>
-                                    <a href="/u/${c.user_id?c}" class="fw-semibold">${(c.username!c.user_id?c)?html}</a>:
-                                    <span style="white-space: pre-wrap; word-break: break-word;">${c.msg?html}</span>
-                                    <#if c.hidden> <span class="badge bg-dark">${t["match.chat_hidden"]?html}</span></#if>
+                                    <a href="/u/${c.user_id?c}" class="fw-semibold">${(c.username!c.user_id?c)}</a>:
+                                    <span style="white-space: pre-wrap; word-break: break-word;">${c.msg}</span>
+                                    <#if c.hidden> <span class="badge bg-dark">${t["match.chat_hidden"]}</span></#if>
                                 </li>
                             </#list>
                         </ul>
                     <#else>
-                        <div class="p-3 text-muted text-center small">${t["match.no_chat"]?html}</div>
+                        <div class="p-3 text-muted text-center small">${t["match.no_chat"]}</div>
                     </#if>
                 </div>
             </div>
@@ -119,10 +119,10 @@
                                     <div class="fw-bold text-white">
                                         <#if game.title?? && game.title != "Unknown">
                                             <a href="/b/${game.map_id?c}" class="text-white text-decoration-none">
-                                                ${game.artist?html} - ${game.title?html} [${game.version?html}]
+                                                ${game.artist} - ${game.title} [${game.version}]
                                             </a>
                                         <#else>
-                                            <span class="text-muted">${t["match.unknown_map"]?html}</span>
+                                            <span class="text-muted">${t["match.unknown_map"]}</span>
                                         </#if>
                                     </div>
                                     <div class="small text-white-50">
@@ -143,13 +143,13 @@
                                     <thead>
                                         <tr>
                                             <th class="ps-3">#</th>
-                                            <th>${t["match.player"]?html}</th>
-                                            <th>${t["stats.score"]?html}</th>
-                                            <th>${t["stats.acc_short"]?html}</th>
-                                            <th>${t["match.combo"]?html}</th>
-                                            <th>${t["match.mods"]?html}</th>
-                                            <th>${t["match.grade"]?html}</th>
-                                            <th class="pe-3">${t["match.result"]?html}</th>
+                                            <th>${t["match.player"]}</th>
+                                            <th>${t["stats.score"]}</th>
+                                            <th>${t["stats.acc_short"]}</th>
+                                            <th>${t["match.combo"]}</th>
+                                            <th>${t["match.mods"]}</th>
+                                            <th>${t["match.grade"]}</th>
+                                            <th class="pe-3">${t["match.result"]}</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -191,7 +191,7 @@
                                 </table>
                             </div>
                         <#else>
-                            <div class="card-body text-muted small">${t["match.no_scores"]?html}</div>
+                            <div class="card-body text-muted small">${t["match.no_scores"]}</div>
                         </#if>
                     </div>
                 </#list>
@@ -199,7 +199,7 @@
                 <div class="card">
                     <div class="card-body text-center text-muted">
                         <i class="fa-solid fa-music fa-2x mb-2"></i>
-                        <div>${t["match.no_maps"]?html}</div>
+                        <div>${t["match.no_maps"]}</div>
                     </div>
                 </div>
             </#if>

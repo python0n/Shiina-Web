@@ -6,19 +6,19 @@
                 <div class="col col-12 col-md-auto my-2 my-lg-0 d-flex align-items-center justify-content-center ">
                     <div class="btn-group flex-wrap" role="group" aria-label="Mixed example">
                         <button type="button" onclick="selectParam('status', -2)"
-                            class="btn btn-<#if status == -2>primary<#else>secondary</#if>">${t["beatmaps.leaderboard_filter"]?html}</button>
+                            class="btn btn-<#if status == -2>primary<#else>secondary</#if>">${t["beatmaps.leaderboard_filter"]}</button>
                         <button type="button" onclick="selectParam('status', 999)"
-                            class="btn btn-<#if status == 999>primary<#else>secondary</#if>">${t["beatmaps.no_filter"]?html}</button>
+                            class="btn btn-<#if status == 999>primary<#else>secondary</#if>">${t["beatmaps.no_filter"]}</button>
                         <button type="button" onclick="selectParam('status', 2)"
-                            class="btn btn-<#if status == 2>primary<#else>secondary</#if>">${t["status.filter.ranked"]?html}</button>
+                            class="btn btn-<#if status == 2>primary<#else>secondary</#if>">${t["status.filter.ranked"]}</button>
                         <button type="button" onclick="selectParam('status', 0)"
-                            class="btn btn-<#if status == 0>primary<#else>secondary</#if>">${t["status.filter.pending"]?html}</button>
+                            class="btn btn-<#if status == 0>primary<#else>secondary</#if>">${t["status.filter.pending"]}</button>
                         <button type="button" onclick="selectParam('status', 3)"
-                            class="btn btn-<#if status == 3>primary<#else>secondary</#if>">${t["status.filter.approved"]?html}</button>
+                            class="btn btn-<#if status == 3>primary<#else>secondary</#if>">${t["status.filter.approved"]}</button>
                         <button type="button" onclick="selectParam('status', 5)"
-                            class="btn btn-<#if status == 5>primary<#else>secondary</#if>">${t["status.filter.loved"]?html}</button>
+                            class="btn btn-<#if status == 5>primary<#else>secondary</#if>">${t["status.filter.loved"]}</button>
                         <button type="button" onclick="selectParam('status', 4)"
-                            class="btn btn-<#if status == 4>primary<#else>secondary</#if>">${t["status.filter.qualified"]?html}</button>
+                            class="btn btn-<#if status == 4>primary<#else>secondary</#if>">${t["status.filter.qualified"]}</button>
                     </div>
 
                 </div>
@@ -27,31 +27,31 @@
                 <div class="col-12 col-lg">
                     <form class="input-group" role="search" onsubmit="event.preventDefault(); shiinaBeatmapSearch(this.q.value);">
                         <span class="input-group-text"><i class="fa-solid fa-magnifying-glass"></i></span>
-                        <input name="q" type="search" class="form-control" value="${q?html}" placeholder="${t["beatmaps.search"]?html}" aria-label="${t["beatmaps.search"]?html}">
-                        <button class="btn btn-primary" type="submit">${t["beatmaps.search_button"]?html}</button>
+                        <input name="q" type="search" class="form-control" value="${q}" placeholder="${t["beatmaps.search"]}" aria-label="${t["beatmaps.search"]}">
+                        <button class="btn btn-primary" type="submit">${t["beatmaps.search_button"]}</button>
                     </form>
                 </div>
                 <div class="col-auto">
-                    <select class="form-select" aria-label="${t["beatmaps.sort"]?html}" onchange="selectParam('sort', this.value)">
+                    <select class="form-select" aria-label="${t["beatmaps.sort"]}" onchange="selectParam('sort', this.value)">
                         <#list ["updated", "plays", "stars", "stars_asc", "title", "artist"] as s>
-                            <option value="${s}" <#if sort == s>selected</#if>>${t["beatmaps.sort_" + s]?html}</option>
+                            <option value="${s}" <#if sort == s>selected</#if>>${t["beatmaps.sort_" + s]}</option>
                         </#list>
                     </select>
                 </div>
                 <div class="col-auto">
-                    <button type="button" class="btn btn-<#if bss>primary<#else>secondary</#if>" onclick="<#if bss>removeParam('bss')<#else>selectParam('bss', 1)</#if>" title="${t["beatmaps.bss_title"]?html}">
-                        <i class="fa-solid fa-cloud-arrow-up me-1"></i>${t["beatmaps.bss_filter"]?html}
+                    <button type="button" class="btn btn-<#if bss>primary<#else>secondary</#if>" onclick="<#if bss>removeParam('bss')<#else>selectParam('bss', 1)</#if>" title="${t["beatmaps.bss_title"]}">
+                        <i class="fa-solid fa-cloud-arrow-up me-1"></i>${t["beatmaps.bss_filter"]}
                     </button>
                 </div>
                 <div class="col-auto">
                     <button type="button" class="btn btn-<#if played>primary<#else>secondary</#if>" onclick="<#if played>removeParam('played')<#else>selectParam('played', 1)</#if>">
-                        <i class="fa-solid fa-play me-1"></i>${t["beatmaps.played_filter"]?html}
+                        <i class="fa-solid fa-play me-1"></i>${t["beatmaps.played_filter"]}
                     </button>
                 </div>
             </div>
         </div>
 
-        <div class="mt-2 shiina-def-cursor">${t["beatmaps.found"]?html} <span class="text-primary">${entries}</span> ${t["beatmaps.entries"]?html}</div>
+        <div class="mt-2 shiina-def-cursor">${t["beatmaps.found"]} <span class="text-primary">${entries}</span> ${t["beatmaps.entries"]}</div>
         
         <#include "/freemarker/flowing_pagination.ftl">
 
@@ -61,7 +61,7 @@
                 <#include "/freemarker/models/beatmapset.ftl">
             </#list>
             <#if beatmaps?size == 0>
-                <div class="col-12 text-center text-muted py-5">${t["beatmaps.nothing_found"]?html}</div>
+                <div class="col-12 text-center text-muted py-5">${t["beatmaps.nothing_found"]}</div>
             </#if>
             </div>
 

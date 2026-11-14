@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 
 import dev.osunolimits.modules.utils.ShiinaTemplateException;
 import freemarker.cache.NullCacheStorage;
+import freemarker.core.HTMLOutputFormat;
 import freemarker.template.Configuration;
 import spark.Spark;
 
@@ -55,6 +56,8 @@ public class WebServer extends Spark {
         freemarkerCfg.setLogTemplateExceptions(false);
         freemarkerCfg.setDirectoryForTemplateLoading(new File("templates/"));
         freemarkerCfg.setTemplateUpdateDelayMilliseconds(updateDelay);
+        // every ${...} in templates/ is HTML-escaped unless it is marked with ?no_esc
+        freemarkerCfg.setOutputFormat(HTMLOutputFormat.INSTANCE);
         freemarkerCfg.setAutoEscapingPolicy(Configuration.ENABLE_IF_SUPPORTED_AUTO_ESCAPING_POLICY);
         if(updateDelay == 0) {
             freemarkerCfg.setCacheStorage(new NullCacheStorage());

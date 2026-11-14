@@ -12,7 +12,7 @@
 
 <div class="container-fluid mt-3">
     <#if info??>
-        <div class="alert alert-primary">${info?html}</div>
+        <div class="alert alert-primary">${info}</div>
     </#if>
     <#if requests?size == 0>
         <p class="text-muted">No pending requests.</p>
@@ -26,8 +26,8 @@
                 <#list requests as r>
                     <tr>
                         <td>
-                            <a href="/ap/user?id=${r.userId?c}" class="text-decoration-none fw-medium">${r.name?html}</a>
-                            <span class="text-muted small">#${r.userId?c} (${r.country?upper_case?html})</span>
+                            <a href="/ap/user?id=${r.userId?c}" class="text-decoration-none fw-medium">${r.name}</a>
+                            <span class="text-muted small">#${r.userId?c} (${r.country?upper_case})</span>
                         </td>
                         <td>${r.scoreCount?c}</td>
                         <td><span data-timestamp-format="unix" data-timestamp="${r.requestedAt?c}">${r.requestedAt?c}</span></td>

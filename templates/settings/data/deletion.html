@@ -3,30 +3,30 @@
     <div class="card-header bg-transparent">
         <h5 class="mb-0">
             <i class="fa-solid fa-file-export me-2"></i>
-            ${t["settings.delete_data"]?html}
+            ${t["settings.delete_data"]}
         </h5>
     </div>
     <div class="card-body">
         <#if deletionRequestedAt??>
             <p class="mb-2">
-                ${t["settings.delete_pending"]?html}
+                ${t["settings.delete_pending"]}
                 <span class="text-muted" data-timestamp-format="unix" data-timestamp="${deletionRequestedAt?c}">${deletionRequestedAt?c}</span>
             </p>
             <form data-turbo-method="POST" action="/settings/data/delete" method="post">
                 <input type="hidden" name="action" value="cancel">
                 <button type="submit" class="btn btn-outline-secondary">
                     <i class="fas fa-undo me-2"></i>
-                    ${t["settings.delete_cancel"]?html}
+                    ${t["settings.delete_cancel"]}
                 </button>
             </form>
         <#else>
             <form data-turbo-method="POST" data-turbo-confirm action="/settings/data/delete" method="post">
                 <button type="submit" class="btn btn-danger">
                     <i class="fas fa-trash me-2"></i>
-                    ${t["settings.delete_account"]?html}
+                    ${t["settings.delete_account"]}
                 </button>
                 <div class="form-text">
-                    ${t["settings.delete_account_hint"]?html}
+                    ${t["settings.delete_account_hint"]}
                 </div>
             </form>
         </#if>

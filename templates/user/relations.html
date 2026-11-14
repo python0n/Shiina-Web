@@ -14,7 +14,7 @@
 
                     <div class="col-12 col-md-9 d-flex flex-column justify-content-center text-white">
                         <h2 class="display-5 py-3 fw-bold mb-2">
-                            ${t["friends.title"]?html}
+                            ${t["friends.title"]}
                         </h2>
                     </div>
 
@@ -25,13 +25,13 @@
                 <div class="relationship-body card-body px-4">
             <#if error??>
                 <div class="relationship-alert-error alert alert-danger alert-dismissible fade show" role="alert">
-                    ${msg(error)?html}
-                    <button type="button" class="relationship-alert-close btn-close" data-bs-dismiss="alert" aria-label="${t["common.close"]?html}"></button>
+                    ${msg(error)}
+                    <button type="button" class="relationship-alert-close btn-close" data-bs-dismiss="alert" aria-label="${t["common.close"]}"></button>
                 </div>
             </#if>
             <#if info??>
                 <div class="relationship-alert-info alert alert-primary alert-dismissible fade show" role="alert">
-                    ${msg(info)?html}
+                    ${msg(info)}
                     <button type="button" class="relationship-alert-close btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
             </#if>
@@ -50,15 +50,15 @@
                                 <div class="relation-status-badge">
                                     <#if relation.relationship_status == "mutual">
                                         <span class="status-badge mutual-badge">
-                                            <i class="fas fa-heart me-1"></i> ${t["friends.mutual"]?html}
+                                            <i class="fas fa-heart me-1"></i> ${t["friends.mutual"]}
                                         </span>
                                     <#elseif relation.relationship_status == "known">
                                         <span class="status-badge following-badge">
-                                            <i class="fas fa-user-check me-1"></i> ${t["friends.following"]?html}
+                                            <i class="fas fa-user-check me-1"></i> ${t["friends.following"]}
                                         </span>
                                     <#else>
                                         <span class="status-badge follower-badge">
-                                            <i class="fas fa-user-plus me-1"></i> ${t["friends.follower"]?html}
+                                            <i class="fas fa-user-plus me-1"></i> ${t["friends.follower"]}
                                         </span>
                                     </#if>
                                 </div>
@@ -66,18 +66,18 @@
                                 <!-- User Info -->
                                 <div class="relation-user-info">
                                     <div class="relation-avatar ">
-                                        <img class="rounded" src="${avatarServer}/${relation.id?c}?v=${avatarV!""}" alt="${relation.name?html}">
+                                        <img class="rounded" src="${avatarServer}/${relation.id?c}?v=${avatarV!""}" alt="${relation.name}">
                                     </div>
                                     
                                     <div class="relation-name <#if relation.supporter>supporter</#if>">
-                                        ${relation.name?html}
+                                        ${relation.name}
                                     </div>
                                     
                                     <div class="relation-groups">
                                         <#list relation.user.groups as group>
                                             <span class="badge shiina-badge bg-light bg-opacity-25 text-white py-2 rounded-pill pe-3">
                                                 <span class="groupEmoji me-2">${group.emoji}</span>
-                                                ${group.name?html}
+                                                ${group.name}
                                             </span>
                                         </#list>
                                     </div>
@@ -94,19 +94,19 @@
                                         <button class="relation-btn follow-btn" 
                                                 data-user="${relation.id?c}"
                                                 data-shiina-call="relationship">
-                                            <i class="fas fa-user-plus me-1"></i> ${t["friends.follow_back"]?html}
+                                            <i class="fas fa-user-plus me-1"></i> ${t["friends.follow_back"]}
                                         </button>
                                     <#elseif relation.relationship_status == "mutual">
                                         <button class="relation-btn unmutual-btn" 
                                                 data-user="${relation.id?c}"
                                                 data-shiina-call="relationship">
-                                            <i class="fas fa-heart-crack me-1"></i> ${t["profile.unmutual"]?html}
+                                            <i class="fas fa-heart-crack me-1"></i> ${t["profile.unmutual"]}
                                         </button>
                                     <#else>
                                         <button class="relation-btn unfollow-btn" 
                                                 data-user="${relation.id?c}"
                                                 data-shiina-call="relationship">
-                                            <i class="fas fa-user-xmark me-1"></i> ${t["profile.unfollow"]?html}
+                                            <i class="fas fa-user-xmark me-1"></i> ${t["profile.unfollow"]}
                                         </button>
                                     </#if>
                                 </div>
@@ -117,7 +117,7 @@
                 </div>
             <#else>
                 <div class="relationship-empty text-center py-5">
-                    <h5 class="relationship-empty-text text-muted">${t["friends.empty"]?html}</h5>
+                    <h5 class="relationship-empty-text text-muted">${t["friends.empty"]}</h5>
                 </div>
             </#if>
         </div>

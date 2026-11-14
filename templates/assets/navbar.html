@@ -12,60 +12,60 @@
       <ul class="navbar-nav me-auto my-2 my-lg-0 navbar-nav-scroll">
 
         <li class="nav-item">
-          <a class="nav-link <#if actNav == 1>active</#if>" href="/">${t["nav.home"]?html}</a>
+          <a class="nav-link <#if actNav == 1>active</#if>" href="/">${t["nav.home"]}</a>
         </li>
 
         <li class="nav-item">
-          <a class="nav-link <#if actNav == 2>active</#if>" href="/leaderboard">${t["nav.leaderboards"]?html}</a>
+          <a class="nav-link <#if actNav == 2>active</#if>" href="/leaderboard">${t["nav.leaderboards"]}</a>
         </li>
 
         <li class="nav-item">
-          <a class="nav-link <#if actNav == 3>active</#if>" href="/beatmaps">${t["nav.beatmaps"]?html}</a>
+          <a class="nav-link <#if actNav == 3>active</#if>" href="/beatmaps">${t["nav.beatmaps"]}</a>
         </li>
 
         <li class="nav-item">
-          <a class="nav-link <#if actNav == 4>active</#if>" href="/clans">${t["nav.clans"]?html}</a>
+          <a class="nav-link <#if actNav == 4>active</#if>" href="/clans">${t["nav.clans"]}</a>
         </li>
 
         <#list navbarItems as item>
           <#if item.loggedInOnly>
             <#if user??>
               <li class="nav-item">
-                <a class="nav-link <#if actNav == item.actNav>active</#if>" href="/${item.url}">${item.name?html}</a>
+                <a class="nav-link <#if actNav == item.actNav>active</#if>" href="/${item.url}">${item.name}</a>
               </li>
             </#if>
           <#else>
             <li class="nav-item">
-              <a class="nav-link <#if actNav == item.actNav>active</#if>" href="/${item.url}">${item.name?html}</a>
+              <a class="nav-link <#if actNav == item.actNav>active</#if>" href="/${item.url}">${item.name}</a>
             </li>
           </#if>
         </#list>
 
         <li class="nav-item">
-          <a class="nav-link" href="/matches">${t["nav.matches"]?html}</a>
+          <a class="nav-link" href="/matches">${t["nav.matches"]}</a>
         </li>
 
         <#if user??>
           <li class="nav-item">
-            <a class="nav-link" href="/replays">${t["nav.score_submit"]?html}</a>
+            <a class="nav-link" href="/replays">${t["nav.score_submit"]}</a>
           </li>
           <li class="nav-item d-lg-none">
-            <a class="nav-link" data-turbo="false" href="/chat">${t["nav.chat"]?html}</a>
+            <a class="nav-link" data-turbo="false" href="/chat">${t["nav.chat"]}</a>
           </li>
         </#if>
 
         <li class="nav-item">
-          <a class="nav-link" href="/analyzer">${t["nav.analyzer"]?html}</a>
+          <a class="nav-link" href="/analyzer">${t["nav.analyzer"]}</a>
         </li>
 
         <li class="nav-item">
-          <a class="nav-link <#if actNav == 98>active</#if>" href="/reworks">${t["nav.reworks"]?html}</a>
+          <a class="nav-link <#if actNav == 98>active</#if>" href="/reworks">${t["nav.reworks"]}</a>
         </li>
 
         <!-- docs dropdown -->
         <li class="nav-item dropdown">
           <a class="nav-link dropdown-toggle <#if actNav == 5>active</#if>" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-            ${t["nav.docs"]?html}
+            ${t["nav.docs"]}
           </a>
           <ul class="dropdown-menu mt-lg-2 rounded-top-0">
             <#list docs as doc>
@@ -90,8 +90,8 @@
           oninput="searchShiinaDebounced(this.value)"
           onkeydown="handleSearchKeydown(event)"
           type="search"
-          placeholder="${t["nav.search"]?html?replace("{server}", c.serverName)}"
-          aria-label="${t["nav.search_label"]?html}">
+          placeholder="${t["nav.search"]?replace("{server}", c.serverName)}"
+          aria-label="${t["nav.search_label"]}">
         <div id="shiina-search" class="d-none bg-secondary"></div>
       </form>
 
@@ -101,12 +101,12 @@
 
       <#if languages?? && (languages?size > 1)>
       <div class="dropdown d-flex mt-3 my-lg-0 me-2">
-        <button class="btn btn-secondary dropdown-toggle" style="background-color: transparent; color: white;" type="button" data-bs-toggle="dropdown" aria-expanded="false" title="${t["nav.language"]?html}">
+        <button class="btn btn-secondary dropdown-toggle" style="background-color: transparent; color: white;" type="button" data-bs-toggle="dropdown" aria-expanded="false" title="${t["nav.language"]}">
           <i class="fa-solid fa-globe me-1"></i>${(lang!"en")?upper_case}
         </button>
         <ul class="dropdown-menu dropdown-menu-lg-end">
           <#list languages?keys as code>
-            <li><a class="dropdown-item<#if code == (lang!"en")> active</#if>" data-turbo="false" href="/lang/${code?html}?back=${(currentPath!"/")?url("UTF-8")}">${languages[code]?html}</a></li>
+            <li><a class="dropdown-item<#if code == (lang!"en")> active</#if>" data-turbo="false" href="/lang/${code}?back=${(currentPath!"/")?url("UTF-8")}">${languages[code]}</a></li>
           </#list>
         </ul>
       </div>
@@ -114,51 +114,51 @@
 
       <div class="d-flex mt-3 my-lg-0 align-items-center">
         <#if user??>
-          <a class="shiina-nav-chat d-none d-lg-inline-block me-2" data-turbo="false" href="/chat" title="${t["nav.chat"]?html}" aria-label="${t["nav.chat"]?html}">
+          <a class="shiina-nav-chat d-none d-lg-inline-block me-2" data-turbo="false" href="/chat" title="${t["nav.chat"]}" aria-label="${t["nav.chat"]}">
             <i class="fa-regular fa-comments fa-lg"></i><span class="shiina-chat-badge d-none" id="shiina-chat-unread"></span>
           </a>
           <div class="dropdown me-2" id="shiina-notif">
-            <a class="shiina-nav-chat" href="#" role="button" id="shiina-notif-toggle" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false" title="${t["nav.notifications"]?html}" aria-label="${t["nav.notifications"]?html}">
+            <a class="shiina-nav-chat" href="#" role="button" id="shiina-notif-toggle" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false" title="${t["nav.notifications"]}" aria-label="${t["nav.notifications"]}">
               <i class="fa-regular fa-bell fa-lg"></i><span class="shiina-chat-badge d-none" id="shiina-notif-unread"></span>
             </a>
             <div class="dropdown-menu dropdown-menu-end shiina-notif-menu" aria-labelledby="shiina-notif-toggle">
               <div class="shiina-notif-head">
-                <span>${t["notif.title"]?html}</span>
-                <button type="button" class="btn btn-link btn-sm p-0" id="shiina-notif-clear">${t["notif.clear_all"]?html}</button>
+                <span>${t["notif.title"]}</span>
+                <button type="button" class="btn btn-link btn-sm p-0" id="shiina-notif-clear">${t["notif.clear_all"]}</button>
               </div>
-              <div class="shiina-notif-list" id="shiina-notif-list" data-empty="${t["notif.empty"]?html}">
-                <div class="shiina-notif-empty">${t["notif.empty"]?html}</div>
+              <div class="shiina-notif-list" id="shiina-notif-list" data-empty="${t["notif.empty"]}">
+                <div class="shiina-notif-empty">${t["notif.empty"]}</div>
               </div>
             </div>
           </div>
           <button class="btn btn-secondary dropdown-toggle" style="background-color: transparent; color: white; padding: 5px; padding-left: 10px; padding-right: 5px;" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-            <img class="me-2 rounded" src="${avatarServer}/${user.id?c}?v=${avatarV!""}" alt="Profile Image" width="28" height="28">${user.name?html}
+            <img class="me-2 rounded" src="${avatarServer}/${user.id?c}?v=${avatarV!""}" alt="Profile Image" width="28" height="28">${user.name}
           </button>
 
           <ul class="dropdown-menu dropdown-menu-lg-end">
-            <li><a class="dropdown-item" href="/u/${user.id?c}">${t["nav.profile"]?html}</a></li>
-            <li><a class="dropdown-item" href="/friends">${t["nav.friends"]?html}</a></li>
-            <li><a class="dropdown-item" href="/settings">${t["nav.settings"]?html}</a></li>
+            <li><a class="dropdown-item" href="/u/${user.id?c}">${t["nav.profile"]}</a></li>
+            <li><a class="dropdown-item" href="/friends">${t["nav.friends"]}</a></li>
+            <li><a class="dropdown-item" href="/settings">${t["nav.settings"]}</a></li>
 
             <#list profileNavbarItems as item>
-              <li><a class="dropdown-item" href="${item.url}">${item.name?html}</a></li>
+              <li><a class="dropdown-item" href="${item.url}">${item.name}</a></li>
             </#list>
 
             <#if userPriv?seq_contains("STAFF")>
-              <li><a class="dropdown-item" data-turbo="false" href="/ap/start">${t["nav.admin_panel"]?html}</a></li>
+              <li><a class="dropdown-item" data-turbo="false" href="/ap/start">${t["nav.admin_panel"]}</a></li>
             </#if>
 
             <li><hr class="dropdown-divider"></li>
             <li>
               <form data-turbo="false" action="/logout" method="post">
-                <button type="submit" class="dropdown-item">${t["nav.logout"]?html}</button>
+                <button type="submit" class="dropdown-item">${t["nav.logout"]}</button>
               </form>
             </li>
           </ul>
 
         <#else>
-          <a href="/login" class="btn btn-secondary mx-2">${t["nav.login"]?html}</a>
-          <a href="/register" class="btn btn-primary">${t["nav.register"]?html}</a>
+          <a href="/login" class="btn btn-secondary mx-2">${t["nav.login"]}</a>
+          <a href="/register" class="btn btn-primary">${t["nav.register"]}</a>
         </#if>
       </div>
 

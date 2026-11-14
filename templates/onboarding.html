@@ -3,28 +3,28 @@
 <div class="container my-4">
     <div class="card bg-dark text-white shadow-lg">
         <div class="card-body">
-            <h2 class="mb-4"><i class="fa fa-user-check me-2"></i>${t["onboarding.title"]?html}</h2>
+            <h2 class="mb-4"><i class="fa fa-user-check me-2"></i>${t["onboarding.title"]}</h2>
             <div class="d-flex justify-content-center align-items-center mb-4" style="height: 48px;">
                 <div id="onboarding" class="spinner-border text-white" role="status" style="width: 3rem; height: 3rem;">
-                    <span class="visually-hidden">${t["common.loading"]?html}</span>
+                    <span class="visually-hidden">${t["common.loading"]}</span>
                 </div>
             </div>
-            <p class="lead">${t["onboarding.text"]?html}</p>
+            <p class="lead">${t["onboarding.text"]}</p>
         </div>
     </div>
     <div class="card bg-secondary text-white mt-4 shadow">
         <div class="card-body">
-            <h4 class="mb-3"><i class="fa fa-info-circle me-2"></i>${t["onboarding.instructions"]?html}</h4>
+            <h4 class="mb-3"><i class="fa fa-info-circle me-2"></i>${t["onboarding.instructions"]}</h4>
             <#if doc??>
-                ${doc.content}
+                ${doc.content?no_esc}
             <#else>
                 <div class="alert alert-warning" role="alert">
-                    <i class="fa fa-exclamation-triangle me-2"></i>${t["onboarding.doc_missing"]?html}
+                    <i class="fa fa-exclamation-triangle me-2"></i>${t["onboarding.doc_missing"]}
                 </div>
             </#if>
         </div>
     </div>
-    <span>${t["onboarding.inactivity"]?html}</span>
+    <span>${t["onboarding.inactivity"]}</span>
 </div>
 
 <#include "assets/footer.html">

@@ -4,60 +4,60 @@
   <div class="card">
     <div class="card-body text-center py-5">
       <i class="fa-solid fa-comment-slash fa-2x mb-3 text-secondary"></i>
-      <p class="mb-0">${t["chat.restricted"]?html}</p>
+      <p class="mb-0">${t["chat.restricted"]}</p>
     </div>
   </div>
 <#else>
   <div id="shiina-chat" class="shiina-chat"
-       data-ws="${chatWsUrl?html}"
+       data-ws="${chatWsUrl}"
        data-me-id="${user.id?c}"
-       data-me-name="${user.name?html}"
-       data-open-with="${chatOpenWith?html}"
-       data-avatar="${avatarServer?html}"
+       data-me-name="${user.name}"
+       data-open-with="${chatOpenWith}"
+       data-avatar="${avatarServer}"
        data-avatar-v="${avatarV!""}"
-       data-lang="${(lang!"en")?html}">
+       data-lang="${(lang!"en")}">
 
     <aside class="shiina-chat-side">
-      <div class="shiina-chat-title"><i class="fa-regular fa-comments me-2"></i>${t["chat.title"]?html}</div>
+      <div class="shiina-chat-title"><i class="fa-regular fa-comments me-2"></i>${t["chat.title"]}</div>
 
-      <div class="shiina-chat-section">${t["chat.channels"]?html}</div>
+      <div class="shiina-chat-section">${t["chat.channels"]}</div>
       <div id="chat-list-channel"></div>
       <button type="button" class="shiina-chat-item shiina-chat-add" id="chat-join-btn">
-        <span class="shiina-chat-icon"><i class="fa-solid fa-plus"></i></span><span>${t["chat.join_channel"]?html}</span>
+        <span class="shiina-chat-icon"><i class="fa-solid fa-plus"></i></span><span>${t["chat.join_channel"]}</span>
       </button>
 
-      <div class="shiina-chat-section" id="chat-section-multi">${t["chat.multiplayer"]?html}</div>
+      <div class="shiina-chat-section" id="chat-section-multi">${t["chat.multiplayer"]}</div>
       <div id="chat-list-multi"></div>
 
-      <div class="shiina-chat-section">${t["chat.direct"]?html}</div>
+      <div class="shiina-chat-section">${t["chat.direct"]}</div>
       <form id="chat-new-pm" class="shiina-chat-newpm" autocomplete="off">
-        <input type="text" class="form-control form-control-sm" id="chat-new-pm-name" maxlength="32" placeholder="${t["chat.new_pm"]?html}">
+        <input type="text" class="form-control form-control-sm" id="chat-new-pm-name" maxlength="32" placeholder="${t["chat.new_pm"]}">
       </form>
       <div id="chat-list-pm"></div>
     </aside>
 
     <section class="shiina-chat-main">
       <header class="shiina-chat-head" id="chat-head"></header>
-      <div class="shiina-chat-status" id="chat-status">${t["chat.connecting"]?html}</div>
+      <div class="shiina-chat-status" id="chat-status">${t["chat.connecting"]}</div>
       <div class="shiina-chat-log" id="chat-log"></div>
       <form class="shiina-chat-input" id="chat-form" autocomplete="off">
-        <input type="text" id="chat-text" class="form-control" maxlength="2000" placeholder="${t["chat.placeholder"]?html}" disabled>
-        <button type="submit" class="btn btn-primary" id="chat-send" disabled><span class="d-none d-sm-inline me-2">${t["chat.send"]?html}</span><i class="fa-solid fa-paper-plane"></i></button>
+        <input type="text" id="chat-text" class="form-control" maxlength="2000" placeholder="${t["chat.placeholder"]}" disabled>
+        <button type="submit" class="btn btn-primary" id="chat-send" disabled><span class="d-none d-sm-inline me-2">${t["chat.send"]}</span><i class="fa-solid fa-paper-plane"></i></button>
       </form>
     </section>
 
-    <div class="shiina-chat-join d-none" id="chat-join-panel" role="dialog" aria-label="${t["chat.join_channel"]?html}">
+    <div class="shiina-chat-join d-none" id="chat-join-panel" role="dialog" aria-label="${t["chat.join_channel"]}">
       <div class="shiina-chat-join-box">
         <div class="d-flex align-items-center justify-content-between mb-2">
-          <strong>${t["chat.join_channel"]?html}</strong>
-          <button type="button" class="btn-close" id="chat-join-close" aria-label="${t["chat.close"]?html}"></button>
+          <strong>${t["chat.join_channel"]}</strong>
+          <button type="button" class="btn-close" id="chat-join-close" aria-label="${t["chat.close"]}"></button>
         </div>
-        <div id="chat-join-list" class="shiina-chat-join-list"><div class="text-secondary small">${t["chat.loading"]?html}</div></div>
+        <div id="chat-join-list" class="shiina-chat-join-list"><div class="text-secondary small">${t["chat.loading"]}</div></div>
       </div>
     </div>
   </div>
 
-  <script>
+  <script><#noautoesc>
     window.SHIINA_CHAT_T = {
       connecting: "${t["chat.connecting"]?js_string}",
       reconnecting: "${t["chat.reconnecting"]?js_string}",
@@ -75,7 +75,7 @@
       today: "${t["chat.today"]?js_string}",
       yesterday: "${t["chat.yesterday"]?js_string}"
     };
-  </script>
+  </#noautoesc></script>
   <script src="/js/chat.js?v=${assetV!""}"></script>
 </#if>
 </div>

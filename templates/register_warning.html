@@ -3,31 +3,31 @@
     <div class="card w-100">
         <div class="bg-secondary border-0 card-header text-body d-flex align-items-center py-4">
             <i class="fa-solid fa-user-shield fa-2x me-3 text-warning"></i>
-            <span class="h1 fw-bold mb-0">${t["register_warn.title"]?html}</span>
+            <span class="h1 fw-bold mb-0">${t["register_warn.title"]}</span>
         </div>
         <div class="card-body bg-body px-4 py-4">
             <#if warnReason == "browser" && knownName??>
                 <#assign warnParts = t["register_warn.browser"]?split("{name}")>
-                <p class="fs-5">${warnParts[0]?html}<strong>${knownName?html}</strong><#if (warnParts?size > 1)>${warnParts[1]?html}</#if></p>
+                <p class="fs-5">${warnParts[0]}<strong>${knownName}</strong><#if (warnParts?size > 1)>${warnParts[1]}</#if></p>
             <#else>
-                <p class="fs-5">${t["register_warn.network"]?html}</p>
+                <p class="fs-5">${t["register_warn.network"]}</p>
             </#if>
 
-            <p>${t["register_warn.rule"]?html}</p>
+            <p>${t["register_warn.rule"]}</p>
             <ul class="mb-4">
-                <li>${t["register_warn.point_own"]?html}</li>
-                <li>${t["register_warn.point_household"]?html}</li>
-                <li>${t["register_warn.point_second"]?html}</li>
+                <li>${t["register_warn.point_own"]}</li>
+                <li>${t["register_warn.point_household"]}</li>
+                <li>${t["register_warn.point_second"]}</li>
             </ul>
 
             <div class="d-flex flex-wrap gap-2">
                 <a href="/login" class="btn btn-primary">
-                    <i class="fa-solid fa-right-to-bracket me-2"></i>${t["register_warn.login"]?html}
+                    <i class="fa-solid fa-right-to-bracket me-2"></i>${t["register_warn.login"]}
                 </a>
                 <a href="/register?confirm=1<#if refPath??>&path=${refPath?url('UTF-8')}</#if>" class="btn btn-outline-secondary">
-                    ${t["register_warn.continue"]?html}
+                    ${t["register_warn.continue"]}
                 </a>
-                <a href="/docs/rules" class="btn btn-link">${t["register_warn.rules"]?html}</a>
+                <a href="/docs/rules" class="btn btn-link">${t["register_warn.rules"]}</a>
             </div>
         </div>
     </div>

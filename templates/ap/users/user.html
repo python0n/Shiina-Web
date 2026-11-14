@@ -32,7 +32,7 @@
               </div>
               <div class="flex-grow-1">
                 <h4 class="mb-1 fw-bold text-primary">${aname}</h4>
-                <p class="mb-1 text-muted fs-6">${safe_name}  <#if userPriv?seq_contains("ADMINISTRATOR")><#if email??>(${email?html})</#if></#if></p> 
+                <p class="mb-1 text-muted fs-6">${safe_name}  <#if userPriv?seq_contains("ADMINISTRATOR")><#if email??>(${email})</#if></#if></p> 
                 <span class="badge bg-secondary">
                   <i class="fa-solid fa-globe me-1"></i>${country}
                 </span>
@@ -80,7 +80,7 @@
                   <img src="${avatarServer}/${standing.targetId?c}?v=${avatarV!""}" class="img-fluid" width="20">
                   <a href="/ap/user?id=${standing.targetId?c}">${standing.targetName}</a>
                   for
-                  "${standing.reason?html}"
+                  "${standing.reason}"
                   <#if standing.action=="WIPE">
                     on mode (${convertModeBack(standing.mode)?upper_case})
                   </#if>
@@ -116,7 +116,7 @@
 
         <#if apProfile?? && (apProfile?size gt 0)>
           <#list apProfile[0..half-1] as module>
-            ${module}
+            ${module?no_esc}
           </#list>
         </#if>
       </div>
@@ -137,7 +137,7 @@
             <h6 class="text-uppercase">Groups</h6>
             <ul class="list-unstyled mb-3">
               <#list groups as group>
-                <li>${group.emoji} ${group.name?html}</li>
+                <li>${group.emoji} ${group.name}</li>
                 <#else>
                   <li>None</li>
               </#list>
@@ -189,8 +189,8 @@
             </div>
             <div class="card-body">
               <p>Clan ID: ${clan_id}</p>
-              <p>Clan Name: ${clan_name?html}</p>
-              <p>Clan Tag: ${clan_tag?html}</p>
+              <p>Clan Name: ${clan_name}</p>
+              <p>Clan Tag: ${clan_tag}</p>
               <p>Clan Privileges: ${clan_priv}</p>
             </div>
           </div>
@@ -198,7 +198,7 @@
 
         <#if apProfile?? && (apProfile?size gt 0)>
           <#list apProfile[half..] as module>
-            ${module}
+            ${module?no_esc}
           </#list>
         </#if>
 

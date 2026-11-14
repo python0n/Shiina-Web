@@ -4,8 +4,8 @@
     <div class="bg-gradient rounded-top position-relative"
       style="background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);">
       <div class="p-4 text-white">
-        <h4 class="fw-bold mb-1"><i class="fa-solid fa-magnifying-glass-chart me-2"></i>${t["analyzer.title"]?html}</h4>
-        <p class="mb-0 opacity-75">${t["analyzer.intro"]?html}</p>
+        <h4 class="fw-bold mb-1"><i class="fa-solid fa-magnifying-glass-chart me-2"></i>${t["analyzer.title"]}</h4>
+        <p class="mb-0 opacity-75">${t["analyzer.intro"]}</p>
       </div>
     </div>
   </div>
@@ -15,7 +15,7 @@
     <div class="card-body py-3">
       <div class="input-group">
         <span class="input-group-text bg-body border-end-0"><i class="fa-solid fa-magnifying-glass text-muted"></i></span>
-        <input type="text" id="scoreSearch" class="form-control border-start-0 bg-body" placeholder="${t["analyzer.search_placeholder"]?html}">
+        <input type="text" id="scoreSearch" class="form-control border-start-0 bg-body" placeholder="${t["analyzer.search_placeholder"]}">
       </div>
       <div id="searchResults" class="mt-2" style="display:none;"></div>
     </div>
@@ -23,30 +23,30 @@
 
   <div class="card rounded">
     <div class="card-header bg-body border-bottom px-4 py-3 d-flex align-items-center flex-wrap gap-2">
-      <h6 class="mb-0 fw-semibold me-auto"><i class="fa-solid fa-clock-rotate-left me-2"></i>${t["analyzer.last50"]?html}</h6>
+      <h6 class="mb-0 fw-semibold me-auto"><i class="fa-solid fa-clock-rotate-left me-2"></i>${t["analyzer.last50"]}</h6>
       <div class="form-check form-switch mb-0">
         <input class="form-check-input" type="checkbox" role="switch" id="showFailed"<#if showFailed> checked</#if>>
-        <label class="form-check-label small" for="showFailed">${t["analyzer.show_failed"]?html}</label>
+        <label class="form-check-label small" for="showFailed">${t["analyzer.show_failed"]}</label>
       </div>
     </div>
     <div class="card-body p-0">
       <#if scores?size == 0>
         <div class="text-center text-muted py-5">
           <i class="fa-solid fa-inbox" style="font-size: 3rem; opacity: 0.3;"></i>
-          <p class="mt-3">${t["analyzer.no_scores"]?html}</p>
+          <p class="mt-3">${t["analyzer.no_scores"]}</p>
         </div>
       <#else>
         <div class="table-responsive">
           <table class="table table-hover mb-0">
             <thead class="table-dark">
               <tr>
-                <th class="ps-4">${t["replays.map"]?html}</th>
-                <th>${t["stats.score"]?html}</th>
-                <th>${t["stats.acc_short"]?html}</th>
+                <th class="ps-4">${t["replays.map"]}</th>
+                <th>${t["stats.score"]}</th>
+                <th>${t["stats.acc_short"]}</th>
                 <th>PP</th>
-                <th>${t["match.grade"]?html}</th>
-                <th>${t["analyzer.date"]?html}</th>
-                <th class="pe-4">${t["analyzer.replay"]?html}</th>
+                <th>${t["match.grade"]}</th>
+                <th>${t["analyzer.date"]}</th>
+                <th class="pe-4">${t["analyzer.replay"]}</th>
               </tr>
             </thead>
             <tbody>
@@ -57,21 +57,21 @@
               <tr class="opacity-50">
               </#if>
                 <td class="ps-4">
-                  <div class="fw-semibold">${s.artist?html} - ${s.title?html}</div>
-                  <div class="text-muted small">[${s.version?html}] <span class="js-stars" data-map="${s.map_id?c}" data-mods="${s.mods?c}">★ ${s.diff}</span><#if s.mods_str?has_content> <span class="analyzer-mods">+${s.mods_str}</span></#if></div>
+                  <div class="fw-semibold">${s.artist} - ${s.title}</div>
+                  <div class="text-muted small">[${s.version}] <span class="js-stars" data-map="${s.map_id?c}" data-mods="${s.mods?c}">★ ${s.diff}</span><#if s.mods_str?has_content> <span class="analyzer-mods">+${s.mods_str}</span></#if></div>
                 </td>
                 <td>${s.score?string(",##0")}</td>
                 <td>${s.acc}%</td>
                 <td>${s.pp}pp</td>
                 <td>
-                  <img src="/img/ranking/ranking-${s.grade}.png" alt="${s.grade}" style="height:24px;"<#if s.grade == "F"> title="${t["analyzer.failed"]?html}"</#if>>
+                  <img src="/img/ranking/ranking-${s.grade}.png" alt="${s.grade}" style="height:24px;"<#if s.grade == "F"> title="${t["analyzer.failed"]}"</#if>>
                 </td>
                 <td class="text-muted small" data-timestamp-format="relative">${s.play_time}</td>
                 <td class="pe-4">
                   <#if s.hasReplay>
-                    <span class="badge bg-success"><i class="fa-solid fa-check me-1"></i>${t["analyzer.available"]?html}</span>
+                    <span class="badge bg-success"><i class="fa-solid fa-check me-1"></i>${t["analyzer.available"]}</span>
                   <#else>
-                    <span class="badge bg-secondary">${t["analyzer.none"]?html}</span>
+                    <span class="badge bg-secondary">${t["analyzer.none"]}</span>
                   </#if>
                 </td>
               </tr>
@@ -83,7 +83,7 @@
     </div>
   </div>
 </div>
-<script>
+<script><#noautoesc>
 (function() {
   var L = { noResults: "${t["analyzer.no_results"]?js_string}", searching: "${t["common.searching"]?js_string}", error: "${t["analyzer.search_error"]?js_string}", available: "${t["analyzer.available"]?js_string}", none: "${t["analyzer.none"]?js_string}", miss: "${t["analyzer.miss"]?js_string}", nomod: "${t["analyzer.nomod"]?js_string}", failed: "${t["analyzer.failed"]?js_string}" };
   function esc(v) { return String(v == null ? "" : v).replace(/[&<>"']/g, function(c) { return {"&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;", "'": "&#39;"}[c]; }); }
@@ -154,5 +154,5 @@
     }, 300);
   });
 })();
-</script>
+</#noautoesc></script>
 <#include "../assets/footer.html">

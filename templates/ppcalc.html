@@ -1,12 +1,12 @@
 <#include "assets/base.html">
-<div class="container mb-5" id="pc-root" data-lang="${(lang!"en")?html}">
+<div class="container mb-5" id="pc-root" data-lang="${(lang!"en")}">
     <div class="card mb-4">
         <div class="card-body d-flex align-items-center gap-3 flex-wrap">
             <div class="me-auto">
-                <h4 class="mb-1"><i class="fa-solid fa-calculator me-2 text-primary"></i>${t["calc.title"]?html}</h4>
-                <p class="text-muted mb-0 small">${t["calc.subtitle"]?html}</p>
+                <h4 class="mb-1"><i class="fa-solid fa-calculator me-2 text-primary"></i>${t["calc.title"]}</h4>
+                <p class="text-muted mb-0 small">${t["calc.subtitle"]}</p>
             </div>
-            <a href="/reworks" class="btn btn-sm btn-outline-secondary"><i class="fa-solid fa-flask me-1"></i>${t["reworks.title"]?html}</a>
+            <a href="/reworks" class="btn btn-sm btn-outline-secondary"><i class="fa-solid fa-flask me-1"></i>${t["reworks.title"]}</a>
         </div>
     </div>
 
@@ -14,19 +14,19 @@
         <div class="col-12 col-lg-5">
             <div class="card">
                 <div class="card-body">
-                    <label class="form-label small text-muted" for="pc-map">${t["calc.map"]?html}</label>
-                    <input type="text" class="form-control mb-3" id="pc-map" maxlength="200" placeholder="${t["calc.map_placeholder"]?html}" autocomplete="off">
+                    <label class="form-label small text-muted" for="pc-map">${t["calc.map"]}</label>
+                    <input type="text" class="form-control mb-3" id="pc-map" maxlength="200" placeholder="${t["calc.map_placeholder"]}" autocomplete="off">
 
-                    <div class="form-label small text-muted">${t["calc.mode"]?html}</div>
+                    <div class="form-label small text-muted">${t["calc.mode"]}</div>
                     <div class="pc-modes mb-3" id="pc-modes">
-                        <button type="button" class="btn btn-sm btn-outline-secondary active" data-mode="">${t["calc.mode_auto"]?html}</button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary active" data-mode="">${t["calc.mode_auto"]}</button>
                         <button type="button" class="btn btn-sm btn-outline-secondary" data-mode="0" title="osu!"><img src="/img/modes/osu.svg" alt="osu!"></button>
                         <button type="button" class="btn btn-sm btn-outline-secondary" data-mode="1" title="osu!taiko"><img src="/img/modes/taiko.svg" alt="osu!taiko"></button>
                         <button type="button" class="btn btn-sm btn-outline-secondary" data-mode="2" title="osu!catch"><img src="/img/modes/catch.svg" alt="osu!catch"></button>
                         <button type="button" class="btn btn-sm btn-outline-secondary" data-mode="3" title="osu!mania"><img src="/img/modes/mania.svg" alt="osu!mania"></button>
                     </div>
 
-                    <div class="form-label small text-muted">${t["calc.mods"]?html}</div>
+                    <div class="form-label small text-muted">${t["calc.mods"]}</div>
                     <div class="pc-mods mb-3" id="pc-mods">
                         <#list ["NF","EZ","HD","HR","DT","NC","HT","FL","SO"] as mod>
                         <button type="button" class="btn btn-sm btn-outline-secondary" data-mod="${mod}">${mod}</button>
@@ -35,17 +35,17 @@
                     </div>
 
                     <div class="btn-group btn-group-sm w-100 mb-3" role="group" id="pc-input-kind">
-                        <button type="button" class="btn btn-primary" data-kind="acc">${t["calc.by_acc"]?html}</button>
-                        <button type="button" class="btn btn-secondary" data-kind="hits">${t["calc.by_hits"]?html}</button>
+                        <button type="button" class="btn btn-primary" data-kind="acc">${t["calc.by_acc"]}</button>
+                        <button type="button" class="btn btn-secondary" data-kind="hits">${t["calc.by_hits"]}</button>
                     </div>
 
                     <div id="pc-acc-box" class="row g-2 mb-2">
                         <div class="col-6">
-                            <label class="form-label small text-muted" for="pc-acc">${t["calc.acc"]?html}</label>
+                            <label class="form-label small text-muted" for="pc-acc">${t["calc.acc"]}</label>
                             <input type="number" class="form-control" id="pc-acc" min="0" max="100" step="0.01" value="100">
                         </div>
                         <div class="col-6">
-                            <label class="form-label small text-muted" for="pc-miss-a">${t["calc.miss"]?html}</label>
+                            <label class="form-label small text-muted" for="pc-miss-a">${t["calc.miss"]}</label>
                             <input type="number" class="form-control" id="pc-miss-a" min="0" step="1" value="0">
                         </div>
                     </div>
@@ -59,23 +59,23 @@
                             <input type="number" class="form-control" id="pc-n50" min="0" step="1" value="0">
                         </div>
                         <div class="col-4">
-                            <label class="form-label small text-muted" for="pc-miss">${t["calc.miss"]?html}</label>
+                            <label class="form-label small text-muted" for="pc-miss">${t["calc.miss"]}</label>
                             <input type="number" class="form-control" id="pc-miss" min="0" step="1" value="0">
                         </div>
                     </div>
-                    <label class="form-label small text-muted" for="pc-combo">${t["calc.combo"]?html}</label>
-                    <input type="number" class="form-control" id="pc-combo" min="0" step="1" placeholder="${t["calc.combo_full"]?html}">
+                    <label class="form-label small text-muted" for="pc-combo">${t["calc.combo"]}</label>
+                    <input type="number" class="form-control" id="pc-combo" min="0" step="1" placeholder="${t["calc.combo_full"]}">
                     <div class="form-text" id="pc-acc-note"></div>
                 </div>
             </div>
-            <p class="text-muted small mt-2 mb-0">${t["calc.note"]?html}</p>
+            <p class="text-muted small mt-2 mb-0">${t["calc.note"]}</p>
         </div>
 
         <div class="col-12 col-lg-7">
             <div class="card" id="pc-empty">
                 <div class="card-body text-center text-muted py-5">
                     <i class="fa-solid fa-music fa-2x mb-3 opacity-50"></i>
-                    <p class="mb-0" id="pc-empty-text">${t["calc.empty"]?html}</p>
+                    <p class="mb-0" id="pc-empty-text">${t["calc.empty"]}</p>
                 </div>
             </div>
 
@@ -98,7 +98,7 @@
                     </div>
                 </div>
                 <div class="card">
-                    <div class="card-header bg-body small fw-semibold">${t["calc.table_mods"]?html}</div>
+                    <div class="card-header bg-body small fw-semibold">${t["calc.table_mods"]}</div>
                     <div class="table-responsive">
                         <table class="table table-sm mb-0 pc-table" id="pc-mod-table"></table>
                     </div>
@@ -108,7 +108,7 @@
     </div>
 </div>
 
-<script>window.PC_T = {<#list t?keys as k><#if k?starts_with("calc.")>"${k?js_string}": "${t[k]?js_string}", </#if></#list>};</script>
+<script><#noautoesc>window.PC_T = {<#list t?keys as k><#if k?starts_with("calc.")>"${k?js_string}": "${t[k]?js_string}", </#if></#list>};</#noautoesc></script>
 <#noparse>
 <script>
 (function () {

@@ -47,6 +47,9 @@
          within the 9.4 line without waiting for a new spark build. -->
     <jetty.version>9.4.58.v20250814</jetty.version>
     <spark-freemarker.version>2.7.1</spark-freemarker.version>
+    <!-- spark-template-freemarker 2.7.1 pulls in FreeMarker 2.3.26-incubating (2017);
+         the direct dependency below replaces it with a current 2.3.x release. -->
+    <freemarker.version>2.3.34</freemarker.version>
     <logback.version>1.5.38</logback.version>
     <okhttp.version>4.12.0</okhttp.version>
 
@@ -219,6 +222,11 @@
       <groupId>com.github.bowika</groupId>
       <artifactId>spark</artifactId>
       <version>${spark.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.freemarker</groupId>
+      <artifactId>freemarker</artifactId>
+      <version>${freemarker.version}</version>
     </dependency>
     <dependency>
       <groupId>com.sparkjava</groupId>

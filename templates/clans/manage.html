@@ -13,7 +13,7 @@
 
                     <div class="col-12 col-md-9 d-flex flex-column justify-content-center text-white">
                         <h2 class="display-5 py-3 fw-bold mb-2">
-                            ${t["clanmanage.title"]?html?replace("{name}", clan.name?html)?replace("{tag}", clan.tag?html)}
+                            ${t["clanmanage.title"]?replace("{name}", clan.name)?replace("{tag}", clan.tag)}
                         </h2>
                     </div>
 
@@ -21,7 +21,7 @@
             </div>
             <div class="shiina-pill mx-1 my-2 mx-md-4 d-flex align-items-center">
                 <div class="shiina-pill-icon"></div>
-                <span>${t["clan.owner"]?html}</span>
+                <span>${t["clan.owner"]}</span>
             </div>
             <#assign u={ "id" : clan.owner, "name" : clan.ownerName, "isOwner" : true}>
 
@@ -32,7 +32,7 @@
 
                 <div class="shiina-pill mx-1 my-2 mx-md-4 d-flex align-items-center">
                     <div class="shiina-pill-icon"></div>
-                    <span>${t["clans.members"]?html}</span>
+                    <span>${t["clans.members"]}</span>
                 </div>
 
                 <div class="mx-3">
@@ -45,7 +45,7 @@
                                         <a href="/u/${u.id?c}"
                                             class="stretched-link text-decoration-none text-reset d-flex align-items-center flex-grow-1">
                                             <div class="me-3">
-                                                <img src="${avatarServer}/${u.id?c}?v=${avatarV!""}" alt="${u.name?html}" class="rounded"
+                                                <img src="${avatarServer}/${u.id?c}?v=${avatarV!""}" alt="${u.name}" class="rounded"
                                                     width="40" height="40">
                                             </div>
 
@@ -57,19 +57,19 @@
                                             </#if>
 
                                             <div class="flex-grow-1">
-                                                <div class="fw-bold">${u.name?html}</div>
+                                                <div class="fw-bold">${u.name}</div>
                                             </div>
                                         </a>
                                         <div class="text-end position-relative" style="z-index: 2;">
                                             <button onclick="handleClanManage('${u.id?c}', '${clan.id?c}', 'KICK')"
-                                                class="btn btn-danger">${t["clanmanage.ban"]?html}</button>
+                                                class="btn btn-danger">${t["clanmanage.ban"]}</button>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                             <#else>
                                 <div class="col-12 text-center py-5">
-                                    <h5 class="text-muted">${t["clanmanage.no_members"]?html}</h5>
+                                    <h5 class="text-muted">${t["clanmanage.no_members"]}</h5>
                                 </div>
                         </#list>
                     </div>
@@ -77,7 +77,7 @@
 
                 <div class="shiina-pill mx-1 my-2 mx-md-4 d-flex align-items-center">
                     <div class="shiina-pill-icon"></div>
-                    <span>${t["clanmanage.requests"]?html}</span>
+                    <span>${t["clanmanage.requests"]}</span>
                 </div>
 
                 <div class="mx-3">
@@ -90,7 +90,7 @@
                                         <a href="/u/${u.id?c}"
                                             class="stretched-link text-decoration-none text-reset d-flex align-items-center flex-grow-1">
                                             <div class="me-3">
-                                                <img src="${avatarServer}/${u.id?c}?v=${avatarV!""}" alt="${u.name?html}" class="rounded"
+                                                <img src="${avatarServer}/${u.id?c}?v=${avatarV!""}" alt="${u.name}" class="rounded"
                                                     width="40" height="40">
                                             </div>
 
@@ -102,21 +102,21 @@
                                             </#if>
 
                                             <div class="flex-grow-1">
-                                                <div class="fw-bold">${u.name?html}</div>
+                                                <div class="fw-bold">${u.name}</div>
                                             </div>
                                         </a>
                                         <div class="text-end position-relative" style="z-index: 2;">
                                             <button onclick="handleClanManage('${u.id?c}', '${clan.id?c}', 'ACCEPT')"
-                                                type="submit" class="btn btn-success me-2">${t["clanmanage.accept"]?html}</button>
+                                                type="submit" class="btn btn-success me-2">${t["clanmanage.accept"]}</button>
                                             <button onclick="handleClanManage('${u.id?c}', '${clan.id?c}', 'DENY')"
-                                                class="btn btn-danger">${t["clanmanage.ban"]?html}</button>
+                                                class="btn btn-danger">${t["clanmanage.ban"]}</button>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                             <#else>
                                 <div class="col-12 text-center py-5">
-                                    <h5 class="text-muted">${t["clanmanage.no_requests"]?html}</h5>
+                                    <h5 class="text-muted">${t["clanmanage.no_requests"]}</h5>
                                 </div>
                         </#list>
                     </div>
@@ -124,7 +124,7 @@
 
                 <div class="shiina-pill mx-1 my-2 mx-md-4 d-flex align-items-center">
                     <div class="shiina-pill-icon"></div>
-                    <span>${t["clanmanage.banned_users"]?html}</span>
+                    <span>${t["clanmanage.banned_users"]}</span>
                 </div>
 
                 <div class="mx-3 mb-3">
@@ -137,7 +137,7 @@
                                         <a href="/u/${u.id?c}"
                                             class="stretched-link text-decoration-none text-reset d-flex align-items-center flex-grow-1">
                                             <div class="me-3">
-                                                <img src="${avatarServer}/${u.id?c}?v=${avatarV!""}" alt="${u.name?html}" class="rounded"
+                                                <img src="${avatarServer}/${u.id?c}?v=${avatarV!""}" alt="${u.name}" class="rounded"
                                                     width="40" height="40">
                                             </div>
 
@@ -149,28 +149,28 @@
                                             </#if>
 
                                             <div class="flex-grow-1">
-                                                <div class="fw-bold">${u.name?html}</div>
+                                                <div class="fw-bold">${u.name}</div>
                                             </div>
                                         </a>
                                         <div class="text-end position-relative" style="z-index: 2;">
                                             <button onclick="handleClanManage('${u.id?c}', '${clan.id?c}', 'UNDENY')"
-                                                class="btn btn-warning">${t["clanmanage.unban"]?html}</button>
+                                                class="btn btn-warning">${t["clanmanage.unban"]}</button>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                             <#else>
                                 <div class="col-12 text-center py-5">
-                                    <h5 class="text-muted">${t["clanmanage.no_banned"]?html}</h5>
+                                    <h5 class="text-muted">${t["clanmanage.no_banned"]}</h5>
                                 </div>
                         </#list>
                     </div>
                 </div>
 
                 <div class="mx-3 mb-3">
-                    <form action="/api/v1/disband_clan" method="post" onsubmit="return confirm('${t["clanmanage.disband_confirm"]?js_string?html}');">
+                    <form action="/api/v1/disband_clan" method="post" onsubmit="return confirm('${t["clanmanage.disband_confirm"]?js_string}');">
                         <button type="submit" class="btn btn-danger">
-                            <i class="fas fa-trash-alt me-1"></i>${t["clanmanage.disband"]?html}
+                            <i class="fas fa-trash-alt me-1"></i>${t["clanmanage.disband"]}
                         </button>
                     </form>
                 </div>

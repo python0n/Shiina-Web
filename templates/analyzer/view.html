@@ -9,10 +9,10 @@
       <div class="p-4 text-white position-relative">
         <div class="d-flex justify-content-between align-items-start">
           <div>
-            <h5 class="fw-bold mb-1">${score.artist?html} - ${score.title?html} [${score.version?html}]</h5>
-            <div class="opacity-75 small"><span class="js-stars" data-map="${score.map_id?c}" data-mods="${score.mods?c}" data-nomod="${t["analyzer.nomod"]?html}">★ ${score.diff}</span><#if score.mods_str?has_content> &nbsp;|&nbsp; +${score.mods_str}</#if> &nbsp;|&nbsp; ${t["stats.score"]?html}: ${score.score?string(",##0")} &nbsp;|&nbsp; ${score.acc}% &nbsp;|&nbsp; ${score.pp}pp</div>
+            <h5 class="fw-bold mb-1">${score.artist} - ${score.title} [${score.version}]</h5>
+            <div class="opacity-75 small"><span class="js-stars" data-map="${score.map_id?c}" data-mods="${score.mods?c}" data-nomod="${t["analyzer.nomod"]}">★ ${score.diff}</span><#if score.mods_str?has_content> &nbsp;|&nbsp; +${score.mods_str}</#if> &nbsp;|&nbsp; ${t["stats.score"]}: ${score.score?string(",##0")} &nbsp;|&nbsp; ${score.acc}% &nbsp;|&nbsp; ${score.pp}pp</div>
           </div>
-          <a href="/analyzer" class="btn btn-sm btn-outline-light"><i class="fa-solid fa-arrow-left me-1"></i>${t["common.back"]?html}</a>
+          <a href="/analyzer" class="btn btn-sm btn-outline-light"><i class="fa-solid fa-arrow-left me-1"></i>${t["common.back"]}</a>
         </div>
       </div>
     </div>
@@ -21,7 +21,7 @@
 
   <!-- błąd -->
   <#if error??>
-  <div class="alert alert-danger"><i class="fa-solid fa-triangle-exclamation me-2"></i>${msg(error)?html}</div>
+  <div class="alert alert-danger"><i class="fa-solid fa-triangle-exclamation me-2"></i>${msg(error)}</div>
   </#if>
 
   <#if analysis??>
@@ -30,7 +30,7 @@
   <div class="row g-3 mb-4">
     <div class="col-md-3">
       <div class="card rounded text-center p-3">
-        <div class="text-muted small mb-1">${t["analyzer.avg_timing"]?html} <span tabindex="0" data-bs-toggle="tooltip" title="${t["analyzer.avg_timing_tip"]?html}"><i class="fa-solid fa-circle-info fa-xs opacity-50"></i></span></div>
+        <div class="text-muted small mb-1">${t["analyzer.avg_timing"]} <span tabindex="0" data-bs-toggle="tooltip" title="${t["analyzer.avg_timing_tip"]}"><i class="fa-solid fa-circle-info fa-xs opacity-50"></i></span></div>
         <div class="fw-bold fs-5 ${(analysis.avgTimingError < -10)?then('text-warning', (analysis.avgTimingError > 10)?then('text-danger', 'text-success'))}">
           ${analysis.avgTimingError?string("0.0")} ms
         </div>
@@ -39,7 +39,7 @@
     </div>
     <div class="col-md-3">
       <div class="card rounded text-center p-3">
-        <div class="text-muted small mb-1">${t["analyzer.stability"]?html} <span tabindex="0" data-bs-toggle="tooltip" title="${t["analyzer.stability_tip"]?html}"><i class="fa-solid fa-circle-info fa-xs opacity-50"></i></span></div>
+        <div class="text-muted small mb-1">${t["analyzer.stability"]} <span tabindex="0" data-bs-toggle="tooltip" title="${t["analyzer.stability_tip"]}"><i class="fa-solid fa-circle-info fa-xs opacity-50"></i></span></div>
         <div class="fw-bold fs-5 ${(analysis.unstableRate > 200)?then('text-danger', (analysis.unstableRate > 130)?then('text-warning', 'text-success'))}">
           ±${analysis.timingStdDev?string("0.0")} ms
         </div>
@@ -48,18 +48,18 @@
     </div>
     <div class="col-md-3">
       <div class="card rounded text-center p-3">
-        <div class="text-muted small mb-1">${t["analyzer.avg_aim"]?html} <span tabindex="0" data-bs-toggle="tooltip" title="${t["analyzer.avg_aim_tip"]?html}"><i class="fa-solid fa-circle-info fa-xs opacity-50"></i></span></div>
+        <div class="text-muted small mb-1">${t["analyzer.avg_aim"]} <span tabindex="0" data-bs-toggle="tooltip" title="${t["analyzer.avg_aim_tip"]}"><i class="fa-solid fa-circle-info fa-xs opacity-50"></i></span></div>
         <div class="fw-bold fs-5 ${(analysis.avgAimError > 30)?then('text-danger', (analysis.avgAimError > 15)?then('text-warning', 'text-success'))}">
           ${analysis.avgAimError?string("0.0")} px
         </div>
-        <div class="text-muted small">${t["analyzer.from_center"]?html}</div>
+        <div class="text-muted small">${t["analyzer.from_center"]}</div>
       </div>
     </div>
     <div class="col-md-3">
       <div class="card rounded text-center p-3">
-        <div class="text-muted small mb-1">${t["analyzer.early_late"]?html} <span tabindex="0" data-bs-toggle="tooltip" title="${t["analyzer.early_late_tip"]?html}"><i class="fa-solid fa-circle-info fa-xs opacity-50"></i></span></div>
+        <div class="text-muted small mb-1">${t["analyzer.early_late"]} <span tabindex="0" data-bs-toggle="tooltip" title="${t["analyzer.early_late_tip"]}"><i class="fa-solid fa-circle-info fa-xs opacity-50"></i></span></div>
         <div class="fw-bold fs-5">${analysis.earlyHits} / ${analysis.lateHits}</div>
-        <div class="text-muted small">${score.nmiss} ${t["analyzer.misses_lc"]?html}</div>
+        <div class="text-muted small">${score.nmiss} ${t["analyzer.misses_lc"]}</div>
       </div>
     </div>
   </div>
@@ -68,7 +68,7 @@
   <!-- wykres timing error -->
   <div class="card rounded mb-4">
     <div class="card-header bg-body border-bottom px-4 py-3">
-      <h6 class="mb-0 fw-semibold"><i class="fa-solid fa-chart-line me-2"></i>${t["analyzer.per_note"]?html} <span tabindex="0" data-bs-toggle="tooltip" title="${t["analyzer.per_note_tip"]?html}"><i class="fa-solid fa-circle-info fa-xs opacity-50"></i></span></h6>
+      <h6 class="mb-0 fw-semibold"><i class="fa-solid fa-chart-line me-2"></i>${t["analyzer.per_note"]} <span tabindex="0" data-bs-toggle="tooltip" title="${t["analyzer.per_note_tip"]}"><i class="fa-solid fa-circle-info fa-xs opacity-50"></i></span></h6>
     </div>
     <div class="card-body">
       <canvas id="timingChart" height="120"></canvas>
@@ -80,7 +80,7 @@
     <div class="col-md-6">
       <div class="card rounded h-100">
         <div class="card-header bg-body border-bottom px-4 py-3">
-          <h6 class="mb-0 fw-semibold"><i class="fa-solid fa-lightbulb me-2 text-warning"></i>${t["analyzer.analysis"]?html} <span tabindex="0" data-bs-toggle="tooltip" title="${t["analyzer.analysis_tip"]?html}"><i class="fa-solid fa-circle-info fa-xs opacity-50"></i></span></h6>
+          <h6 class="mb-0 fw-semibold"><i class="fa-solid fa-lightbulb me-2 text-warning"></i>${t["analyzer.analysis"]} <span tabindex="0" data-bs-toggle="tooltip" title="${t["analyzer.analysis_tip"]}"><i class="fa-solid fa-circle-info fa-xs opacity-50"></i></span></h6>
         </div>
         <div class="card-body">
           <#list analysis.insightCodes as insight>
@@ -98,16 +98,16 @@
       <div class="card rounded h-100">
         <div class="card-header bg-body border-bottom px-4 py-3">
           <h6 class="mb-0 fw-semibold">
-  <i class="fa-solid fa-map me-2 text-info"></i>${t["analyzer.recommended"]?html}
+  <i class="fa-solid fa-map me-2 text-info"></i>${t["analyzer.recommended"]}
   <span data-bs-toggle="tooltip" data-bs-placement="right"
-    title="${t["analyzer.recommended_tip"]?html}">
+    title="${t["analyzer.recommended_tip"]}">
     <i class="fa-solid fa-circle-info text-muted ms-1" style="font-size:0.8rem;cursor:help;"></i>
   </span>
 </h6>
         </div>
         <div class="card-body p-0">
           <#if !analysis.recommendedMaps?has_content>
-            <div class="text-center text-muted py-4 small">${t["analyzer.no_recommendations"]?html}</div>
+            <div class="text-center text-muted py-4 small">${t["analyzer.no_recommendations"]}</div>
           <#else>
             <#list analysis.recommendedMaps as m>
             <a href="/b/${m.id?c}" class="d-flex align-items-center gap-3 px-4 py-2 text-decoration-none border-bottom hover-bg">
@@ -115,8 +115,8 @@
                    style="width:40px;height:40px;object-fit:cover;border-radius:4px;"
                    onerror="this.style.display='none'">
               <div class="flex-grow-1">
-                <div class="fw-semibold small">${m.artist?html} - ${m.title?html}</div>
-                <div class="text-muted" style="font-size:0.75rem;">[${m.version?html}] &#9733; ${m.diff} &nbsp;&bull;&nbsp; ${m.bpm} BPM</div>
+                <div class="fw-semibold small">${m.artist} - ${m.title}</div>
+                <div class="text-muted" style="font-size:0.75rem;">[${m.version}] &#9733; ${m.diff} &nbsp;&bull;&nbsp; ${m.bpm} BPM</div>
               </div>
               <#if m.skillset == "stream">
                 <span class="badge" style="background:#e74c3c;">Stream</span>
@@ -138,7 +138,7 @@
   </#if>
 </div>
 
-<script>
+<script><#noautoesc>
 // works on a normal page load and after a Turbo visit (DOMContentLoaded only fires on the first one)
 document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(el => {
   new bootstrap.Tooltip(el, { placement: 'top', trigger: 'hover focus' });
@@ -236,5 +236,5 @@ analyzerWithZoom(function() {
   ctx.addEventListener('dblclick', () => { if (chart.resetZoom) chart.resetZoom(); });
 });
 </#if>
-</script>
+</#noautoesc></script>
 <#include "../assets/footer.html">

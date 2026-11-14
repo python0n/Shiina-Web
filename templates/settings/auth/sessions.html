@@ -3,7 +3,7 @@
     <div class="card-header bg-transparent">
         <h5 class="mb-0">
             <i class="fa-solid fa-key me-2"></i>
-            ${t["settings.sessions"]?html}
+            ${t["settings.sessions"]}
         </h5>
     </div>
     <div class="card-body">
@@ -12,24 +12,24 @@
     <div class="d-flex justify-content-between align-items-center">
         <div>
             <#assign sessDevice = (session.device == "Other")?then("PC", session.device)>
-            ${t["settings.session_line"]?html?replace("{browser}", "<strong>" + session.browser?html + "</strong>")?replace("{os}", "<strong>" + session.os?html + "</strong>")?replace("{device}", "<strong>" + sessDevice?html + "</strong>")}
+            <#noautoesc>${t["settings.session_line"]?html?replace("{browser}", "<strong>" + session.browser?html + "</strong>")?replace("{os}", "<strong>" + session.os?html + "</strong>")?replace("{device}", "<strong>" + sessDevice?html + "</strong>")}</#noautoesc>
             <br>
         
             <small class="text-muted">
                 <#if session.country?? && session.city??>
-                ${session.country?html}, ${session.city?html}
+                ${session.country}, ${session.city}
                 <#else>
-                ${t["settings.unknown_location"]?html}
+                ${t["settings.unknown_location"]}
                 </#if>
             </small><br>
-            <small class="text-muted">${t["settings.first_signed_in"]?html} <span data-timestamp-format="unix" data-timestamp="${session.created?c}">
+            <small class="text-muted">${t["settings.first_signed_in"]} <span data-timestamp-format="unix" data-timestamp="${session.created?c}">
                 ${session.created?c}
             </span></small>
         </div>
         <div>
             <form data-turbo="false" action="/settings/auth/sessions/delete" method="post">
-                    <input type="hidden" name="token" value="${session.encToken?html}">
-                    <button type="submit" class="btn btn-danger btn-sm"><i class="fa-solid fa-trash"></i> ${t["settings.delete"]?html}</button>
+                    <input type="hidden" name="token" value="${session.encToken}">
+                    <button type="submit" class="btn btn-danger btn-sm"><i class="fa-solid fa-trash"></i> ${t["settings.delete"]}</button>
             </form>
         </div>
     </div>

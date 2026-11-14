@@ -1,5 +1,5 @@
 <#include "assets/base.html">
 <#list modules as module>
-    ${module}
+    ${module?no_esc}
 </#list>
 <#include "assets/footer.html">

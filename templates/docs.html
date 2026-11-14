@@ -27,7 +27,7 @@
                         <ul id="doc-toc-list"></ul>
                     </nav>
                     <div class="doc-content" id="doc-content" data-copy="${t["docs.copy"]}" data-copied="${t["common.copied"]}" data-request="${t["docs.request"]}" data-response="${t["docs.response"]}" data-open="${t["docs.open"]}">
-                        ${content}
+                        ${content?no_esc}
                     </div>
                 </div>
             </div>

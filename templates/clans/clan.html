@@ -43,7 +43,7 @@
                 <!-- Clan Info -->
                 <div class="col-12 col-md-9 d-flex flex-column justify-content-center text-white" >
                     <div class="mb-2">
-                        <h1 class="display-4 fw-bold mb-2 shiina-player-name">${clan.name?html}</h1>
+                        <h1 class="display-4 fw-bold mb-2 shiina-player-name">${clan.name}</h1>
                     </div>
                     
                     <!-- Owner Info -->
@@ -62,7 +62,7 @@
                 <#if clanRel??>
                     <#if clan.owner==user.id>
                         <a href="/clan/${clan.id}/settings" class="btn btn-secondary">
-                            <i class="fa-solid fa-gear me-2"></i>${t["clan.management"]?html}
+                            <i class="fa-solid fa-gear me-2"></i>${t["clan.management"]}
                         </a>
                     </#if>
                     
@@ -70,7 +70,7 @@
                         <#if clan.owner!=user.id>
                             <button type="button" class="btn btn-danger" 
                                 onclick="handleClanLeave('${clan.id}')">
-                                <i class="fas fa-user-minus me-1"></i>${t["clan.leave"]?html}
+                                <i class="fas fa-user-minus me-1"></i>${t["clan.leave"]}
                             </button>
                         </#if>
 
@@ -79,16 +79,16 @@
                                 <i class="fa-solid fa-heart-circle-check"></i>
                             </div>
                             <div class="shiina-follower-count-body">
-                                ${t["clan.member"]?html}
+                                ${t["clan.member"]}
                             </div>
                         </span>
                     <#elseif clanRel.clanIdCheck>
                         <button type="button" class="btn btn-secondary disabled" data-bs-toggle="tooltip" 
-                                title="${t["clan.already_in_clan"]?html}">${t["clan.request_join"]?html}</button>
+                                title="${t["clan.already_in_clan"]}">${t["clan.request_join"]}</button>
                     <#elseif clanRel.inShClanPending>
                         <button type="button" class="btn btn-warning" 
                                 onclick="handleClanJoinRequest('${clan.id}', 'REVOKE')">
-                            <i class="fas fa-clock me-1"></i>${t["clan.revoke_request"]?html}
+                            <i class="fas fa-clock me-1"></i>${t["clan.revoke_request"]}
                         </button>
                     <#elseif clanRel.inShClanDenied>
                         <span class="shiina-follower-count">
@@ -96,13 +96,13 @@
                                 <i class="fa-solid fa-shield text-danger"></i>
                             </div>
                             <div class="shiina-follower-count-body">
-                                ${t["clan.banned"]?html}
+                                ${t["clan.banned"]}
                             </div>
                         </span>
                     <#else>
                         <button type="button" class="btn btn-success" 
                                 onclick="handleClanJoinRequest('${clan.id}', 'REQUEST')">
-                            <i class="fas fa-user-plus me-1"></i>${t["clan.request_join"]?html}
+                            <i class="fas fa-user-plus me-1"></i>${t["clan.request_join"]}
                         </button>
                     </#if>
                     
@@ -112,7 +112,7 @@
                                 <i class="fa-solid fa-shield text-primary"></i>
                             </div>
                             <div class="shiina-follower-count-body">
-                                ${t["clan.owner"]?html}
+                                ${t["clan.owner"]}
                             </div>
                         </span>
                     </#if>
@@ -122,7 +122,7 @@
                             <i class="fa-solid fa-hashtag"></i>
                         </div>
                         <div class="shiina-follower-count-body">
-                            [${clan.tag?html}]
+                            [${clan.tag}]
                         </div>
                     </span>
                 <#else>
@@ -131,7 +131,7 @@
                             <i class="fa-solid fa-hashtag"></i>
                         </div>
                         <div class="shiina-follower-count-body">
-                            [${clan.tag?html}]
+                            [${clan.tag}]
                         </div>
                     </span>
                 </#if>
@@ -142,19 +142,19 @@
                 <div class="col col-12 col-sm-12 col-lg-6">
                     <div class="row p-3 mx-1 h-100 rounded">
                         <div class="col col-12 col-md-6">
-                            <small>${t["clan.total_pp_rank"]?html}</small>
+                            <small>${t["clan.total_pp_rank"]}</small>
                             <h2>#${clan.totalPPRank}</h2>
                         </div>
                         <div class="col col-12 col-md-6">
-                            <small>${t["clan.avg_pp_rank"]?html}</small>
+                            <small>${t["clan.avg_pp_rank"]}</small>
                             <h2>#${clan.avgPPRank}</h2>
                         </div>
                         <div class="col col-12 col-md-6">
-                            <small>${t["clan.ranked_score_rank"]?html}</small>
+                            <small>${t["clan.ranked_score_rank"]}</small>
                             <h2>#${clan.rankedScoreRank}</h2>
                         </div>
                         <div class="col col-12 col-md-6">
-                            <small>${t["clan.acc_rank"]?html}</small>
+                            <small>${t["clan.acc_rank"]}</small>
                             <h2>#${clan.accRank}</h2>
                         </div>
                     </div>
@@ -164,31 +164,31 @@
                         <table class="w-100">
                             <tbody>
                                 <tr>
-                                    <td>${t["clan.created"]?html}</td>
+                                    <td>${t["clan.created"]}</td>
                                     <td data-timestamp-format="date" data-timestamp="${clan.created}">${clan.created}</td>
                                 </tr>
                                 <tr>
-                                    <td>${t["clan.owner_last_active"]?html}</td>
+                                    <td>${t["clan.owner_last_active"]}</td>
                                     <td data-timestamp-format="unix" data-timestamp="${clan.ownerLastActivity?c}">${clan.ownerLastActivity?c}</td>
                                 </tr>
                                 <tr>
-                                    <td>${t["clan.members_colon"]?html}</td>
+                                    <td>${t["clan.members_colon"]}</td>
                                     <td>${clan.members}</td>
                                 </tr>
                                 <tr>
-                                    <td>${t["clan.total_pp_colon"]?html}</td>
+                                    <td>${t["clan.total_pp_colon"]}</td>
                                     <td>${clan.totalPP}</td>
                                 </tr>
                                 <tr>
-                                    <td>${t["clan.avg_pp_colon"]?html}</td>
+                                    <td>${t["clan.avg_pp_colon"]}</td>
                                     <td>${clan.avgPP}</td>
                                 </tr>
                                 <tr>
-                                    <td>${t["profile.ranked_score"]?html}</td>
+                                    <td>${t["profile.ranked_score"]}</td>
                                     <td>${clan.rankedScore}</td>
                                 </tr>
                                 <tr>
-                                    <td>${t["profile.accuracy"]?html}</td>
+                                    <td>${t["profile.accuracy"]}</td>
                                     <td>${clan.acc}%</td>
                                 </tr>
                             </tbody>
@@ -201,7 +201,7 @@
             <div class="card mx-1 mb-4" style="background: rgba(0,0,0,0.1);">
                 <div class="card-header border-bottom" style="background: rgba(0,0,0,0.2);">
                     <h5 class="mb-0">
-                        <i class="fa-solid fa-users me-2"></i>${t["clan.members_title"]?html}
+                        <i class="fa-solid fa-users me-2"></i>${t["clan.members_title"]}
                         <span class="badge bg-primary ms-2">${members?size}</span>
                     </h5>
                 </div>
@@ -217,7 +217,7 @@
                                     <div class="me-3">
                                         <div class="position-relative">
                                             <img src="${avatarServer}/${u.id?c}?v=${avatarV!""}" 
-                                                 alt="${u.name?html}" 
+                                                 alt="${u.name}" 
                                                  class="rounded shadow-sm" 
                                                  width="50" 
                                                  height="50"
@@ -226,7 +226,7 @@
                                                 <div class="position-absolute top-0 end-0 bg-warning rounded-circle border border-white" 
                                                      style="width: 18px; height: 18px; margin-top: -4px; margin-right: -4px;"
                                                      data-bs-toggle="tooltip" 
-                                                     title="${t["clan.clan_owner"]?html}">
+                                                     title="${t["clan.clan_owner"]}">
                                                     <i class="fa-solid fa-crown" style="font-size: 10px; margin-left: 3px; margin-top: 3px;"></i>
                                                 </div>
                                             </#if>
@@ -247,11 +247,11 @@
                                     <!-- Player Name & Info -->
                                     <div class="flex-grow-1">
                                         <div class="fw-bold mb-1" style="font-size: 1.05rem;">
-                                            ${u.name?html}
+                                            ${u.name}
                                             <#if u.id == clan.owner>
                                                 <i class="fa-solid fa-crown text-warning ms-1 d-md-none" 
                                                    data-bs-toggle="tooltip" 
-                                                   title="${t["clan.clan_owner"]?html}"></i>
+                                                   title="${t["clan.clan_owner"]}"></i>
                                             </#if>
                                         </div>
                                         <div class="d-flex gap-3 small text-muted">
@@ -284,7 +284,7 @@
                                         </#if>
                                         <#if u.rank??>
                                         <div class="text-center">
-                                            <div class="small text-muted mb-1">${t["profile.rank"]?html}</div>
+                                            <div class="small text-muted mb-1">${t["profile.rank"]}</div>
                                             <div class="fw-bold text-warning">#${u.rank?string("0")}</div>
                                         </div>
                                         </#if>
@@ -299,15 +299,15 @@
                         <#else>
                             <div class="list-group-item text-center py-5" style="background: transparent;">
                                 <i class="fa-solid fa-users fa-3x text-muted mb-3 d-block"></i>
-                                <h5 class="text-muted mb-0">${t["clan.no_members"]?html}</h5>
-                                <p class="text-muted small mt-2">${t["clan.be_first"]?html}</p>
+                                <h5 class="text-muted mb-0">${t["clan.no_members"]}</h5>
+                                <p class="text-muted small mt-2">${t["clan.be_first"]}</p>
                             </div>
                         </#list>
                     </div>
                     <#if (members?size > 8)>
                     <div class="card-footer border-top text-center" style="background: rgba(0,0,0,0.2);">
                         <button id="loadMoreBtn" class="btn btn-outline-primary btn-sm">
-                            <i class="fa-solid fa-angles-down me-2"></i>${t["clan.load_more_members"]?html}
+                            <i class="fa-solid fa-angles-down me-2"></i>${t["clan.load_more_members"]}
                         </button>
                     </div>
                     </#if>
@@ -318,7 +318,7 @@
             <div class="card mx-1" style="background: rgba(0,0,0,0.1);">
                 <div class="card-header border-bottom" style="background: rgba(0,0,0,0.2);">
                     <h5 class="mb-0">
-                        <i class="fa-solid fa-chart-line me-2"></i>${t["clan.recent_activity"]?html}
+                        <i class="fa-solid fa-chart-line me-2"></i>${t["clan.recent_activity"]}
                     </h5>
                 </div>
                 <div class="card-body row p-0 m-0" id="activity">
@@ -331,7 +331,7 @@
                            <#if (activity?size > 4)>
                     <div class="card-footer border-top text-center" style="background: rgba(0,0,0,0.2);">
                         <button id="loadMoreBtnAct" class="btn btn-outline-success btn-sm">
-                            <i class="fa-solid fa-angles-down me-2"></i>${t["clan.load_more_activity"]?html}
+                            <i class="fa-solid fa-angles-down me-2"></i>${t["clan.load_more_activity"]}
                         </button>
                     </div>
                 </#if>

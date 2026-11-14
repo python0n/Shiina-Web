@@ -62,12 +62,12 @@
               <tr>
                 <td class="text-muted small">${r.id}</td>
                 <td>
-                  <a href="/u/${r.userid}" target="_blank" class="fw-semibold text-decoration-none">${r.username?html}</a>
+                  <a href="/u/${r.userid}" target="_blank" class="fw-semibold text-decoration-none">${r.username}</a>
                   <br><small class="text-muted">ID: ${r.userid}</small>
                 </td>
                 <td>
-                  <div class="fw-semibold">${r.artist?html} - ${r.title?html}</div>
-                  <small class="text-muted">[${r.version?html}]</small>
+                  <div class="fw-semibold">${r.artist} - ${r.title}</div>
+                  <small class="text-muted">[${r.version}]</small>
                   <br><small class="text-muted font-monospace">${r.map_md5}</small>
                 </td>
                 <td>${r.score?string.number}</td>
@@ -103,7 +103,7 @@
                       <input type="hidden" name="id" value="${r.id}">
                       <input type="hidden" name="action" value="approve">
                       <button type="submit" class="btn btn-sm btn-success"
-                        onclick="return confirm('Approve score for ${r.username?html}?')">
+                        onclick="return confirm('Approve score for ${r.username}?')">
                         <i class="fa-solid fa-check"></i>
                       </button>
                     </form>
@@ -113,7 +113,7 @@
                       <input type="hidden" name="action" value="reject">
                       <input type="hidden" name="reason" value="">
                       <button type="submit" class="btn btn-sm btn-danger" title="Reject (the player gets a notification with the reason)"
-                        onclick="var why = prompt('Reject replay from ${r.username?js_string?html}? Reason for the player (optional):', ''); if (why === null) return false; this.form.reason.value = why; return true;">
+                        onclick="var why = prompt('Reject replay from ${r.username?js_string}? Reason for the player (optional):', ''); if (why === null) return false; this.form.reason.value = why; return true;">
                         <i class="fa-solid fa-xmark"></i>
                       </button>
                     </form>

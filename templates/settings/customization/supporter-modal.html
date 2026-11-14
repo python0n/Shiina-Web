@@ -6,12 +6,12 @@
         <div class="flex-grow-1">
             <h6 class="alert-heading mb-2">
                 <i class="fas fa-star me-1"></i>
-                ${t["settings.sp_title"]?html}
+                ${t["settings.sp_title"]}
             </h6>
-            <p class="mb-2">${t["settings.sp_text"]?html?replace("{feature}", spalert?html)?replace("{supporter}", "<span class=\"supporter fw-bold\">" + t["profile.supporter"]?html + "</span>")}</p>
+            <p class="mb-2"><#noautoesc>${t["settings.sp_text"]?html?replace("{feature}", spalert?html)?replace("{supporter}", "<span class=\"supporter fw-bold\">" + t["profile.supporter"]?html + "</span>")}</#noautoesc></p>
             <a href="/donate" class="btn btn-secondary btn-sm">
                 <i class="fas fa-heart me-1"></i>
-                ${t["settings.sp_become"]?html}
+                ${t["settings.sp_become"]}
             </a>
         </div>
     </div>

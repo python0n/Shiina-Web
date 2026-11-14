@@ -202,7 +202,7 @@
                 <ul class="list-group list-group-numbered">
                     <#list allGroups as group>
                         <li class="list-group-item d-flex justify-content-between align-items-center">
-                            <span>${group.emoji} ${group.name?html}</span>
+                            <span>${group.emoji} ${group.name}</span>
                             <#if groups?seq_contains(group)>
                                 <a class="btn btn-danger btn-sm"
                                     href="#" onclick="apPost('/ap/groups/process?id=${id}&group=${group.id}&action=remove'); return false;" role="button">
@@ -271,7 +271,7 @@
 </div>
 
 
-<script>
+<script><#noautoesc>
 
     function removeProfilePicture(button) {
         button.disabled = true;
@@ -371,4 +371,4 @@
                 input.value = 'https://' + window.location.host + data.url;
             });
     }
-</script>
+</#noautoesc></script>

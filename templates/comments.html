@@ -4,9 +4,9 @@
     
     <div class="m-2 pb-2">
         <form action="/post/comment" method="post">
-            <textarea class="form-control" placeholder="${t["comments.placeholder"]?html}" name="message"></textarea>
-            <button type="submit" class="btn btn-primary mt-2">${t["comments.post"]?html}</button>
-            <input type="hidden" value="${commentsModule.target?html}" name="target">
+            <textarea class="form-control" placeholder="${t["comments.placeholder"]}" name="message"></textarea>
+            <button type="submit" class="btn btn-primary mt-2">${t["comments.post"]}</button>
+            <input type="hidden" value="${commentsModule.target}" name="target">
             <input type="hidden" value="${commentsModule.id?c}" name="id">
         </form>
 
@@ -17,14 +17,14 @@
 
     <input type="hidden" id="offsetComments" value="0">
     <div id="commentLoadable"></div>
-    <script>
+    <script><#noautoesc>
         var commentsModule = {
             target: '${commentsModule.target?js_string}',
             id: '${commentsModule.id?c}',
         };
-    </script>
+    </#noautoesc></script>
     <div class="m-2">
-        <button onclick="loadMoreComments(false)" id="commentButton" class="btn btn-primary mt-2">${t["common.load_more"]?html}</button>
+        <button onclick="loadMoreComments(false)" id="commentButton" class="btn btn-primary mt-2">${t["common.load_more"]}</button>
     </div>
 </div>
 </div>

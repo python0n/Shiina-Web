@@ -3,18 +3,18 @@
 <div class="container">
     <div class="card w-100">
         <div class="bg-secondary border-0 card-header text-body d-flex justify-content-between align-items-center py-4">
-            <span class="h1 fw-bold mb-0">${t["auth.register_title"]?html}</span>
+            <span class="h1 fw-bold mb-0">${t["auth.register_title"]}</span>
         </div>
 
         <div class="card-body bg-body px-4">
             <#if error??>
                 <div class="alert alert-danger" role="alert">
-                    ${msg(error)?html}
+                    ${msg(error)}
                 </div>
             </#if>
             <#if info??>
                 <div class="alert alert-primary" role="alert">
-                    ${msg(info)?html}
+                    ${msg(info)}
                 </div>
             </#if>
 
@@ -22,28 +22,28 @@
                 <div class="row">
                     <div class="col-md-12">
                         <div class="form-group mb-3">
-                            <label>${t["auth.email"]?html}</label>
+                            <label>${t["auth.email"]}</label>
                             <div class="input-group">
                                 <span class="input-group-text" id="add-on-1">@</span>
-                                <input name="email" required type="text" class="form-control" placeholder="${t["auth.email"]?html}" aria-label="${t["auth.email"]?html}" aria-describedby="add-on-1">
+                                <input name="email" required type="text" class="form-control" placeholder="${t["auth.email"]}" aria-label="${t["auth.email"]}" aria-describedby="add-on-1">
                             </div>
                         </div>
                     </div>
                 </div>
 
                 <#if refPath??>
-                    <input type="hidden" name="refPath" value="${refPath?html}">
+                    <input type="hidden" name="refPath" value="${refPath}">
                 </#if>
 
                 <div class="row">
                     <div class="col-md-12">
                         <div class="form-group mb-3">
-                            <label>${t["auth.username"]?html}</label>
+                            <label>${t["auth.username"]}</label>
                             <div class="input-group">
                                 <span class="input-group-text" id="add-on-1">@</span>
-                                <input name="username" required type="text" minlength="2" maxlength="15" class="form-control" placeholder="${t["auth.username"]?html}" aria-label="${t["auth.username"]?html}" aria-describedby="add-on-1">
+                                <input name="username" required type="text" minlength="2" maxlength="15" class="form-control" placeholder="${t["auth.username"]}" aria-label="${t["auth.username"]}" aria-describedby="add-on-1">
                             </div>
-                            <div class="form-text small text-muted">${t["auth.username_hint"]?html}</div>
+                            <div class="form-text small text-muted">${t["auth.username_hint"]}</div>
                         </div>
                     </div>
                 </div>
@@ -52,36 +52,36 @@
                 <div class="row">
                     <div class="col-md-12">
                         <div class="form-group mb-3">
-                            <label>${t["auth.password"]?html}</label>
+                            <label>${t["auth.password"]}</label>
                             <div class="input-group">
                                 <span class="input-group-text"><i class="fa-solid fa-lock"></i></span>
-                                <input required name="password" type="password" minlength="8" maxlength="32" class="form-control" placeholder="${t["auth.password"]?html}" aria-label="${t["auth.password"]?html}" aria-describedby="add-on-1">
+                                <input required name="password" type="password" minlength="8" maxlength="32" class="form-control" placeholder="${t["auth.password"]}" aria-label="${t["auth.password"]}" aria-describedby="add-on-1">
                             </div>
-                            <div class="form-text small text-muted">${t["auth.password_hint"]?html}</div>
+                            <div class="form-text small text-muted">${t["auth.password_hint"]}</div>
                         </div>
                     </div>
                 </div>
 
                 <div id="turnstile" data-theme="${c.mode}"></div>
                 <#list modules as module>
-                    ${module}
+                    ${module?no_esc}
                 </#list>
         
                 <div class="row my-3">
                     <div class="col-md-12">
                         <input type="hidden" name="redirect" value="">
-                        <button type="submit" class="btn btn-primary btn-lg btn-block">${t["auth.register_button"]?html}</button>
+                        <button type="submit" class="btn btn-primary btn-lg btn-block">${t["auth.register_button"]}</button>
                     </div>
                 </div>
             </form>
 
             <div class="mt-4">
-                <i class="fa fa-user fa-fw"></i> ${t["auth.already_member"]?html} <a href="/login<#if refPath??>?path=${refPath?html}</#if>">${t["nav.login"]?html}</a>
+                <i class="fa fa-user fa-fw"></i> ${t["auth.already_member"]} <a href="/login<#if refPath??>?path=${refPath}</#if>">${t["nav.login"]}</a>
             </div>
         </div>
     </div>
 </div>
 <#include "assets/footer.html">
-<script>
+<script><#noautoesc>
     var turnstileToken = '${turnstilePublic}';
-</script>
+</#noautoesc></script>
