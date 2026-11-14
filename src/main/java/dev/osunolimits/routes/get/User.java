@@ -19,6 +19,7 @@ import dev.osunolimits.models.UserStatus;
 import dev.osunolimits.modules.Shiina;
 import dev.osunolimits.modules.ShiinaRoute;
 import dev.osunolimits.modules.ShiinaRoute.ShiinaRequest;
+import dev.osunolimits.modules.utils.UserpageRenderer;
 import dev.osunolimits.modules.utils.SEOBuilder;
 import dev.osunolimits.modules.utils.ShiinaAchievementsSorter;
 import dev.osunolimits.modules.utils.ShiinaSupporterBadge;
@@ -126,7 +127,16 @@ public class User extends Shiina {
 
         ResultSet userpageRs = shiina.mysql.Query("SELECT * FROM `userpages` WHERE `user_id` = ?", id);
         if(userpageRs.next()) {
-            shiina.data.put("userpage", userpageRs.getString("html"));
+            String userpageHtml = userpageRs.getString("html");
+            if (!UserpageRenderer.isCurrent(userpageHtml)) {
+                // saved by the old editor: render it once more with the current rules and keep the result
+                String userpageRaw = UserpageRenderer.decodeOldRaw(userpageRs.getString("raw"));
+                userpageHtml = UserpageRenderer.render(userpageRaw);
+                shiina.mysql.Exec("UPDATE `userpages` SET `html` = ?, `raw` = ? WHERE `user_id` = ?", userpageHtml, userpageRaw, id);
+            }
+            if (userpageHtml.length() > UserpageRenderer.MARKER.length()) {
+                shiina.data.put("userpage", userpageHtml);
+            }
         }
 
         ResultSet achRs = shiina.mysql.Query(ACH_QUERY, id,

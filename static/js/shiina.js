@@ -120,17 +120,122 @@ function performOnboarding() {
     }
 }
 
+// userpage editor: a plain BBCode textarea with a toolbar and a server-rendered preview, like osu-web
 function initUserpageEditor() {
-    if(document.getElementById('editor') != undefined) {
-        shiinaLoad(['/css/wbbtheme.css', '/css/wysibb-theme.css', '/js/jquery.wysibb.min.js']).then(() => {
-            if(document.getElementsByClassName('wysibb').length == 0 && document.getElementById('editor')) {
-                var wbbOpt = {
-                    buttons: "bold,italic,underline,|,img,link,|,table,removeFormat",
-                };
-                $("#editor").wysibb(wbbOpt);
-            }
+    document.querySelectorAll('[data-bb-editor]').forEach(function (form) {
+        if (form.dataset.bbReady) return;
+        form.dataset.bbReady = '1';
+        const area = form.querySelector('.bb-textarea');
+        const write = form.querySelector('.bb-editor-write');
+        const preview = form.querySelector('[data-bb-preview]');
+        const count = form.querySelector('[data-bb-count]');
+
+        function updateCount() { count.textContent = area.value.length; }
+
+        // put open/close around the selection; keepSelection selects the wrapped text afterwards
+        function wrap(open, close, placeholder) {
+            const start = area.selectionStart, end = area.selectionEnd;
+            const selected = area.value.substring(start, end) || placeholder || '';
+            area.setRangeText(open + selected + close, start, end, 'end');
+            area.selectionStart = start + open.length;
+            area.selectionEnd = start + open.length + selected.length;
+            area.focus();
+            updateCount();
+        }
+
+        function list(tag) {
+            const start = area.selectionStart, end = area.selectionEnd;
+            const lines = (area.value.substring(start, end) || '').split('\n').filter(function (l) { return l.trim() !== ''; });
+            const items = (lines.length ? lines : ['']).map(function (l) { return '[*]' + l.trim(); }).join('\n');
+            const text = '[' + tag + ']\n' + items + '\n[/list]';
+            area.setRangeText(text, start, end, 'end');
+            if (!lines.length) area.selectionStart = area.selectionEnd = start + tag.length + 6;
+            area.focus();
+            updateCount();
+        }
+
+        const actions = {
+            b: function () { wrap('[b]', '[/b]'); },
+            i: function () { wrap('[i]', '[/i]'); },
+            u: function () { wrap('[u]', '[/u]'); },
+            s: function () { wrap('[s]', '[/s]'); },
+            spoiler: function () { wrap('[spoiler]', '[/spoiler]'); },
+            heading: function () { wrap('[heading]', '[/heading]'); },
+            centre: function () { wrap('[centre]', '[/centre]'); },
+            url: function () {
+                const sel = area.value.substring(area.selectionStart, area.selectionEnd);
+                if (/^(https?:\/\/|\/)\S+$/.test(sel)) { wrap('[url]', '[/url]'); return; }
+                const start = area.selectionStart;
+                wrap('[url=https://]', '[/url]');
+                area.selectionStart = start + 5;
+                area.selectionEnd = start + 13;
+            },
+            img: function () { wrap('[img]', '[/img]', 'https://'); },
+            youtube: function () {
+                const sel = area.value.substring(area.selectionStart, area.selectionEnd);
+                const m = sel.match(/(?:youtu\.be\/|[?&]v=|\/embed\/|\/shorts\/)([A-Za-z0-9_-]{11})/);
+                if (m) { area.setRangeText(m[1], area.selectionStart, area.selectionEnd, 'select'); }
+                wrap('[youtube]', '[/youtube]');
+            },
+            quote: function () { wrap('[quote]', '[/quote]'); },
+            code: function () { wrap('[code]\n', '\n[/code]'); },
+            box: function () {
+                const start = area.selectionStart;
+                wrap('[box=Title]\n', '\n[/box]');
+                area.selectionStart = start + 5;
+                area.selectionEnd = start + 10;
+            },
+            spoilerbox: function () { wrap('[spoilerbox]\n', '\n[/spoilerbox]'); },
+            list: function () { list('list'); },
+            olist: function () { list('list=1'); }
+        };
+
+        form.querySelectorAll('[data-bb]').forEach(function (btn) {
+            btn.addEventListener('click', function () { actions[btn.dataset.bb](); });
         });
-    }
+        form.querySelector('[data-bb-color]').addEventListener('change', function (e) {
+            wrap('[color=' + e.target.value + ']', '[/color]');
+        });
+        form.querySelector('[data-bb-size]').addEventListener('change', function (e) {
+            if (e.target.value) wrap('[size=' + e.target.value + ']', '[/size]');
+            e.target.value = '';
+        });
+        area.addEventListener('keydown', function (e) {
+            if (!(e.ctrlKey || e.metaKey) || e.altKey || e.shiftKey) return;
+            const key = e.key.toLowerCase();
+            if (key === 'b' || key === 'i' || key === 'u') { e.preventDefault(); actions[key](); }
+        });
+        area.addEventListener('input', updateCount);
+        updateCount();
+
+        function showPreview(retry) {
+            preview.innerHTML = '<div class="text-muted py-3 text-center"><i class="fas fa-spinner fa-spin"></i></div>';
+            fetch('/settings/userpage/preview', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: new URLSearchParams({ userpage: area.value })
+            }).then(function (r) {
+                if (r.status === 429 && !retry) { setTimeout(function () { showPreview(true); }, 600); return null; }
+                if (!r.ok) throw new Error(r.status);
+                return r.text();
+            }).then(function (html) {
+                // the server only returns the HTML its BBCode rules allow, the typed text is escaped there
+                if (html !== null) preview.innerHTML = html;
+            }).catch(function () {
+                preview.textContent = preview.dataset.bbError;
+            });
+        }
+
+        form.querySelectorAll('[data-bb-tab]').forEach(function (tab) {
+            tab.addEventListener('click', function () {
+                const isPreview = tab.dataset.bbTab === 'preview';
+                form.querySelectorAll('[data-bb-tab]').forEach(function (t) { t.classList.toggle('active', t === tab); });
+                write.hidden = isPreview;
+                preview.hidden = !isPreview;
+                if (isPreview) showPreview(false); else area.focus();
+            });
+        });
+    });
 }
 
 function loadContrySelectorIfPresent() {

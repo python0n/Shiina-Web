@@ -3,13 +3,10 @@ package dev.osunolimits.routes.post.settings.customization;
 import dev.osunolimits.utils.Visibility;
 import java.sql.ResultSet;
 
-import org.kefirsf.bb.BBProcessorFactory;
-import org.kefirsf.bb.TextProcessor;
-import org.owasp.encoder.Encode;
-
 import dev.osunolimits.modules.Shiina;
 import dev.osunolimits.modules.ShiinaRoute;
 import dev.osunolimits.modules.ShiinaRoute.ShiinaRequest;
+import dev.osunolimits.modules.utils.UserpageRenderer;
 import spark.Request;
 import spark.Response;
 
@@ -28,27 +25,29 @@ public class HandleUserpageChange extends Shiina {
         }
         int userId = shiina.user.id;
         String userpage = req.queryParams("userpage");
-
-        if(userpage == null || userpage.isEmpty()) {
-            return redirect(res, shiina, "/settings?error=Userpage cannot be empty");
+        if (userpage == null) {
+            userpage = "";
         }
-        
-        if(userpage.length() > 10000) {
+        userpage = userpage.replace("\r\n", "\n").strip();
+
+        if(userpage.length() > UserpageRenderer.MAX_LENGTH) {
             return redirect(res, shiina, "/settings?error=Userpage is too long (max 10000 characters)");
         }
 
-        
-        String raw = Encode.forHtmlContent(userpage);
-        BBProcessorFactory processor = BBProcessorFactory.getInstance();
-        TextProcessor bb = processor.create();
-    
-        userpage = bb.process(raw);
+        // an empty userpage removes it from the profile, like on osu-web
+        if (userpage.isEmpty()) {
+            shiina.mysql.Exec("DELETE FROM `userpages` WHERE `user_id` = ?", userId);
+            return redirect(res, shiina, "/settings/customization?info=Userpage was changed");
+        }
 
-        ResultSet userpageRs = shiina.mysql.Query("SELECT * FROM `userpages` WHERE `user_id` = ?", userId);
+        // raw is kept as typed, the template escapes it when it goes back into the editor
+        String html = UserpageRenderer.render(userpage);
+
+        ResultSet userpageRs = shiina.mysql.Query("SELECT `id` FROM `userpages` WHERE `user_id` = ?", userId);
         if(userpageRs.next()) {
-            shiina.mysql.Exec("UPDATE `userpages` SET `html` = ?, `raw` = ?, `raw_type` = ? WHERE `user_id` = ?", userpage, raw, "tiptap", userId);
+            shiina.mysql.Exec("UPDATE `userpages` SET `html` = ?, `raw` = ?, `raw_type` = ? WHERE `user_id` = ?", html, userpage, "tiptap", userId);
         }else {
-            shiina.mysql.Exec("INSERT INTO `userpages` (`user_id`, `html`, `raw`, `raw_type`) VALUES (?, ?, ?, ?)", userId, userpage, raw, "tiptap");
+            shiina.mysql.Exec("INSERT INTO `userpages` (`user_id`, `html`, `raw`, `raw_type`) VALUES (?, ?, ?, ?)", userId, html, userpage, "tiptap");
         }
 
         return redirect(res, shiina, "/settings/customization?info=Userpage was changed");

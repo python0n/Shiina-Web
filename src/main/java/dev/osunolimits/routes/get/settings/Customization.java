@@ -11,6 +11,7 @@ import dev.osunolimits.modules.ShiinaRoute;
 import dev.osunolimits.modules.XmlConfig;
 import dev.osunolimits.modules.ShiinaRoute.ShiinaRequest;
 import dev.osunolimits.modules.utils.SEOBuilder;
+import dev.osunolimits.modules.utils.UserpageRenderer;
 import dev.osunolimits.plugins.NavbarRegister;
 import dev.osunolimits.utils.osu.OsuConverter;
 import lombok.AllArgsConstructor;
@@ -46,7 +47,7 @@ public class Customization extends Shiina {
             shiina.data.put("error", req.queryParams("error"));
         }
 
-        ResultSet settingsResult = shiina.mysql.Query("SELECT `country`, `raw`, `preferred_mode`, `clan_id` FROM `users` LEFT JOIN `userpages` ON `users`.`id` = `userpages`.`user_id` WHERE `users`.`id` = ?;", shiina.user.id);
+        ResultSet settingsResult = shiina.mysql.Query("SELECT `country`, `raw`, `html`, `preferred_mode`, `clan_id` FROM `users` LEFT JOIN `userpages` ON `users`.`id` = `userpages`.`user_id` WHERE `users`.`id` = ?;", shiina.user.id);
         if(!settingsResult.next()) {
             return notFound(res, shiina);
         }
@@ -68,7 +69,11 @@ public class Customization extends Shiina {
         }
 
         shiina.data.put("curCountry", settingsResult.getString("country"));
-        shiina.data.put("curUserpage", settingsResult.getString("raw"));
+        String curRaw = settingsResult.getString("raw");
+        if (curRaw != null && !UserpageRenderer.isCurrent(settingsResult.getString("html"))) {
+            curRaw = UserpageRenderer.decodeOldRaw(curRaw);
+        }
+        shiina.data.put("curUserpage", curRaw);
         shiina.data.put("curMode", settingsResult.getInt("preferred_mode"));
         shiina.data.put("curClanId", settingsResult.getInt("clan_id"));
 

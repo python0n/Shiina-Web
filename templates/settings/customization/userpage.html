@@ -7,15 +7,66 @@
         </h5>
     </div>
     <div class="card-body">
-        <form action="/settings/userpage" method="post">
-            <div class="mb-3">
-                <textarea name="userpage" id="editor" class="form-control" style="height: 250px;"
-                    placeholder="${t["settings.userpage_placeholder"]}"><#if curUserpage??>${curUserpage?no_esc}</#if></textarea>
+        <form action="/settings/userpage" method="post" class="bb-editor" data-bb-editor>
+            <div class="bb-editor-tabs">
+                <button type="button" class="bb-editor-tab active" data-bb-tab="write">${t["settings.userpage_write"]}</button>
+                <button type="button" class="bb-editor-tab" data-bb-tab="preview">${t["settings.userpage_preview"]}</button>
+                <a class="bb-editor-help ms-auto" href="https://osu.ppy.sh/wiki/BBCode" target="_blank" rel="noopener noreferrer">
+                    <i class="fas fa-circle-question me-1"></i>${t["settings.userpage_help"]}
+                </a>
             </div>
-            <button type="submit" class="btn btn-primary">
-                <i class="fas fa-save me-2"></i>
-                ${t["settings.update_userpage"]}
-            </button>
+            <div class="bb-editor-write">
+                <div class="bb-toolbar" role="toolbar">
+                    <div class="bb-toolbar-group">
+                        <button type="button" class="bb-btn" data-bb="b" title="${t["settings.bb_bold"]}"><i class="fas fa-bold"></i></button>
+                        <button type="button" class="bb-btn" data-bb="i" title="${t["settings.bb_italic"]}"><i class="fas fa-italic"></i></button>
+                        <button type="button" class="bb-btn" data-bb="u" title="${t["settings.bb_underline"]}"><i class="fas fa-underline"></i></button>
+                        <button type="button" class="bb-btn" data-bb="s" title="${t["settings.bb_strike"]}"><i class="fas fa-strikethrough"></i></button>
+                        <button type="button" class="bb-btn" data-bb="spoiler" title="${t["settings.bb_spoiler"]}"><i class="fas fa-eye-slash"></i></button>
+                    </div>
+                    <div class="bb-toolbar-group">
+                        <button type="button" class="bb-btn" data-bb="heading" title="${t["settings.bb_heading"]}"><i class="fas fa-heading"></i></button>
+                        <button type="button" class="bb-btn" data-bb="centre" title="${t["settings.bb_centre"]}"><i class="fas fa-align-center"></i></button>
+                        <label class="bb-btn bb-color" title="${t["settings.bb_color"]}">
+                            <i class="fas fa-palette"></i>
+                            <input type="color" value="#ff66aa" data-bb-color>
+                        </label>
+                        <select class="bb-select" data-bb-size title="${t["settings.bb_size"]}">
+                            <option value="">${t["settings.bb_size"]}</option>
+                            <option value="50">${t["settings.bb_size_50"]}</option>
+                            <option value="85">${t["settings.bb_size_85"]}</option>
+                            <option value="100">${t["settings.bb_size_100"]}</option>
+                            <option value="150">${t["settings.bb_size_150"]}</option>
+                        </select>
+                    </div>
+                    <div class="bb-toolbar-group">
+                        <button type="button" class="bb-btn" data-bb="url" title="${t["settings.bb_link"]}"><i class="fas fa-link"></i></button>
+                        <button type="button" class="bb-btn" data-bb="img" title="${t["settings.bb_image"]}"><i class="fas fa-image"></i></button>
+                        <button type="button" class="bb-btn" data-bb="youtube" title="YouTube"><i class="fab fa-youtube"></i></button>
+                    </div>
+                    <div class="bb-toolbar-group">
+                        <button type="button" class="bb-btn" data-bb="quote" title="${t["settings.bb_quote"]}"><i class="fas fa-quote-left"></i></button>
+                        <button type="button" class="bb-btn" data-bb="code" title="${t["settings.bb_code"]}"><i class="fas fa-code"></i></button>
+                        <button type="button" class="bb-btn" data-bb="box" title="${t["settings.bb_box"]}"><i class="fas fa-square-caret-down"></i></button>
+                        <button type="button" class="bb-btn" data-bb="spoilerbox" title="${t["settings.bb_spoilerbox"]}"><i class="fas fa-mask"></i></button>
+                    </div>
+                    <div class="bb-toolbar-group">
+                        <button type="button" class="bb-btn" data-bb="list" title="${t["settings.bb_list"]}"><i class="fas fa-list-ul"></i></button>
+                        <button type="button" class="bb-btn" data-bb="olist" title="${t["settings.bb_list_numbered"]}"><i class="fas fa-list-ol"></i></button>
+                    </div>
+                </div>
+                <textarea name="userpage" class="bb-textarea" maxlength="10000" spellcheck="true"
+                    placeholder="${t["settings.userpage_placeholder"]}"><#if curUserpage??>${curUserpage}</#if></textarea>
+            </div>
+            <div class="bb-editor-preview userpage" hidden data-bb-preview data-bb-error="${t["settings.userpage_preview_error"]}"></div>
+            <div class="d-flex flex-wrap align-items-center gap-2 mt-3">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save me-2"></i>
+                    ${t["settings.update_userpage"]}
+                </button>
+                <small class="text-muted">${t["settings.userpage_empty_hint"]}</small>
+                <small class="text-muted ms-auto"><span data-bb-count>0</span> / 10000</small>
+            </div>
         </form>
     </div>
 </div>

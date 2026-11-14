@@ -57,10 +57,282 @@ h1 {
     transform: translateX(20px);
 }
 
+/* userpage, BBCode output styled after osu-web */
+.userpage {
+    line-height: 1.55;
+    overflow-wrap: anywhere;
+}
+
 .userpage img {
-    width: 100%;
-    max-width: 500px;
+    max-width: 100%;
     height: auto;
+    vertical-align: middle;
+}
+
+.userpage a {
+    color: var(--bs-link-color);
+}
+
+.userpage .bb-size-50 { font-size: 50%; }
+.userpage .bb-size-85 { font-size: 85%; }
+.userpage .bb-size-100 { font-size: 100%; }
+.userpage .bb-size-150 { font-size: 150%; }
+
+.userpage .bb-centre {
+    text-align: center;
+}
+
+.userpage .bb-heading {
+    font-size: 1.4rem;
+    font-weight: 600;
+    margin: 0.6rem 0 0.4rem;
+}
+
+.userpage .bb-notice {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--bs-border-color);
+    border-radius: 0.5rem;
+    padding: 0.6rem 0.9rem;
+    margin: 0.4rem 0;
+}
+
+.userpage .bb-box {
+    background: rgba(0, 0, 0, 0.18);
+    border-radius: 0.5rem;
+    margin: 0.4rem 0;
+}
+
+.userpage .bb-box > summary {
+    cursor: pointer;
+    font-weight: 600;
+    padding: 0.45rem 0.8rem;
+    list-style: none;
+    user-select: none;
+}
+
+.userpage .bb-box > summary::-webkit-details-marker {
+    display: none;
+}
+
+.userpage .bb-box > summary::before {
+    content: "";
+    display: inline-block;
+    width: 0.45em;
+    height: 0.45em;
+    margin: 0 0.6em 0.12em 0;
+    border-right: 2px solid currentColor;
+    border-bottom: 2px solid currentColor;
+    transform: rotate(-45deg);
+    transition: transform 0.15s ease;
+}
+
+.userpage .bb-box[open] > summary::before {
+    transform: rotate(45deg);
+}
+
+.userpage .bb-box-body {
+    padding: 0.2rem 0.9rem 0.7rem;
+}
+
+.userpage .bb-quote {
+    border-left: 3px solid var(--bs-primary);
+    background: rgba(255, 255, 255, 0.04);
+    border-radius: 0 0.4rem 0.4rem 0;
+    padding: 0.5rem 0.9rem;
+    margin: 0.4rem 0;
+}
+
+.userpage .bb-quote-author {
+    font-weight: 600;
+    font-size: 0.9em;
+    opacity: 0.8;
+    margin-bottom: 0.2rem;
+}
+
+.userpage .bb-code,
+.userpage code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 0.9em;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 0.35rem;
+}
+
+.userpage .bb-code {
+    padding: 0.6rem 0.8rem;
+    margin: 0.4rem 0;
+    white-space: pre-wrap;
+}
+
+.userpage code {
+    padding: 0.1em 0.35em;
+    color: inherit;
+}
+
+.userpage .bb-spoiler {
+    background: rgba(0, 0, 0, 0.85);
+    color: transparent;
+    border-radius: 0.25rem;
+    transition: color 0.15s ease, background 0.15s ease;
+}
+
+.userpage .bb-spoiler:hover {
+    background: rgba(0, 0, 0, 0.3);
+    color: inherit;
+}
+
+.userpage .bb-list {
+    margin: 0.3rem 0;
+    padding-left: 1.6rem;
+}
+
+.userpage .bb-list li > br:last-child {
+    display: none;
+}
+
+.userpage .bb-table {
+    margin: 0.4rem 0;
+}
+
+.userpage .bb-table td,
+.userpage .bb-table th {
+    border: 1px solid var(--bs-border-color);
+    padding: 0.25rem 0.5rem;
+}
+
+.userpage .bb-youtube {
+    max-width: 640px;
+    aspect-ratio: 16 / 9;
+    margin: 0.4rem auto;
+}
+
+.userpage .bb-youtube iframe {
+    width: 100%;
+    height: 100%;
+    border: 0;
+    border-radius: 0.5rem;
+}
+
+/* userpage editor in settings */
+.bb-editor-tabs {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    margin-bottom: 0.5rem;
+}
+
+.bb-editor-tab {
+    background: transparent;
+    border: 0;
+    border-bottom: 2px solid transparent;
+    color: var(--bs-secondary-color);
+    font-weight: 600;
+    padding: 0.3rem 0.8rem;
+}
+
+.bb-editor-tab.active {
+    color: var(--bs-body-color);
+    border-bottom-color: var(--bs-primary);
+}
+
+.bb-editor-help {
+    font-size: 0.85rem;
+    color: var(--bs-secondary-color);
+    text-decoration: none;
+}
+
+.bb-editor-help:hover {
+    color: var(--bs-body-color);
+}
+
+.bb-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem 0.75rem;
+    padding: 0.4rem 0.5rem;
+    background: var(--bs-tertiary-bg);
+    border: 1px solid var(--bs-border-color);
+    border-bottom: 0;
+    border-radius: 0.5rem 0.5rem 0 0;
+}
+
+.bb-toolbar-group {
+    display: flex;
+    align-items: center;
+    gap: 0.15rem;
+}
+
+.bb-btn {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    margin: 0;
+    border: 0;
+    border-radius: 0.4rem;
+    background: transparent;
+    color: var(--bs-secondary-color);
+    cursor: pointer;
+}
+
+.bb-btn:hover,
+.bb-btn:focus-visible {
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--bs-body-color);
+}
+
+.bb-color input {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.bb-select {
+    height: 2rem;
+    border: 0;
+    border-radius: 0.4rem;
+    background: transparent;
+    color: var(--bs-secondary-color);
+    padding: 0 0.4rem;
+    cursor: pointer;
+}
+
+.bb-select:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--bs-body-color);
+}
+
+.bb-select option {
+    background: var(--bs-body-bg);
+    color: var(--bs-body-color);
+}
+
+.bb-textarea {
+    display: block;
+    width: 100%;
+    min-height: 320px;
+    resize: vertical;
+    padding: 0.75rem;
+    border: 1px solid var(--bs-border-color);
+    border-radius: 0 0 0.5rem 0.5rem;
+    background: var(--bs-body-bg);
+    color: var(--bs-body-color);
+    line-height: 1.5;
+}
+
+.bb-textarea:focus {
+    outline: none;
+    border-color: var(--bs-primary);
+}
+
+.bb-editor-preview {
+    min-height: 320px;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--bs-border-color);
+    border-radius: 0.5rem;
+    background: rgba(0, 0, 0, 0.1);
 }
 
 .beatmap-title {

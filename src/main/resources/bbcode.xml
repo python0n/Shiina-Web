@@ -1,0 +1,239 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    BBCode for userpages, modelled on osu-web. Every value that ends up inside an HTML attribute
+    is either checked by a strict regex or parsed as a URL (http, https, ftp, mailto or a local path),
+    and all other text is HTML-escaped, so a userpage cannot add its own HTML, scripts or CSS.
+-->
+<configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+               xmlns="http://kefirsf.org/kefirbb/schema"
+               xsi:schemaLocation="http://kefirsf.org/kefirbb/schema http://kefirsf.org/kefirbb/schema/kefirbb-1.2.xsd">
+    <scope name="escapeXml">
+        <code priority="100">
+            <pattern>&amp;</pattern>
+            <template>&amp;amp;</template>
+        </code>
+        <code priority="100">
+            <pattern>&apos;</pattern>
+            <template>&amp;#39;</template>
+        </code>
+        <code priority="100">
+            <pattern>&lt;</pattern>
+            <template>&amp;lt;</template>
+        </code>
+        <code priority="100">
+            <pattern>&gt;</pattern>
+            <template>&amp;gt;</template>
+        </code>
+        <code priority="100">
+            <pattern>&quot;</pattern>
+            <template>&amp;quot;</template>
+        </code>
+    </scope>
+    <!-- \[ and \] write a literal bracket -->
+    <scope name="escapeBb" parent="escapeXml">
+        <code priority="10">
+            <pattern>\\</pattern>
+            <template>\</template>
+        </code>
+        <code priority="9">
+            <pattern>\[</pattern>
+            <template>[</template>
+        </code>
+        <code priority="9">
+            <pattern>\]</pattern>
+            <template>]</template>
+        </code>
+    </scope>
+    <scope name="basic" parent="escapeBb">
+        <code name="br">
+            <pattern><eol/></pattern>
+            <template>&lt;br&gt;</template>
+        </code>
+    </scope>
+    <!-- inline formatting only, used for link text and box titles -->
+    <scope name="inline" parent="basic">
+        <coderef name="bold"/>
+        <coderef name="italic"/>
+        <coderef name="underline"/>
+        <coderef name="strike"/>
+        <coderef name="color"/>
+        <coderef name="inlinecode"/>
+    </scope>
+    <scope name="ROOT" parent="basic">
+        <coderef name="bold"/>
+        <coderef name="italic"/>
+        <coderef name="underline"/>
+        <coderef name="strike"/>
+        <coderef name="color"/>
+        <coderef name="size"/>
+        <coderef name="spoiler"/>
+        <coderef name="inlinecode"/>
+        <coderef name="centre"/>
+        <coderef name="heading"/>
+        <coderef name="notice"/>
+        <coderef name="box"/>
+        <coderef name="spoilerbox"/>
+        <coderef name="quote"/>
+        <coderef name="quoteplain"/>
+        <coderef name="code"/>
+        <coderef name="list"/>
+        <coderef name="olist"/>
+        <coderef name="table"/>
+        <coderef name="img"/>
+        <coderef name="url"/>
+        <coderef name="urlplain"/>
+        <coderef name="email"/>
+        <coderef name="profile"/>
+        <coderef name="youtube"/>
+    </scope>
+    <code name="bold">
+        <pattern ignoreCase="true">[b]<var inherit="true"/>[/b]</pattern>
+        <template>&lt;strong&gt;<var/>&lt;/strong&gt;</template>
+    </code>
+    <code name="italic">
+        <pattern ignoreCase="true">[i]<var inherit="true"/>[/i]</pattern>
+        <template>&lt;em&gt;<var/>&lt;/em&gt;</template>
+    </code>
+    <code name="underline">
+        <pattern ignoreCase="true">[u]<var inherit="true"/>[/u]</pattern>
+        <template>&lt;u&gt;<var/>&lt;/u&gt;</template>
+    </code>
+    <code name="strike">
+        <pattern ignoreCase="true">[s]<var inherit="true"/>[/s]</pattern>
+        <pattern ignoreCase="true">[strike]<var inherit="true"/>[/strike]</pattern>
+        <template>&lt;del&gt;<var/>&lt;/del&gt;</template>
+    </code>
+    <!-- only #rgb, #rrggbb or a colour name: nothing else can reach the style attribute -->
+    <code name="color">
+        <pattern ignoreCase="true">[color=<var name="color" regex="#[0-9a-fA-F]{6}|#[0-9a-fA-F]{3}|[a-zA-Z]{1,20}"/>]<var name="text" inherit="true"/>[/color]</pattern>
+        <template>&lt;span style=&quot;color: <var name="color"/>&quot;&gt;<var name="text"/>&lt;/span&gt;</template>
+    </code>
+    <!-- osu-web sizes: 50 (tiny), 85 (small), 100 (normal), 150 (large) -->
+    <code name="size">
+        <pattern ignoreCase="true">[size=<var name="size" regex="50|85|100|150"/>]<var name="text" inherit="true"/>[/size]</pattern>
+        <template>&lt;span class=&quot;bb-size-<var name="size"/>&quot;&gt;<var name="text"/>&lt;/span&gt;</template>
+    </code>
+    <code name="spoiler">
+        <pattern ignoreCase="true">[spoiler]<var inherit="true"/>[/spoiler]</pattern>
+        <template>&lt;span class=&quot;bb-spoiler&quot;&gt;<var/>&lt;/span&gt;</template>
+    </code>
+    <code name="inlinecode">
+        <pattern ignoreCase="true">[c]<var scope="escapeBb"/>[/c]</pattern>
+        <template>&lt;code&gt;<var/>&lt;/code&gt;</template>
+    </code>
+    <!-- block tags swallow the line break right after them, like osu-web -->
+    <code name="centre">
+        <pattern ignoreCase="true">[centre]<var inherit="true"/>[/centre]<eol/></pattern>
+        <pattern ignoreCase="true">[centre]<var inherit="true"/>[/centre]</pattern>
+        <pattern ignoreCase="true">[center]<var inherit="true"/>[/center]<eol/></pattern>
+        <pattern ignoreCase="true">[center]<var inherit="true"/>[/center]</pattern>
+        <template>&lt;div class=&quot;bb-centre&quot;&gt;<var/>&lt;/div&gt;</template>
+    </code>
+    <code name="heading">
+        <pattern ignoreCase="true">[heading]<var scope="inline"/>[/heading]<eol/></pattern>
+        <pattern ignoreCase="true">[heading]<var scope="inline"/>[/heading]</pattern>
+        <template>&lt;h2 class=&quot;bb-heading&quot;&gt;<var/>&lt;/h2&gt;</template>
+    </code>
+    <code name="notice">
+        <pattern ignoreCase="true">[notice]<var inherit="true"/>[/notice]<eol/></pattern>
+        <pattern ignoreCase="true">[notice]<var inherit="true"/>[/notice]</pattern>
+        <template>&lt;div class=&quot;bb-notice&quot;&gt;<var/>&lt;/div&gt;</template>
+    </code>
+    <code name="box">
+        <pattern ignoreCase="true">[box=<var name="title" regex="[^\[\]\r\n&lt;&gt;&amp;&quot;]{1,100}"/>]<var name="body" inherit="true"/>[/box]<eol/></pattern>
+        <pattern ignoreCase="true">[box=<var name="title" regex="[^\[\]\r\n&lt;&gt;&amp;&quot;]{1,100}"/>]<var name="body" inherit="true"/>[/box]</pattern>
+        <template>&lt;details class=&quot;bb-box&quot;&gt;&lt;summary&gt;<var name="title"/>&lt;/summary&gt;&lt;div class=&quot;bb-box-body&quot;&gt;<var name="body"/>&lt;/div&gt;&lt;/details&gt;</template>
+    </code>
+    <code name="spoilerbox">
+        <pattern ignoreCase="true">[spoilerbox]<var name="body" inherit="true"/>[/spoilerbox]<eol/></pattern>
+        <pattern ignoreCase="true">[spoilerbox]<var name="body" inherit="true"/>[/spoilerbox]</pattern>
+        <pattern ignoreCase="true">[box]<var name="body" inherit="true"/>[/box]<eol/></pattern>
+        <pattern ignoreCase="true">[box]<var name="body" inherit="true"/>[/box]</pattern>
+        <template>&lt;details class=&quot;bb-box&quot;&gt;&lt;summary&gt;SPOILER&lt;/summary&gt;&lt;div class=&quot;bb-box-body&quot;&gt;<var name="body"/>&lt;/div&gt;&lt;/details&gt;</template>
+    </code>
+    <code name="quote">
+        <pattern ignoreCase="true">[quote=&quot;<var name="author" regex="[^\[\]\r\n&lt;&gt;&amp;&quot;]{1,64}"/>&quot;]<var name="body" inherit="true"/>[/quote]<eol/></pattern>
+        <pattern ignoreCase="true">[quote=&quot;<var name="author" regex="[^\[\]\r\n&lt;&gt;&amp;&quot;]{1,64}"/>&quot;]<var name="body" inherit="true"/>[/quote]</pattern>
+        <template>&lt;blockquote class=&quot;bb-quote&quot;&gt;&lt;div class=&quot;bb-quote-author&quot;&gt;<var name="author"/>&lt;/div&gt;<var name="body"/>&lt;/blockquote&gt;</template>
+    </code>
+    <code name="quoteplain">
+        <pattern ignoreCase="true">[quote]<var inherit="true"/>[/quote]<eol/></pattern>
+        <pattern ignoreCase="true">[quote]<var inherit="true"/>[/quote]</pattern>
+        <template>&lt;blockquote class=&quot;bb-quote&quot;&gt;<var/>&lt;/blockquote&gt;</template>
+    </code>
+    <code name="code">
+        <pattern ignoreCase="true">[code]<eol/><var scope="escapeXml"/>[/code]<eol/></pattern>
+        <pattern ignoreCase="true">[code]<eol/><var scope="escapeXml"/>[/code]</pattern>
+        <pattern ignoreCase="true">[code]<var scope="escapeXml"/>[/code]<eol/></pattern>
+        <pattern ignoreCase="true">[code]<var scope="escapeXml"/>[/code]</pattern>
+        <template>&lt;pre class=&quot;bb-code&quot;&gt;<var/>&lt;/pre&gt;</template>
+    </code>
+    <code name="list">
+        <pattern ignoreCase="true">[list]<var scope="listScope"/>[/list]<eol/></pattern>
+        <pattern ignoreCase="true">[list]<var scope="listScope"/>[/list]</pattern>
+        <template>&lt;ul class=&quot;bb-list&quot;&gt;<var/>&lt;/ul&gt;</template>
+    </code>
+    <code name="olist">
+        <pattern ignoreCase="true">[list=<var name="type" regex="[0-9a-zA-Z]{1,3}"/>]<var name="items" scope="listScope"/>[/list]<eol/></pattern>
+        <pattern ignoreCase="true">[list=<var name="type" regex="[0-9a-zA-Z]{1,3}"/>]<var name="items" scope="listScope"/>[/list]</pattern>
+        <template>&lt;ol class=&quot;bb-list&quot;&gt;<var name="items"/>&lt;/ol&gt;</template>
+    </code>
+    <scope name="listScope" ignoreText="true">
+        <code>
+            <pattern>[*]<var scope="ROOT"/><constant value="[*]" ghost="true"/></pattern>
+            <pattern>[*]<var scope="ROOT"/></pattern>
+            <template>&lt;li&gt;<var/>&lt;/li&gt;</template>
+        </code>
+    </scope>
+    <!-- kept so userpages written with the old editor still show their tables -->
+    <code name="table">
+        <pattern ignoreCase="true">[table]<var scope="tableScope"/>[/table]<eol/></pattern>
+        <pattern ignoreCase="true">[table]<var scope="tableScope"/>[/table]</pattern>
+        <template>&lt;table class=&quot;bb-table&quot;&gt;<var/>&lt;/table&gt;</template>
+    </code>
+    <scope name="tableScope" ignoreText="true">
+        <code>
+            <pattern ignoreCase="true">[tr]<var scope="trScope"/>[/tr]</pattern>
+            <template>&lt;tr&gt;<var/>&lt;/tr&gt;</template>
+        </code>
+    </scope>
+    <scope name="trScope" ignoreText="true">
+        <code>
+            <pattern ignoreCase="true">[th]<var/>[/th]</pattern>
+            <template>&lt;th&gt;<var/>&lt;/th&gt;</template>
+        </code>
+        <code>
+            <pattern ignoreCase="true">[td]<var/>[/td]</pattern>
+            <template>&lt;td&gt;<var/>&lt;/td&gt;</template>
+        </code>
+    </scope>
+    <code name="img">
+        <pattern ignoreCase="true">[img]<url local="true"/>[/img]</pattern>
+        <template>&lt;img src=&quot;<var name="url"/>&quot; alt=&quot;&quot; loading=&quot;lazy&quot; referrerpolicy=&quot;no-referrer&quot;&gt;</template>
+    </code>
+    <scope name="linkText" parent="inline"/>
+    <code name="url">
+        <pattern ignoreCase="true">[url=<url local="true"/>]<var name="text" scope="linkText"/>[/url]</pattern>
+        <template>&lt;a href=&quot;<var name="url"/>&quot; rel=&quot;nofollow noopener noreferrer&quot; target=&quot;_blank&quot;&gt;<var name="text"/>&lt;/a&gt;</template>
+    </code>
+    <code name="urlplain">
+        <pattern ignoreCase="true">[url]<url local="true"/>[/url]</pattern>
+        <template>&lt;a href=&quot;<var name="url"/>&quot; rel=&quot;nofollow noopener noreferrer&quot; target=&quot;_blank&quot;&gt;<var name="url"/>&lt;/a&gt;</template>
+    </code>
+    <code name="email">
+        <pattern ignoreCase="true">[email]<email/>[/email]</pattern>
+        <template>&lt;a href=&quot;mailto:<var name="email"/>&quot;&gt;<var name="email"/>&lt;/a&gt;</template>
+    </code>
+    <code name="profile">
+        <pattern ignoreCase="true">[profile]<var name="who" regex="[A-Za-z0-9_\-]{1,32}"/>[/profile]</pattern>
+        <template>&lt;a href=&quot;/u/<var name="who"/>&quot; class=&quot;bb-profile&quot;&gt;<var name="who"/>&lt;/a&gt;</template>
+    </code>
+    <!-- [youtube] takes the video id or a whole YouTube link (watch, youtu.be, shorts, embed, live) -->
+    <code name="youtube">
+        <pattern ignoreCase="true">[youtube]<var name="id" regex="[A-Za-z0-9_\-]{11}"/>[/youtube]<eol/></pattern>
+        <pattern ignoreCase="true">[youtube]<var name="id" regex="[A-Za-z0-9_\-]{11}"/>[/youtube]</pattern>
+        <pattern ignoreCase="true">[youtube]<var name="ytlink" regex="(?:https?://)?(?:www\.|m\.|music\.)?(?:youtube\.com/(?:watch\?(?:[^\[\]\s]*?&amp;)?v=|shorts/|embed/|live/)|youtu\.be/)"/><var name="id" regex="[A-Za-z0-9_\-]{11}"/><junk/>[/youtube]<eol/></pattern>
+        <pattern ignoreCase="true">[youtube]<var name="ytlink" regex="(?:https?://)?(?:www\.|m\.|music\.)?(?:youtube\.com/(?:watch\?(?:[^\[\]\s]*?&amp;)?v=|shorts/|embed/|live/)|youtu\.be/)"/><var name="id" regex="[A-Za-z0-9_\-]{11}"/><junk/>[/youtube]</pattern>
+        <template>&lt;div class=&quot;bb-youtube&quot;&gt;&lt;iframe src=&quot;https://www.youtube-nocookie.com/embed/<var name="id"/>&quot; title=&quot;YouTube&quot; loading=&quot;lazy&quot; allowfullscreen&gt;&lt;/iframe&gt;&lt;/div&gt;</template>
+    </code>
+</configuration>
