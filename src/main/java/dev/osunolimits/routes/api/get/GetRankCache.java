@@ -8,6 +8,7 @@ import dev.osunolimits.modules.ShiinaRoute.ShiinaRequest;
 import dev.osunolimits.modules.utils.MySQLRoute;
 import dev.osunolimits.utils.Validation;
 import dev.osunolimits.utils.osu.OsuConverter;
+import dev.osunolimits.utils.Visibility;
 import lombok.Data;
 import spark.Request;
 import spark.Response;
@@ -37,6 +38,11 @@ public class GetRankCache extends MySQLRoute {
 
         if (shiinaAPIHandler.hasIssues()) {
             return shiinaAPIHandler.renderIssues(shiina, res);
+        }
+
+        // restricted players are hidden from everyone but themselves and the staff
+        if (!Visibility.canSee(shiina, id)) {
+            return notFound(res, shiina);
         }
 
         ResultSet rankCacheResultSet = shiina.mysql.Query(GET_RANK_CACHE, mode, id);

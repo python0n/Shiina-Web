@@ -10,6 +10,7 @@ import dev.osunolimits.modules.utils.MySQLRoute;
 import dev.osunolimits.modules.utils.ShiinaSupporterBadge;
 import dev.osunolimits.utils.Validation;
 import dev.osunolimits.utils.osu.PermissionHelper;
+import dev.osunolimits.utils.Visibility;
 import lombok.Data;
 import spark.Request;
 import spark.Response;
@@ -48,6 +49,13 @@ public class GetComments extends MySQLRoute {
 
         if (shiinaAPIHandler.hasIssues()) {
             return shiinaAPIHandler.renderIssues(shiina, res);
+        }
+
+        // comments on the profile of a restricted player are hidden together
+        // with the profile (their own comments elsewhere are already left out
+        // by the query)
+        if ("user".equalsIgnoreCase(target) && !Visibility.canSee(shiina, id)) {
+            return notFound(res, shiina);
         }
 
         ArrayList<Comment> comments = new ArrayList<>();
