@@ -112,6 +112,7 @@ public class OsrParser {
 
         // compressed replay data
         int replayLen = readInt(stream);
+        if (replayLen > stream.available()) throw new IOException("Invalid replay data length");
         if (replayLen > 0) {
             if (parseFrames) {
                 byte[] compressed = stream.readNBytes(replayLen);
@@ -138,22 +139,37 @@ public class OsrParser {
         return osr;
     }
 
+    // the replay comes from the player, so the header of the LZMA stream is not
+    // trusted: it may ask for a dictionary of gigabytes or unpack into gigabytes
+    private static final int LZMA_MEMORY_LIMIT_KIB = 128 * 1024;
+    private static final int MAX_DECOMPRESSED_BYTES = 16 * 1024 * 1024;
+    private static final int MAX_FRAMES = 1_000_000;
+
     private static String decompressLZMA(byte[] compressed) throws IOException {
         // osu! używa LZMA bez nagłówka XZ — raw LZMA stream
         ByteArrayInputStream bis = new ByteArrayInputStream(compressed);
-        LZMAInputStream lzma = new LZMAInputStream(bis);
-        byte[] decompressed = lzma.readAllBytes();
-        lzma.close();
-        return new String(decompressed, StandardCharsets.UTF_8);
+        try (LZMAInputStream lzma = new LZMAInputStream(bis, LZMA_MEMORY_LIMIT_KIB)) {
+            byte[] decompressed = lzma.readNBytes(MAX_DECOMPRESSED_BYTES + 1);
+            if (decompressed.length > MAX_DECOMPRESSED_BYTES) {
+                throw new IOException("Replay data is too large");
+            }
+            return new String(decompressed, StandardCharsets.UTF_8);
+        }
     }
 
     private static List<ReplayFrame> parseReplayFrames(String replayStr) {
         List<ReplayFrame> frames = new ArrayList<>();
         long absoluteTime = 0;
 
-        String[] parts = replayStr.split(",");
-        for (String part : parts) {
-            part = part.trim();
+        // walk the string instead of split(","), so a huge replay does not
+        // turn into millions of substrings at once
+        int pos = 0;
+        int len = replayStr.length();
+        while (pos < len && frames.size() < MAX_FRAMES) {
+            int comma = replayStr.indexOf(',', pos);
+            if (comma == -1) comma = len;
+            String part = replayStr.substring(pos, comma).trim();
+            pos = comma + 1;
             if (part.isEmpty()) continue;
 
             String[] fields = part.split("\\|");
@@ -278,6 +294,7 @@ public class OsrParser {
             shift += 7;
         }
 
+        if (len < 0) throw new IOException("Invalid string length");
         byte[] strBytes = s.readNBytes(len);
         return new String(strBytes, StandardCharsets.UTF_8);
     }

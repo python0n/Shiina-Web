@@ -18,6 +18,7 @@ import spark.Response;
 import dev.osunolimits.utils.osu.LegacyScoreCalc;
 import dev.osunolimits.utils.osu.OsuConverter;
 import dev.osunolimits.utils.osu.PermissionHelper;
+import dev.osunolimits.utils.Visibility;
 
 public class MatchView extends Shiina {
     private static final int MOD_SCOREV2 = 536870912;
@@ -31,9 +32,14 @@ public class MatchView extends Shiina {
         if (idStr == null || !idStr.matches("\\d+")) return redirect(res, shiina, "/matches");
         long matchId = Long.parseLong(idStr);
 
+        // restricted players are hidden from everyone except themselves and the
+        // staff: their name, events and scores are left out of the match page.
+        // rows without a user (deleted account) stay as they were
+        String visibleUser = "(u.id IS NULL OR " + Visibility.sqlVisible(shiina, "u") + ")";
+
         ResultSet matchRs = shiina.mysql.Query(
             "SELECT m.id, m.name, m.created_at, m.ended_at, m.hidden, u.name as creator_name, m.creator_id " +
-            "FROM mp_matches m LEFT JOIN users u ON u.id = m.creator_id " +
+            "FROM mp_matches m LEFT JOIN users u ON u.id = m.creator_id AND " + Visibility.sqlVisible(shiina, "u") + " " +
             "WHERE m.id = ?", matchId
         );
         if (matchRs == null || !matchRs.next()) return notFound(res, shiina);
@@ -59,7 +65,7 @@ public class MatchView extends Shiina {
         ResultSet eventsRs = shiina.mysql.Query(
             "SELECT e.type, e.user_id, e.data, e.created_at, u.name as username " +
             "FROM mp_match_events e LEFT JOIN users u ON u.id = e.user_id " +
-            "WHERE e.match_id = ? ORDER BY e.created_at ASC", matchId
+            "WHERE e.match_id = ? AND " + visibleUser + " ORDER BY e.created_at ASC", matchId
         );
         List<Map<String, Object>> events = new ArrayList<>();
         while (eventsRs != null && eventsRs.next()) {
@@ -132,7 +138,7 @@ public class MatchView extends Shiina {
                 "SELECT s.user_id, s.score, s.max_combo, s.mods, s.n300, s.n100, s.n50, " +
                 "s.nmiss, s.ngeki, s.nkatu, s.passed, s.team, u.name as username " +
                 "FROM mp_match_scores s LEFT JOIN users u ON u.id = s.user_id " +
-                "WHERE s.game_id = ?", gameId
+                "WHERE s.game_id = ? AND " + visibleUser, gameId
             );
 
             List<Map<String, Object>> scores = new ArrayList<>();

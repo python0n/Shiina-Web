@@ -240,7 +240,8 @@ public class Analyzer extends Shiina {
             shiina.data.put("noteResultsJson", buildNoteResultsJson(analysis));
         } catch (Exception e) {
             log.error("Failed to analyze replay {}: {}", scoreId, e.getMessage(), e);
-            shiina.data.put("error", "Analysis error: " + e.getMessage());
+            // the details stay in the log: the message of an I/O error holds server paths
+            shiina.data.put("error", "This replay could not be analyzed.");
         }
 
         shiina.data.put("seo", new SEOBuilder("Analyzer", ""));

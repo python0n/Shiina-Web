@@ -11,6 +11,7 @@ import dev.osunolimits.modules.utils.SEOBuilder;
 import dev.osunolimits.main.App;
 import dev.osunolimits.modules.ShiinaRoute;
 import dev.osunolimits.modules.ShiinaRoute.ShiinaRequest;
+import dev.osunolimits.utils.Visibility;
 import dev.osunolimits.utils.osu.PermissionHelper;
 import spark.Request;
 import spark.Response;
@@ -33,7 +34,8 @@ public class MatchList extends Shiina {
         ResultSet rs = shiina.mysql.Query(
             "SELECT m.id, m.name, m.created_at, m.ended_at, m.hidden, u.name as creator_name, " +
             "(SELECT COUNT(*) FROM mp_match_games WHERE match_id = m.id) as game_count " +
-            "FROM mp_matches m LEFT JOIN users u ON u.id = m.creator_id " +
+            // the name of a restricted creator is left out, like everywhere else on the site
+            "FROM mp_matches m LEFT JOIN users u ON u.id = m.creator_id AND " + Visibility.sqlVisible(shiina, "u") + " " +
             (canSeeHidden ? "" : "WHERE m.hidden = 0 ") +
             "ORDER BY m.created_at DESC"
         );

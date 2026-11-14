@@ -58,6 +58,16 @@ public class GetComments extends MySQLRoute {
             return notFound(res, shiina);
         }
 
+        // comments under a replay of a restricted player are hidden together
+        // with the score page (/scores/:id answers 404 for it as well)
+        if ("replay".equalsIgnoreCase(target)) {
+            try (ResultSet ownerRs = shiina.mysql.Query("SELECT `userid` FROM `scores` WHERE `id` = ?", id)) {
+                if (ownerRs != null && ownerRs.next() && !Visibility.canSee(shiina, ownerRs.getInt("userid"))) {
+                    return notFound(res, shiina);
+                }
+            }
+        }
+
         ArrayList<Comment> comments = new ArrayList<>();
         ResultSet getCommentsResultSet = shiina.mysql.Query(GET_COMMENTS_SQL, id, target, 6, offset);
         while (getCommentsResultSet.next()) {

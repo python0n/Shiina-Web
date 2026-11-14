@@ -18,7 +18,7 @@
             <div>
                 <h1 class="h4 mb-1"><i class="fa-solid fa-gamepad me-2"></i>${match.name}</h1>
                 <div class="text-muted small">
-                    ${t["match.created_by"]} <a href="/u/${match.creator_id?c}">${match.creator_name!match.creator_id?c}</a>
+                    ${t["match.created_by"]} <#if match.creator_name??><a href="/u/${match.creator_id?c}">${match.creator_name}</a><#else>-</#if>
                     &nbsp;•&nbsp;
                     <span data-timestamp-format="date" data-timestamp="${match.created_at}">${match.created_at}</span>
                     <#if match.ended_at??>

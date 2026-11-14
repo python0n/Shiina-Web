@@ -63,7 +63,16 @@ public class OsuFileParser {
         }
     }
 
+    // the .osu file may come from a player (map upload), and the analysis walks
+    // the objects several times, so its size is bounded
+    private static final long MAX_FILE_BYTES = 8L * 1024 * 1024;
+    private static final int MAX_HIT_OBJECTS = 30_000;
+    private static final int MAX_TIMING_POINTS = 20_000;
+
     public static OsuData parse(String filePath) throws IOException {
+        if (new java.io.File(filePath).length() > MAX_FILE_BYTES) {
+            throw new IOException("Beatmap file is too large to analyze");
+        }
         OsuData data = new OsuData();
         String section = "";
 
@@ -84,6 +93,9 @@ public class OsuFileParser {
                     case "General" -> parseGeneral(line, data);
                     case "TimingPoints" -> parseTimingPoint(line, data);
                     case "HitObjects" -> parseHitObject(line, data);
+                }
+                if (data.hitObjects.size() > MAX_HIT_OBJECTS || data.timingPoints.size() > MAX_TIMING_POINTS) {
+                    throw new IOException("Beatmap has too many objects to analyze");
                 }
             }
         }
