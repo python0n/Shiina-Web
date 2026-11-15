@@ -6,6 +6,7 @@ import dev.osunolimits.main.App;
 import dev.osunolimits.modules.Shiina;
 import dev.osunolimits.modules.ShiinaRoute;
 import dev.osunolimits.modules.ShiinaRoute.ShiinaRequest;
+import dev.osunolimits.modules.utils.Embed;
 import dev.osunolimits.modules.utils.SEOBuilder;
 import dev.osunolimits.utils.Validation;
 import dev.osunolimits.utils.Visibility;
@@ -44,7 +45,14 @@ public class UserScore extends Shiina {
             }
         }
 
-        if(s.getBeatmap().getFilename() != null) shiina.data.put("seo", new SEOBuilder(s.getUsername() + " on " + s.getBeatmap().getFilename().replace(".osu", ""),  App.customization.get("homeDescription").toString()));
+        if (s.getBeatmap().getFilename() != null) {
+            String seoMap = s.getBeatmap().getArtist() + " - " + s.getBeatmap().getTitle() + " [" + s.getBeatmap().getVersion() + "]";
+            String seoDesc = Embed.text(shiina, "seo.score", "pp", Math.round(s.getPp()), "acc", Embed.decimal(s.getAcc(), 2),
+                    "grade", Embed.grade(s.getGrade()), "mods", Embed.mods(s.getMods()), "combo", s.getMaxCombo(),
+                    "mode", Embed.mode(s.getMode()));
+            String seoImage = "https://assets.ppy.sh/beatmaps/" + s.getBeatmap().getSet_id() + "/covers/cover.jpg";
+            shiina.data.put("seo", new SEOBuilder(s.getUsername() + " - " + seoMap, seoDesc, seoImage));
+        }
         
         return renderTemplate("score.html", shiina, res, req);
     }

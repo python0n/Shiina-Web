@@ -13,6 +13,7 @@ import dev.osunolimits.modules.Shiina;
 import dev.osunolimits.modules.ShiinaRoute;
 import dev.osunolimits.modules.XmlConfig;
 import dev.osunolimits.modules.ShiinaRoute.ShiinaRequest;
+import dev.osunolimits.modules.utils.Embed;
 import dev.osunolimits.modules.utils.SEOBuilder;
 import dev.osunolimits.modules.utils.ShiinaSupporterBadge;
 import dev.osunolimits.utils.Validation;
@@ -84,7 +85,11 @@ public class Beatmap extends Shiina {
 
         fullBeatmap.setScores(scores.toArray(new FullBeatmap.BeatmapScore[0]));
         String peppyImageUrl = "https://assets.ppy.sh/beatmaps/" + fullBeatmap.getSetId() + "/covers/cover.jpg?1650681317";
-        SEOBuilder seo = new SEOBuilder(fullBeatmap.getTitle(), App.customization.get("homeDescription").toString(), peppyImageUrl);
+        String seoDesc = Embed.text(shiina, "seo.beatmap", "creator", fullBeatmap.getCreator(),
+                "stars", Embed.decimal(fullBeatmap.getDiff(), 2), "bpm", Math.round(fullBeatmap.getBpm()),
+                "length", Embed.length(fullBeatmap.getTotalLength()), "status", Embed.status(shiina, fullBeatmap.getStatus()),
+                "mode", Embed.mode(fullBeatmap.getMode()), "plays", fullBeatmap.getPlays());
+        SEOBuilder seo = new SEOBuilder(fullBeatmap.getArtist() + " - " + fullBeatmap.getTitle() + " [" + fullBeatmap.getVersion() + "]", seoDesc, peppyImageUrl);
         shiina.data.put("seo", seo);
         shiina.data.put("commentsEnabled", Boolean.parseBoolean(XmlConfig.getInstance().get("shiina.simple-comments.enabled")));
         shiina.data.put("beatmap", fullBeatmap);

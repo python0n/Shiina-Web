@@ -8,9 +8,9 @@ import dev.osunolimits.main.App;
 import dev.osunolimits.modules.Shiina;
 import dev.osunolimits.modules.ShiinaRoute;
 import dev.osunolimits.modules.ShiinaRoute.ShiinaRequest;
+import dev.osunolimits.modules.utils.Embed;
 import dev.osunolimits.modules.utils.SEOBuilder;
 import dev.osunolimits.utils.Validation;
-import dev.osunolimits.utils.osu.OsuConverter;
 import lombok.Data;
 import spark.Request;
 import spark.Response;
@@ -61,9 +61,11 @@ public class Clan extends Shiina {
             return notFound(res, shiina);
         }
 
-        shiina.data.put("seo", new SEOBuilder(response.getName() + " | Clan | " + OsuConverter.convertModeBack(String.valueOf(mode)), App.customization.get("homeDescription").toString()));
+        var members = clanQuery.getMembers(id);
+        shiina.data.put("seo", new SEOBuilder(response.getName() + " [" + response.getTag() + "]",
+                Embed.text(shiina, "seo.clan", "server", App.customization.get("serverName"), "members", members.size())));
         shiina.data.put("clan", response);
-        shiina.data.put("members", clanQuery.getMembers(id));
+        shiina.data.put("members", members);
         shiina.data.put("activity", clanQuery.getClanActivity(id, mode));
         return renderTemplate("clans/clan.html", shiina, res, req);
     }

@@ -58,8 +58,15 @@
           <a class="nav-link" href="/analyzer">${t["nav.analyzer"]}</a>
         </li>
 
-        <li class="nav-item">
-          <a class="nav-link <#if actNav == 98>active</#if>" href="/reworks">${t["nav.reworks"]}</a>
+        <!-- PP Lab dropdown: pp calculator and pp reworks -->
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle <#if actNav == 98>active</#if>" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            ${t["nav.pplab"]}
+          </a>
+          <ul class="dropdown-menu mt-lg-2 rounded-top-0">
+            <li><a class="dropdown-item" href="/pp">${t["nav.pp_calculator"]}</a></li>
+            <li><a class="dropdown-item" href="/reworks">${t["nav.reworks"]}</a></li>
+          </ul>
         </li>
 
         <!-- docs dropdown -->

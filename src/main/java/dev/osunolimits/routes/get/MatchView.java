@@ -9,6 +9,7 @@ import java.util.Locale;
 import java.util.Map;
 
 import dev.osunolimits.modules.Shiina;
+import dev.osunolimits.modules.utils.Embed;
 import dev.osunolimits.modules.utils.SEOBuilder;
 import dev.osunolimits.main.App;
 import dev.osunolimits.modules.ShiinaRoute;
@@ -189,7 +190,14 @@ public class MatchView extends Shiina {
         }
         shiina.data.put("games", games);
 
-        shiina.data.put("seo", new SEOBuilder(match.get("name").toString(), ""));
+        java.util.Set<Object> seoPlayers = new java.util.HashSet<>();
+        for (Map<String, Object> g : games) {
+            for (Object sc : (List<?>) g.get("scores")) {
+                seoPlayers.add(((Map<?, ?>) sc).get("user_id"));
+            }
+        }
+        shiina.data.put("seo", new SEOBuilder(match.get("name").toString(),
+                Embed.text(shiina, "seo.match", "games", games.size(), "players", seoPlayers.size())));
         return renderTemplate("match.html", shiina, res, req);
     }
 }

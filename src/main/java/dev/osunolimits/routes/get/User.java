@@ -20,6 +20,7 @@ import dev.osunolimits.modules.Shiina;
 import dev.osunolimits.modules.ShiinaRoute;
 import dev.osunolimits.modules.ShiinaRoute.ShiinaRequest;
 import dev.osunolimits.modules.utils.UserpageRenderer;
+import dev.osunolimits.modules.utils.Embed;
 import dev.osunolimits.modules.utils.SEOBuilder;
 import dev.osunolimits.modules.utils.ShiinaAchievementsSorter;
 import dev.osunolimits.modules.utils.ShiinaSupporterBadge;
@@ -228,7 +229,15 @@ public class User extends Shiina {
         shiina.data.put("u", user);
         shiina.data.put("mode", mode);
         shiina.data.put("status", userStatus);
-        SEOBuilder seo = new SEOBuilder("Profile of " + userInfo.getName(), App.customization.get("homeDescription").toString(), App.env.get("AVATARSRV") + "/" + id);
+        // link preview: rank, pp, accuracy and plays in the mode that is open
+        String seoDesc = App.customization.get("homeDescription").toString();
+        FullUser.UserStats seoStats = user.getPlayer().getStats().get(String.valueOf(mode));
+        if (seoStats != null) {
+            seoDesc = Embed.text(shiina, seoStats.getRank() > 0 ? "seo.profile" : "seo.profile_norank",
+                    "rank", seoStats.getRank(), "mode", Embed.mode(mode), "pp", seoStats.getPp(),
+                    "acc", Embed.decimal(seoStats.getAcc(), 2), "plays", seoStats.getPlays());
+        }
+        SEOBuilder seo = new SEOBuilder(userInfo.getName(), seoDesc, App.env.get("AVATARSRV") + "/" + id);
         shiina.data.put("seo", seo);
         java.util.List<dev.osunolimits.models.UserBadge> badgeList = new java.util.ArrayList<>();
         java.sql.ResultSet badgeRs = shiina.mysql.Query("SELECT id, image, caption, awarded_date, link FROM user_badges WHERE userid = ? ORDER BY sort_order ASC, id ASC", id);
