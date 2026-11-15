@@ -803,7 +803,7 @@ h1 {
 }
 
 @media (max-width: 767px) {
-    .logo-col {
+    .logo-col, .lol {
         display: none;
 
 
@@ -3474,3 +3474,23 @@ END LEADERBOARD */
 .pc-pp { font-size: 1.9rem; font-weight: 700; line-height: 1.2; margin: 4px 0; }
 .pc-pp span { font-size: .9rem; font-weight: 600; margin-left: 2px; color: var(--bs-secondary-color); }
 .pc-table td, .pc-table th { padding: 6px 12px; white-space: nowrap; }
+
+/* home: header text and big logo centred vertically, logo on the right a bit higher */
+@media (min-width: 768px) {
+    .overlay > .row {
+        flex: 1 1 auto;
+    }
+    .logo-col, .lol {
+        display: flex;
+        align-items: center;
+    }
+    .logo-col img {
+        width: 70% !important;
+        max-width: 290px !important;
+        height: auto;
+        transform: translateY(-40px);
+    }
+    .lol > div {
+        transform: translateY(-40px);
+    }
+}
