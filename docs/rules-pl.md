@@ -52,6 +52,8 @@ Przekleństwa i czarny humor są w porządku, dopóki nie celują w konkretne gr
 - Możesz wysyłać własne mapy przez Beatmap Submission System.
 - **Chcesz wrzucić mapę innego autora, która nie była nigdzie opublikowana? Najpierw zapytaj admina.**
 - Admin może zmienić status mapy albo ją usunąć, jeśli łamie te zasady albo przeszkadza w grze innym.
+- Za to, co wysyłasz na serwer (mapy, avatary, banery, opis profilu), odpowiadasz ty i musisz mieć do tego prawo.
+- **Prawa autorskie:** jeśli uważasz, że coś na serwerze narusza twoje prawa, napisz na adres z sekcji [Kontakt](#kontakt). Podaj, o co chodzi i gdzie to jest. Admin usunie taką treść albo odpowie, dlaczego zostaje.
 
 ## Wyniki i pp
 
@@ -84,9 +86,11 @@ Serwer zbiera tylko to, czego potrzebuje do działania i pilnowania tych zasad. 
 | Ostatnie wiadomości z kanałów publicznych (7 dni) | Historia kanałów w czacie na stronie |
 | Czat meczów multiplayer | Historia meczu, widoczna tylko dla obsługi |
 | Powiadomienia (np. o zaakceptowanym replayu albo zabranym #1) | Dzwonek na stronie |
-| Adres IP i wersja klienta przy logowaniu z gry | Bezpieczeństwo i wykrywanie nadużyć |
+| Adres IP i wersja klienta przy logowaniu z gry (z ostatnich 90 dni) | Bezpieczeństwo i wykrywanie nadużyć |
 | Skróty identyfikatorów sprzętu wysyłane przez klienta osu! (karty sieciowej, dysku, instalacji) | Wykrywanie niezgłoszonych drugich kont. Serwer dostaje tylko skróty (hashe), nie same numery. |
 | Adres IP, przeglądarka i przybliżony kraj przy logowaniu na stronę | Lista aktywnych sesji w ustawieniach konta |
+
+Logi serwera i strony, w których jest adres IP, są usuwane najpóźniej po 30 dniach.
 
 ### Ciasteczka
 
@@ -109,7 +113,12 @@ Nie ma ciasteczek reklamowych ani śledzących, dlatego strona nie pokazuje bane
 
 - Kopię swoich danych pobierzesz w ustawieniach konta, w sekcji danych.
 - O usunięcie konta poprosisz w ustawieniach albo pisząc do admina. Admin sprawdza prośbę i usuwa konto razem z wynikami, statystykami i wiadomościami. Potem nie da się tego cofnąć, ale do czasu rozpatrzenia możesz anulować prośbę.
+- Jeśli usuwane konto ma restrykcję, przez rok zostają jego nick i skróty identyfikatorów sprzętu, żeby nie dało się obejść restrykcji nowym kontem. Po roku znikają same. Przy kontach bez restrykcji nic nie zostaje.
 - Serwer codziennie robi kopię zapasową i trzyma 7 ostatnich. Usunięte dane znikają z kopii zapasowych najpóźniej po 7 dniach.
+
+## Działanie serwera
+
+taksiegra to hobbystyczny serwer utrzymywany po godzinach. Mogą zdarzać się przerwy w działaniu, a serwer może kiedyś zostać zamknięty. Kopie zapasowe chronią przed awarią, ale nie ma gwarancji, że konta i wyniki przetrwają zawsze.
 
 ## Kontakt
 

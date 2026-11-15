@@ -71,7 +71,14 @@ public class AccountDeletion {
             mysql.Exec("DELETE FROM `user_badges` WHERE `userid` = ?", userId);
             mysql.Exec("DELETE FROM `sh_user_socials` WHERE `user_id` = ?", userId);
             mysql.Exec("DELETE FROM `map_requests` WHERE `player_id` = ?", userId);
+            // a restricted account keeps its hardware hashes for a year (see the rules), so the
+            // restriction can't be dodged by deleting the account and registering again
+            mysql.Exec("INSERT INTO `sh_restricted_hashes` (`former_user_id`, `former_name`, `uninstall_id`, `disk_serial`, `adapters`, `deleted_at`, `expires_at`) "
+                    + "SELECT c.`userid`, u.`name`, c.`uninstall_id`, c.`disk_serial`, c.`adapters`, UNIX_TIMESTAMP(), UNIX_TIMESTAMP() + 365 * 86400 "
+                    + "FROM `client_hashes` c JOIN `users` u ON u.`id` = c.`userid` WHERE c.`userid` = ? AND (u.`priv` & 1) = 0", userId);
             mysql.Exec("DELETE FROM `client_hashes` WHERE `userid` = ?", userId);
+            mysql.Exec("DELETE FROM `sh_restricted_hash_hits` WHERE `user_id` = ?", userId);
+            mysql.Exec("DELETE FROM `sh_password_reset` WHERE `user_id` = ?", userId);
             mysql.Exec("DELETE FROM `comments` WHERE `userid` = ?", userId);
             mysql.Exec("DELETE FROM `favourites` WHERE `userid` = ?", userId);
             mysql.Exec("DELETE FROM `ingame_logins` WHERE `userid` = ?", userId);

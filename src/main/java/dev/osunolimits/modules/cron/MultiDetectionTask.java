@@ -49,8 +49,46 @@ public class MultiDetectionTask extends RunnableCronTask {
                     }
                 }
             }
+            checkRestrictedHashes(mysql);
         } catch (Exception e) {
             logger.error("An error occurred while running the hourly task", e);
+        }
+    }
+
+    /**
+     * Hashes kept from deleted restricted accounts (one year, see the rules): drop the expired ones
+     * and tell the staff once when a current account uses the same osu! installation.
+     */
+    private void checkRestrictedHashes(MySQL mysql) throws Exception {
+        mysql.Exec("DELETE FROM `sh_restricted_hashes` WHERE `expires_at` < UNIX_TIMESTAMP()");
+        mysql.Exec("DELETE h FROM `sh_restricted_hash_hits` h LEFT JOIN `sh_restricted_hashes` r ON r.`id` = h.`hash_id` WHERE r.`id` IS NULL");
+
+        ResultSet hits = mysql.Query("SELECT DISTINCT c.`userid`, u.`name`, r.`id` AS hash_id, r.`former_name` "
+                + "FROM `client_hashes` c JOIN `sh_restricted_hashes` r ON r.`uninstall_id` = c.`uninstall_id` "
+                + "JOIN `users` u ON u.`id` = c.`userid` "
+                + "LEFT JOIN `sh_restricted_hash_hits` h ON h.`user_id` = c.`userid` AND h.`hash_id` = r.`id` "
+                + "WHERE h.`user_id` IS NULL AND r.`uninstall_id` <> ''");
+        java.util.List<int[]> staff = new java.util.ArrayList<>();
+        boolean staffLoaded = false;
+        while (hits != null && hits.next()) {
+            int userId = hits.getInt("userid");
+            mysql.Exec("INSERT IGNORE INTO `sh_restricted_hash_hits` (`user_id`, `hash_id`) VALUES (?, ?)", userId, hits.getInt("hash_id"));
+            if (!staffLoaded) {
+                int staffBits = dev.osunolimits.utils.osu.PermissionHelper.Privileges.ADMINISTRATOR.getValue()
+                        | dev.osunolimits.utils.osu.PermissionHelper.Privileges.DEVELOPER.getValue();
+                ResultSet staffRs = mysql.Query("SELECT `id` FROM `users` WHERE (`priv` & ?) <> 0", staffBits);
+                while (staffRs != null && staffRs.next()) {
+                    staff.add(new int[] { staffRs.getInt("id") });
+                }
+                staffLoaded = true;
+            }
+            java.util.Map<String, Object> data = new java.util.HashMap<>();
+            data.put("user", hits.getString("name"));
+            data.put("former", hits.getString("former_name"));
+            for (int[] admin : staff) {
+                dev.osunolimits.routes.api.chat.NotificationsApi.add(mysql, admin[0], "ban_evasion", data, "/u/" + userId);
+            }
+            logger.info("User {} uses the same osu! installation as a deleted restricted account", userId);
         }
     }
 

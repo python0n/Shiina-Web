@@ -1276,7 +1276,8 @@ if (!window.shiinaNotifInit) (function () {
         map_status: 'fa-music text-info',
         map_comment: 'fa-comment',
         deletion_rejected: 'fa-user-shield',
-        password_changed: 'fa-key text-warning'
+        password_changed: 'fa-key text-warning',
+        ban_evasion: 'fa-user-secret text-danger'
     };
     function when(sec) {
         var d = new Date(sec * 1000), now = new Date();

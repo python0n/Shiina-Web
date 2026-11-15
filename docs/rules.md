@@ -52,6 +52,8 @@ Swearing and dark humour are fine as long as they don't target groups of people.
 - You can upload your own beatmaps through the Beatmap Submission System.
 - **Want to upload a map by another mapper that was never published anywhere? Ask the admin first.**
 - The admin may change a map's status or remove it if it breaks these rules or gets in the way of other players.
+- You are responsible for what you upload (maps, avatars, banners, profile page) and you must have the right to upload it.
+- **Copyright:** if you believe something on the server infringes your rights, write to the address in [Contact](#contact). Say what it is and where it is. The admin will remove it or explain why it stays.
 
 ## Scores and pp
 
@@ -84,9 +86,11 @@ The server only collects what it needs to run and to enforce these rules. Data i
 | Latest messages of public channels (7 days) | Channel history in the website chat |
 | Chat of multiplayer matches | Match history, visible only to the staff |
 | Notifications (e.g. an accepted replay or a lost #1) | The bell on the website |
-| IP address and client version when you log in from the game | Security and abuse detection |
+| IP address and client version when you log in from the game (last 90 days) | Security and abuse detection |
 | Hashes of hardware identifiers sent by the osu! client (network adapter, disk, installation) | Detecting undeclared second accounts. The server only receives hashes, never the raw values. |
 | IP address, browser and approximate country when you log in on the website | The active sessions list in your account settings |
+
+Server and website logs that contain IP addresses are deleted within 30 days.
 
 ### Cookies
 
@@ -109,7 +113,12 @@ There are no advertising or tracking cookies, which is why there is no cookie ba
 
 - You can download a copy of your data in your account settings, in the data section.
 - You can ask for your account to be deleted in the settings or by writing to the admin. The admin reviews the request and then deletes the account together with its scores, statistics and messages. After that it can't be undone, but you can cancel the request until it is reviewed.
+- If a deleted account had a restriction, its username and hardware hashes are kept for one year, so the restriction can't be dodged with a new account. They are removed automatically after that. Nothing is kept for accounts without a restriction.
 - The server makes a backup every day and keeps the last 7. Deleted data is gone from the backups after 7 days at most.
+
+## Running the server
+
+taksiegra is a hobby server run in spare time. There may be downtime, and the server may be shut down one day. Backups protect against hardware failure, but there is no guarantee that accounts and scores will last forever.
 
 ## Contact
 
