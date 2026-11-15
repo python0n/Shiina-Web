@@ -112,11 +112,13 @@ import dev.osunolimits.routes.get.settings.Authentication;
 import dev.osunolimits.routes.get.settings.Customization;
 import dev.osunolimits.routes.get.settings.Data;
 import dev.osunolimits.routes.get.settings.Settings;
+import dev.osunolimits.routes.get.simple.ForgotPassword;
 import dev.osunolimits.routes.get.simple.Recover;
 import dev.osunolimits.routes.get.user.Relations;
 import dev.osunolimits.routes.post.HandleComment;
 import dev.osunolimits.routes.post.HandleLogin;
 import dev.osunolimits.routes.post.HandleLogout;
+import dev.osunolimits.routes.post.HandleForgotPassword;
 import dev.osunolimits.routes.post.HandleRecovery;
 import dev.osunolimits.routes.post.HandleRegister;
 import dev.osunolimits.routes.post.settings.auth.HandleTokenDeletion;
@@ -330,6 +332,8 @@ shiinaDocs.initializeDocs();
 
         WebServer.get("/auth/recover", new Recover());
         WebServer.post("/recover", new HandleRecovery());
+        WebServer.get("/auth/forgot", new ForgotPassword());
+        WebServer.post("/auth/forgot", new HandleForgotPassword());
         WebServer.post("/register", new HandleRegister());
 
         WebServer.post("/post/comment", new HandleComment());

@@ -18,6 +18,7 @@
                 </div>
             </#if>
 
+            <#if token??>
             <form data-turbo="false" data-toggle="validator" role="form" method="post" action="/recover">
 
                 <div class="row">
@@ -26,8 +27,9 @@
                             <label>${t["auth.new_password"]}</label>
                             <div class="input-group">
                                 <span class="input-group-text"><i class="fa-solid fa-lock"></i></span>
-                                <input required name="password" type="password" class="form-control" placeholder="${t["auth.new_password"]}" aria-label="${t["auth.new_password"]}" aria-describedby="add-on-1">
+                                <input required name="password" type="password" minlength="8" maxlength="32" autocomplete="new-password" class="form-control" placeholder="${t["auth.new_password"]}" aria-label="${t["auth.new_password"]}" aria-describedby="add-on-1">
                             </div>
+                            <small class="text-muted">${t["auth.password_hint"]}</small>
                         </div>
                     </div>
                 </div>
@@ -41,6 +43,11 @@
                     </div>
                 </div>
             </form>
+            <#else>
+            <div class="mt-2">
+                <i class="fa fa-envelope fa-fw"></i> <a href="/auth/forgot">${t["auth.forgot_again"]}</a>
+            </div>
+            </#if>
 
         </div>
     </div>

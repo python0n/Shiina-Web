@@ -25,7 +25,6 @@ import dev.osunolimits.modules.pubsubs.PubSubModels.RestrictInput;
 import dev.osunolimits.modules.pubsubs.PubSubModels.UnrestrictInput;
 import dev.osunolimits.modules.pubsubs.PubSubModels.WipeInput;
 import dev.osunolimits.modules.utils.UserInfoCache;
-import dev.osunolimits.utils.Auth;
 
 public class SyncedAction {
 
@@ -208,14 +207,12 @@ public class SyncedAction {
         UserInfoCache.reloadUser(userId);
     }
 
+    /** Link made by an admin in the panel: the same one-time tokens as e-mail resets, valid for a day. */
     public static String generateRecoveryToken(int userId) {
-        String token = Auth.generateNewToken();
-
         try (MySQL mysql = Database.getConnection()) {
-            mysql.Exec("INSERT INTO `sh_recovery`(`token`, `user`) VALUES (?,?)", token, userId);
+            return dev.osunolimits.modules.utils.PasswordReset.create(mysql, userId,
+                    dev.osunolimits.modules.utils.PasswordReset.ADMIN_TTL_SECONDS);
         }
-
-        return token;
     }
 
     private static void sleepQuietly(long millis) {

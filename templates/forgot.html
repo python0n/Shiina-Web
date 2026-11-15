@@ -1,0 +1,52 @@
+<#include "assets/base.html">
+<div class="container">
+    <div class="card w-100">
+        <div class="bg-secondary border-0 card-header text-body d-flex justify-content-between align-items-center py-4">
+            <span class="h1 fw-bold mb-0">${t["auth.forgot_title"]}</span>
+        </div>
+
+        <div class="card-body bg-body px-4">
+            <#if error??>
+                <div class="alert alert-danger" role="alert">
+                    ${msg(error)}
+                </div>
+            </#if>
+            <#if info??>
+                <div class="alert alert-primary" role="alert">
+                    ${msg(info)}
+                </div>
+            <#else>
+                <p>${t["auth.forgot_text"]}</p>
+
+                <form data-turbo="false" data-toggle="validator" role="form" method="post" action="/auth/forgot">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group mb-3">
+                                <label>${t["auth.email"]}</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fa-solid fa-envelope"></i></span>
+                                    <input required name="email" type="email" maxlength="254" autocomplete="email" class="form-control" placeholder="${t["auth.email"]}" aria-label="${t["auth.email"]}">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="turnstile" data-theme="${c.mode}"></div>
+                    <div class="row my-3">
+                        <div class="col-md-12">
+                            <button type="submit" class="btn btn-primary btn-lg btn-block">${t["auth.forgot_button"]}</button>
+                        </div>
+                    </div>
+                </form>
+            </#if>
+
+            <div class="mt-4">
+                <i class="fa fa-arrow-left fa-fw"></i> <a href="/login">${t["auth.forgot_back"]}</a>
+            </div>
+        </div>
+    </div>
+</div>
+<#include "assets/footer.html">
+<script><#noautoesc>
+    var turnstileToken = '${turnstilePublic}';
+</#noautoesc></script>
