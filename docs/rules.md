@@ -10,13 +10,14 @@ behindLogin:false
 taksiegra is a private osu! server run by one person for friends and anyone who wants to join. There are only a few rules and most of them are common sense. By creating an account you accept them.
 
 > [!NOTE]
-> These rules apply from 30.10.2026. Scores and accounts from before that date stay as they are.
+> These rules apply from 30.10.2026, last changed 15.11.2026. Scores and accounts from before 30.10.2026 stay as they are.
 
 ## Accounts
 
 - One account per player. **A second account is allowed only with the admin's permission**, for example to play with a mouse instead of a tablet.
 - You may let a friend play on your account. Boosting someone else's pp or rank and playing for someone in a tournament are not allowed.
 - The account owner is responsible for everything that happens on the account.
+- You must be at least 10 years old to create an account. If you are under 16, you need a parent's or guardian's permission. A parent or guardian can ask for the account to be deleted at any time by writing to the address in [Contact](#contact).
 
 ## Fair play
 
@@ -67,7 +68,7 @@ The admin may restrict an account that breaks the rules. A restricted account:
 
 A restriction can be temporary or permanent, depending on the case.
 
-**Appeals:** message the admin (Python-) in game or on the Discord shown on his profile. Say which account it's about and why you think the restriction was wrong.
+**Appeals:** message the admin (Python-) in game, on the Discord shown on his profile or at the address in [Contact](#contact). Say which account it's about and why you think the restriction was wrong.
 
 ## What the server stores
 
@@ -100,12 +101,19 @@ There are no advertising or tracking cookies, which is why there is no cookie ba
 ### Third-party services
 
 - **Cloudflare**: part of the website traffic goes through their servers, and their Turnstile check protects forms from bots.
-- **osu.direct**: the source of beatmaps downloaded in game and on the website. Downloads go through the taksiegra server, so osu.direct sees the server's address, not yours.
+- **catboy.best and osu.direct**: the sources of beatmaps downloaded in game and on the website. Downloads go through the taksiegra server, so they see the server's address, not yours.
+- **ip-api.com**: when you log in from the game or on the website, the server looks up your country (and, for the session list, your city) from your IP address there. Only the IP address is sent.
+- **YouTube**: videos that players put on their profile pages load from YouTube's servers (youtube-nocookie.com). When you view such a profile, YouTube sees your IP address.
 
 ### Your data
 
 - You can download a copy of your data in your account settings, in the data section.
 - You can ask for your account to be deleted in the settings or by writing to the admin. The admin reviews the request and then deletes the account together with its scores, statistics and messages. After that it can't be undone, but you can cancel the request until it is reviewed.
+- The server makes a backup every day and keeps the last 7. Deleted data is gone from the backups after 7 days at most.
+
+## Contact
+
+For questions about your account, your data or an appeal, message the admin (Python-) in game or write to **python@taksiegra.ovh**. People without an account, such as a player's parent or guardian, can write there too.
 
 ## Changes
 

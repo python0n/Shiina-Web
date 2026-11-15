@@ -10,13 +10,14 @@ behindLogin:false
 taksiegra to prywatny serwer osu! prowadzony przez jedną osobę dla znajomych i wszystkich chętnych. Zasad jest niewiele i większość z nich to zdrowy rozsądek. Zakładając konto, akceptujesz poniższe punkty.
 
 > [!NOTE]
-> Regulamin obowiązuje od 30.10.2026. Wyniki i konta sprzed tej daty zostają bez zmian.
+> Regulamin obowiązuje od 30.10.2026, ostatnia zmiana 15.11.2026. Wyniki i konta sprzed 30.10.2026 zostają bez zmian.
 
 ## Konto
 
 - Każdy gracz ma jedno konto. **Drugie konto możesz mieć tylko za zgodą admina**, np. do grania myszką zamiast tabletem.
 - Możesz pozwolić znajomemu zagrać na swoim koncie. Nie wolno jednak nabijać komuś pp ani miejsca w rankingu i nie wolno grać za kogoś w turnieju.
 - Za to, co dzieje się na koncie, odpowiada jego właściciel.
+- Konto może założyć osoba, która ma co najmniej 10 lat. Jeśli masz mniej niż 16 lat, zakładasz konto za zgodą rodzica lub opiekuna. Rodzic lub opiekun może w każdej chwili poprosić o usunięcie konta, pisząc na adres z sekcji [Kontakt](#kontakt).
 
 ## Uczciwa gra
 
@@ -67,7 +68,7 @@ Za złamanie regulaminu admin może nałożyć restrykcję. Konto z restrykcją:
 
 Restrykcja może być czasowa albo stała, zależnie od sytuacji.
 
-**Odwołanie:** napisz do admina (Python-) w grze albo przez Discorda podanego na jego profilu. Napisz, o które konto chodzi i dlaczego uważasz, że restrykcja była niesłuszna.
+**Odwołanie:** napisz do admina (Python-) w grze, przez Discorda podanego na jego profilu albo na adres z sekcji [Kontakt](#kontakt). Napisz, o które konto chodzi i dlaczego uważasz, że restrykcja była niesłuszna.
 
 ## Co serwer przechowuje
 
@@ -100,12 +101,19 @@ Nie ma ciasteczek reklamowych ani śledzących, dlatego strona nie pokazuje bane
 ### Usługi zewnętrzne
 
 - **Cloudflare** - część ruchu do strony przechodzi przez ich serwery, a ich weryfikacja Turnstile chroni formularze przed botami.
-- **osu.direct** - źródło map pobieranych w grze i na stronie. Pobieranie idzie przez serwer taksiegra, więc osu.direct widzi adres serwera, nie twój.
+- **catboy.best i osu.direct** - źródła map pobieranych w grze i na stronie. Pobieranie idzie przez serwer taksiegra, więc widzą adres serwera, nie twój.
+- **ip-api.com** - przy logowaniu z gry i na stronę serwer sprawdza u nich kraj (a dla listy sesji także miasto) na podstawie twojego adresu IP. Wysyłany jest tylko adres IP.
+- **YouTube** - filmy, które gracze wstawiają na swoje strony profilu, ładują się z serwerów YouTube (youtube-nocookie.com). Gdy oglądasz taki profil, YouTube widzi twój adres IP.
 
 ### Twoje dane
 
 - Kopię swoich danych pobierzesz w ustawieniach konta, w sekcji danych.
 - O usunięcie konta poprosisz w ustawieniach albo pisząc do admina. Admin sprawdza prośbę i usuwa konto razem z wynikami, statystykami i wiadomościami. Potem nie da się tego cofnąć, ale do czasu rozpatrzenia możesz anulować prośbę.
+- Serwer codziennie robi kopię zapasową i trzyma 7 ostatnich. Usunięte dane znikają z kopii zapasowych najpóźniej po 7 dniach.
+
+## Kontakt
+
+W sprawach konta, danych i odwołań napisz do admina (Python-) w grze albo na adres **python@taksiegra.ovh**. Pod tym adresem może napisać też ktoś bez konta, np. rodzic albo opiekun gracza.
 
 ## Zmiany regulaminu
 
