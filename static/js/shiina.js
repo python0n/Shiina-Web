@@ -907,7 +907,8 @@ function loadScorePanel(
            style="cursor:pointer;${isPinned ? 'background:rgba(241,196,15,0.35);border-color:#f1c40f;' : ''}">
             <i class="fas fa-thumbtack"></i>
         </a>`;
-        if (isPinned) {
+        // reordering only makes sense in the Pinned section, not in Best/Recent
+        if (isPinned && score._inPinnedSection) {
             dragHandle = `<span class="osu-action-btn pin-drag-handle" title="${tr('js.drag_reorder', 'Drag to reorder')}"
                style="cursor:grab;" onclick="event.stopPropagation();" onmousedown="event.stopPropagation();">
                 <i class="fas fa-grip-vertical"></i>
@@ -1132,6 +1133,7 @@ function loadPinnedScores(apiUrl, firstLoad = true) {
             initPinnedSortable();
             data.scores.forEach(s => {
                 let element = document.createElement('div');
+                s._inPinnedSection = true;
                 element.innerHTML = loadScorePanel(s.grade, s.map_id, s, s.pp, s.acc, s.max_combo, s.play_time, s.map_name, s.map_set_id, s.score_id, s.mods);
                 container.appendChild(element);
             });
@@ -1195,14 +1197,16 @@ function savePinnedOrder() {
 }
 
 function initPinnedSortable() {
-    if (window._pinnedSortableInit) return;
     if (typeof loggedUserId === 'undefined' || loggedUserId <= 0) return;
     const m = typeof reqUrlScores !== 'undefined' ? reqUrlScores.match(/id=(\d+)/) : null;
     if (!m || parseInt(m[1]) !== loggedUserId) return;
     const container = document.getElementById('pinnedScores');
-    if (!container) return;
-    window._pinnedSortableInit = true;
+    // Turbo swaps the page without reloading window, so the flag lives on the
+    // container itself: a new profile page gets a new container and a new Sortable
+    if (!container || container.dataset.sortableInit) return;
+    container.dataset.sortableInit = '1';
     ensureSortable(() => {
+        if (!container.isConnected || (window.Sortable && Sortable.get(container))) return;
         new Sortable(container, {
             animation: 150,
             handle: '.pin-drag-handle',
