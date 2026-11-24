@@ -322,21 +322,38 @@ public class AppCache {
     /** Save cache content to disk using binary serialization. */
     private synchronized void saveToDisk() {
         Map<String, CacheEntry> map = cache.asMap();
-        File tempFile = new File(FILE_PATH + ".tmp");
-        
-        try (ObjectOutputStream oos = new ObjectOutputStream(
-                new BufferedOutputStream(new FileOutputStream(tempFile)))) {
-            oos.writeObject(new HashMap<>(map));
-            oos.flush();
-            
-            // Atomic rename
-            Files.move(tempFile.toPath(), Paths.get(FILE_PATH), 
+        Path target = Paths.get(FILE_PATH);
+        Path tempFile = null;
+
+        try {
+            // Linux/POSIX: create a unique temporary file with mode 0600.
+            // The final cache file inherits these permissions after the move.
+            tempFile = Files.createTempFile(
+                    target.toAbsolutePath().getParent(), ".cache.bin-", ".tmp",
+                    java.nio.file.attribute.PosixFilePermissions.asFileAttribute(
+                            java.nio.file.attribute.PosixFilePermissions.fromString("rw-------")));
+
+            // Finish writing and close the stream BEFORE replacing the cache.
+            try (ObjectOutputStream oos = new ObjectOutputStream(
+                    new BufferedOutputStream(Files.newOutputStream(tempFile)))) {
+                oos.writeObject(new HashMap<>(map));
+            }
+
+            Files.move(tempFile, target,
                     StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
-            
+
             log.debug("Saved {} keys to cache", map.size());
         } catch (IOException e) {
             log.error("Failed to save cache: {}", e.getMessage());
-            tempFile.delete();
+        } finally {
+            // A successful move removes the source path; on failure clean up.
+            if (tempFile != null) {
+                try {
+                    Files.deleteIfExists(tempFile);
+                } catch (IOException e) {
+                    log.warn("Failed to remove temporary cache file: {}", e.getMessage());
+                }
+            }
         }
     }
 
