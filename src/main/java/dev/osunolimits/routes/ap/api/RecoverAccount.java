@@ -36,6 +36,13 @@ public class RecoverAccount extends Shiina {
         if (userid == 0)
             return redirect(res, shiina, "/ap/users");
 
+        // TSG-09: a recovery link for a staff account would let an admin take over a developer
+        String denied = PubSubHandler.denyTarget(shiina, userid);
+        if (denied != null) {
+            res.status(403);
+            return raw(res, shiina, denied);
+        }
+
         String token = SyncedAction.generateRecoveryToken(userid);
 
         RecoveryOutput output = new RecoveryOutput();

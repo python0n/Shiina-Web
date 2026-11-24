@@ -60,8 +60,13 @@ public class SyncedAction {
 
     // Privileges: normal, verified, whitelisted, etc.
     public static void removePriv(int userId, String[] privs) {
+        removePriv(userId, privs, 0);
+    }
+
+    public static void removePriv(int userId, String[] privs, int adminId) {
         RemovePrivInput removePrivInput = new RemovePrivInput();
         removePrivInput.setId(userId);
+        removePrivInput.setUserId(adminId);
         removePrivInput.setPrivs(privs);
 
         App.jedisPool.publish("removepriv", gson.toJson(removePrivInput));
@@ -72,8 +77,13 @@ public class SyncedAction {
 
     // Privileges: normal, verified, whitelisted, etc.
     public static void addPriv(int userId, String[] privs) {
+        addPriv(userId, privs, 0);
+    }
+
+    public static void addPriv(int userId, String[] privs, int adminId) {
         AddPrivInput addPrivInput = new AddPrivInput();
         addPrivInput.setId(userId);
+        addPrivInput.setUserId(adminId);
         addPrivInput.setPrivs(privs);
 
         App.jedisPool.publish("addpriv", gson.toJson(addPrivInput));

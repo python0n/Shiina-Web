@@ -47,12 +47,14 @@ public class PubSubModels {
     @Data
     public static class AddPrivInput {
         public int id;
+        public int userId; // Admin ID (bancho checks the hierarchy too)
         public String[] privs; // Privileges: normal, verified, whitelisted, etc.
     }
 
     @Data
     public static class RemovePrivInput {
         public int id;
+        public int userId; // Admin ID (bancho checks the hierarchy too)
         public String[] privs; // Privileges: normal, verified, whitelisted, etc.
     }
 
