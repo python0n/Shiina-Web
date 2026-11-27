@@ -51,10 +51,28 @@ public class HandleBadgeAdd extends Shiina {
             String fileName = UUID.randomUUID().toString().replace("-", "") + ".png";
             Path dest = Path.of(BADGE_DIR, fileName);
             try (InputStream in = part.getInputStream()) {
-                Files.copy(in, dest, StandardCopyOption.REPLACE_EXISTING);
+                // a real PNG, not just a file named .png (it is served as image/png)
+                byte[] head = in.readNBytes(8);
+                byte[] png = {(byte) 0x89, 'P', 'N', 'G', '\r', '\n', 0x1a, '\n'};
+                if (!java.util.Arrays.equals(head, png)) {
+                    res.redirect("/ap/user?id=" + userId + "&error=Wgraj plik .png");
+                    return "";
+                }
+                Files.copy(new java.io.SequenceInputStream(new java.io.ByteArrayInputStream(head), in), dest,
+                        StandardCopyOption.REPLACE_EXISTING);
             }
             String safeDate = (date == null) ? "" : date.trim();
             String safeLink = (link == null) ? "" : link.trim();
+            // AUD-35: only http(s) links; a javascript: link would run on the profile of everyone who clicks it
+            if (!safeLink.isEmpty() && !(safeLink.regionMatches(true, 0, "https://", 0, 8)
+                    || safeLink.regionMatches(true, 0, "http://", 0, 7))) {
+                res.redirect("/ap/user?id=" + userId + "&error=Link musi zaczynac sie od https://");
+                return "";
+            }
+            if (safeLink.length() > 255 || caption.trim().length() > 100 || safeDate.length() > 32) {
+                res.redirect("/ap/user?id=" + userId + "&error=Za dlugi tekst");
+                return "";
+            }
             shiina.mysql.Exec(
                 "INSERT INTO user_badges (userid, image, caption, awarded_date, link, sort_order) " +
                 "VALUES (?, ?, ?, ?, ?, (SELECT COALESCE(MAX(t.sort_order),0)+1 FROM (SELECT sort_order FROM user_badges WHERE userid = ?) t))",

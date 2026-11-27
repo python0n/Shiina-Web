@@ -141,25 +141,20 @@ public class SyncedAction {
         sleepQuietly(500);
     }
 
+    /**
+     * The status is written only by bancho (table `maps` and its own cache), after it checks
+     * the map and the status. Shiina used to write to a separate `beatmaps` table as well,
+     * which bancho never reads (AUD-28).
+     */
     public static void changeBeatmapRankStatus(Beatmap beatmap, int newStatus, boolean newFrozenStatus, int userId, String userName) {
-        int beatmapId;
-        try (MySQL mysql = Database.getConnection()) {
-            beatmapId = beatmap.getId();
-            beatmap.setStatus(newStatus);
-            beatmap.setFrozen(newFrozenStatus);
+        int beatmapId = beatmap.getId();
+        beatmap.setStatus(newStatus);
+        beatmap.setFrozen(newFrozenStatus);
 
-            int affectedRows = mysql.Exec("UPDATE beatmaps SET status = ?, frozen = ? WHERE id = ?", newStatus,
-                    newFrozenStatus ? 1 : 0, beatmapId);
-            if (affectedRows == 0) {
-                App.log.error("Failed to update beatmap status for beatmap id: " + beatmapId);
-            }
-        }
         RankOutput rankOutput = new RankOutput();
         rankOutput.setBeatmap_id(beatmapId);
         rankOutput.setStatus(newStatus);
         rankOutput.setFrozen(newFrozenStatus);
-        rankOutput.setUser_id(userId);
-        rankOutput.setUser_name(userName);
         rankOutput.setUser_id(userId);
         rankOutput.setUser_name(userName);
 

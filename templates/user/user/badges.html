@@ -4,7 +4,7 @@
         <#list badges as badge>
             <#assign cap = badge.caption>
             <#if badge.awardedDate?? && badge.awardedDate?has_content><#assign cap = cap + " • " + badge.awardedDate></#if>
-            <#if badge.link?? && badge.link?has_content>
+            <#if badge.link?? && (badge.link?lower_case?starts_with("https://") || badge.link?lower_case?starts_with("http://"))>
             <a href="${badge.link}" target="_blank" rel="noopener" class="shiina-badge-tile" title="${cap}" data-bs-toggle="tooltip">
                 <img src="/badge/img/${badge.image}" alt="badge" loading="lazy">
             </a>
