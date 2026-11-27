@@ -30,7 +30,11 @@ public final class ClientIp {
     /** Two-letter country code in lower case, or "xx" when it isn't known. */
     public static String country(Request req) {
         if (fromProxy(req)) {
-            String cc = req.headers("CF-IPCountry");
+            // nginx fills X-Country-Code from a local database (geoip2); CF-IPCountry only behind Cloudflare
+            String cc = req.headers("X-Country-Code");
+            if (cc == null || cc.isBlank()) {
+                cc = req.headers("CF-IPCountry");
+            }
             if (cc != null && cc.trim().matches("[A-Za-z]{2}") && !cc.trim().equalsIgnoreCase("XX")
                     && !cc.trim().equalsIgnoreCase("T1")) {
                 return cc.trim().toLowerCase();
