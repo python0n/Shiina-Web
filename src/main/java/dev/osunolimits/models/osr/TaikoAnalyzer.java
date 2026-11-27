@@ -73,10 +73,11 @@ public final class TaikoAnalyzer {
             if (next >= notes.size()) break;
             HitObject note = notes.get(next);
             double err = p - note.getTimeMs();
-            if (err < -missW) continue;
+            long abs = Math.round(Math.abs(err)); // stable: abs(round(error)) < floor(window), the miss window uses <=
+            if (err < 0 && abs > Math.floor(missW)) continue;
             NoteResult nr = base(note);
             int colour = nr.isKat() ? 1 : 0;
-            if (Math.abs(err) > good) {
+            if (abs >= Math.floor(good)) {
                 nr.setVerdict("miss");
             } else if (colour != press[1]) {
                 nr.setVerdict("wrong");
@@ -84,7 +85,7 @@ public final class TaikoAnalyzer {
                 double real = err / rate;
                 nr.setClickTimeMs(p);
                 nr.setTimingError(real);
-                nr.setVerdict(Math.abs(err) <= great ? "GREAT" : "GOOD");
+                nr.setVerdict(abs < Math.floor(great) ? "GREAT" : "GOOD");
                 all.add(real);
                 byColour.get(colour).add(real);
                 if (real < 0) result.setEarlyHits(result.getEarlyHits() + 1);

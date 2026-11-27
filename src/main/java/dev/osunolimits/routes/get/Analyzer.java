@@ -469,6 +469,7 @@ public class Analyzer extends Shiina {
                     o.put("c", n.getColumn());
                     if (n.isSlider()) o.put("sl", true);
                     if (n.getReleaseError() != null) o.put("re", Math.round(n.getReleaseError() * 10.0) / 10.0);
+                    if (n.getTailVerdict() != null) o.put("tv", n.getTailVerdict());
                 }
                 default -> {
                     o.put("g", n.isInStream() ? "stream" : n.isInJump() ? "jump" : n.isInBurst() ? "burst" : "other");

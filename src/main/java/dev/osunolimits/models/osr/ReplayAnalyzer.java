@@ -86,6 +86,7 @@ public class ReplayAnalyzer {
         private boolean kat;        // taiko
         private boolean big;        // taiko
         private Double releaseError; // mania hold notes
+        private String tailVerdict;  // mania hold notes with ScoreV2 (judged apart from the head)
     }
 
     static final int MOD_EASY = 2;
@@ -229,8 +230,9 @@ public class ReplayAnalyzer {
                 groupCounts.get(group)[1]++;
                 long absSong = Math.abs(Math.round(songErr));
                 if (note.isSlider()) nr.verdict = "slider";
-                else if (absSong <= w300) nr.verdict = "300";
-                else if (absSong <= w100) nr.verdict = "100";
+                // stable: abs(round(error)) < floor(window)
+                else if (absSong < w300) nr.verdict = "300";
+                else if (absSong < w100) nr.verdict = "100";
                 else nr.verdict = "50";
                 if (realErr < 0) result.earlyHits++; else result.lateHits++;
                 allHits++;

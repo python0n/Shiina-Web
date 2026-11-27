@@ -377,7 +377,7 @@ analyzerWithZoom(function() {
       lines.push((n.k ? L['g.kat'] : L['g.don']) + (n.b ? ' (' + L.big + ')' : ''));
     } else {
       lines.push(L.column + ' ' + (n.c + 1));
-      if (n.re !== undefined) lines.push(L.release + ': ' + (n.re > 0 ? '+' : '') + n.re + ' ms');
+      if (n.re !== undefined) lines.push(L.release + ': ' + (n.re > 0 ? '+' : '') + n.re + ' ms' + (n.tv ? ' (' + (n.tv === 'miss' ? L.miss : n.tv) + ')' : ''));
     }
     return lines;
   };
