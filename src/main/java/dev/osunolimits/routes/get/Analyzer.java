@@ -59,17 +59,25 @@ public class Analyzer extends Shiina {
         }
     }
 
+    /** Mode tab of the list: 0 osu!, 1 taiko, 2 catch, 3 mania (as on the beatmaps page). */
+    private static int listMode(Request req) {
+        String m = req.queryParams("mode");
+        return m != null && m.matches("[0-3]") ? Integer.parseInt(m) : 0;
+    }
+
     private Object handleList(Request req, Response res, ShiinaRequest shiina) throws Exception {
         boolean showFailed = "1".equals(req.queryParams("failed"));
         shiina.data.put("showFailed", showFailed);
+        int mode = listMode(req);
+        shiina.data.put("mode", mode);
         ResultSet rs = shiina.mysql.Query(
             "SELECT s.id, s.mode, s.score, s.acc, s.grade, s.pp, s.mods, s.play_time, s.max_combo, s.n100, s.n50, s.nmiss, " +
             "m.title, m.artist, m.version, m.diff, m.set_id, m.id as map_id " +
             "FROM scores s " +
             "JOIN maps m ON s.map_md5 = m.md5 " +
-            "WHERE s.userid = ? AND s.mode IN (0, 1, 3) " + (showFailed ? "" : "AND s.status > 0 ") +
+            "WHERE s.userid = ? AND s.mode = ? " + (showFailed ? "" : "AND s.status > 0 ") +
             "ORDER BY s.id DESC LIMIT 50",
-            shiina.user.id
+            shiina.user.id, mode
         );
 
         List<Map<String, Object>> scores = new ArrayList<>();
@@ -135,15 +143,16 @@ public class Analyzer extends Shiina {
         }
         String like = "%" + q.trim() + "%";
         boolean showFailed = "1".equals(req.queryParams("failed"));
+        int mode = listMode(req);
         ResultSet rs = shiina.mysql.Query(
             "SELECT s.id, s.mode, s.score, s.acc, s.grade, s.pp, s.mods, s.play_time, s.n100, s.n50, s.nmiss, " +
             "m.id AS map_id, m.title, m.artist, m.version, m.diff, m.set_id " +
             "FROM scores s " +
             "JOIN maps m ON s.map_md5 = m.md5 " +
-            "WHERE s.userid = ? AND s.mode IN (0, 1, 3) " + (showFailed ? "" : "AND s.status > 0 ") +
+            "WHERE s.userid = ? AND s.mode = ? " + (showFailed ? "" : "AND s.status > 0 ") +
             "AND (m.title LIKE ? OR m.artist LIKE ? OR m.version LIKE ?) " +
             "ORDER BY s.id DESC LIMIT 30",
-            shiina.user.id, like, like, like
+            shiina.user.id, mode, like, like, like
         );
         List<Map<String, Object>> results = new ArrayList<>();
         while (rs != null && rs.next()) {
