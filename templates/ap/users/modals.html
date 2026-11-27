@@ -274,94 +274,27 @@
 <script><#noautoesc>
 
     function removeProfilePicture(button) {
-        button.disabled = true;
-        temp = button.innerHTML;
-        button.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>';
-        fetch("/ap/api/handler?type=rmpb&id=${id}&reason=" + encodeURIComponent(document.getElementById('reasonInputPb').value), { method: 'POST' })
-            .then((data) => {
-
-            });
-        setTimeout(() => {
-            button.disabled = false;
-            button.innerHTML = temp;
-            window.location.reload();
-        }, 2500);
+        apAction(button, "/ap/api/handler?type=rmpb&id=${id}&reason=" + encodeURIComponent(document.getElementById('reasonInputPb').value));
     }
 
     function removeUserpage(button) {
-        button.disabled = true;
-        temp = button.innerHTML;
-        button.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>';
-        fetch("/ap/api/handler?type=rmup&id=${id}&reason=" + encodeURIComponent(document.getElementById('reasonInputPb').value), { method: 'POST' })
-            .then((data) => {
-
-            });
-        setTimeout(() => {
-            button.disabled = false;
-            button.innerHTML = temp;
-            window.location.reload();
-        }, 2500);
+        apAction(button, "/ap/api/handler?type=rmup&id=${id}&reason=" + encodeURIComponent(document.getElementById('reasonInputPb').value));
     }
 
     function wipe(button) {
-        button.disabled = true;
-        temp = button.innerHTML;
-        button.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>';
-        fetch("/ap/api/handler?type=wipe&id=${id}&mode=" + encodeURIComponent(document.getElementById('modeInput').value) + "&reason=" + encodeURIComponent(document.getElementById('reasonInputWipe').value), { method: 'POST' })
-            .then((data) => {
-
-            });
-        setTimeout(() => {
-            button.disabled = false;
-            button.innerHTML = temp;
-            window.location.reload();
-        }, 2500);
+        apAction(button, "/ap/api/handler?type=wipe&id=${id}&mode=" + encodeURIComponent(document.getElementById('modeInput').value) + "&reason=" + encodeURIComponent(document.getElementById('reasonInputWipe').value));
     }
 
     function givedonator(button) {
-        button.disabled = true;
-        temp = button.innerHTML;
-        button.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>';
-        fetch("/ap/api/handler?type=givedonator&id=${id}&duration=" + encodeURIComponent(document.getElementById('durationInput').value), { method: 'POST' })
-            .then((data) => {
-
-            });
-        setTimeout(() => {
-            button.disabled = false;
-            button.innerHTML = temp;
-            window.location.reload();
-        }, 2500);
+        apAction(button, "/ap/api/handler?type=givedonator&id=${id}&duration=" + encodeURIComponent(document.getElementById('durationInput').value));
     }
 
     function restrict(button) {
-        button.disabled = true;
-        temp = button.innerHTML;
-        button.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>';
-        fetch("/ap/api/handler?type=restrict&id=${id}&reason=" + encodeURIComponent(document.getElementById('reasonInput').value), { method: 'POST' })
-            .then((data) => {
-
-            });
-        setTimeout(() => {
-            button.disabled = false;
-            button.innerHTML = temp;
-            window.location.reload();
-        }, 2500);
+        apAction(button, "/ap/api/handler?type=restrict&id=${id}&reason=" + encodeURIComponent(document.getElementById('reasonInput').value));
     }
 
     function unrestrict(button) {
-        button.disabled = true;
-        temp = button.innerHTML;
-        button.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>';
-
-        fetch("/ap/api/handler?type=unrestrict&id=${id}&reason=" + encodeURIComponent(document.getElementById('reasonInput').value), { method: 'POST' })
-            .then((data) => {
-
-            });
-        setTimeout(() => {
-            button.disabled = false;
-            button.innerHTML = temp;
-            window.location.reload();
-        }, 2500);
+        apAction(button, "/ap/api/handler?type=unrestrict&id=${id}&reason=" + encodeURIComponent(document.getElementById('reasonInput').value));
     }
 
     function generateRecoveryUrl(input) {

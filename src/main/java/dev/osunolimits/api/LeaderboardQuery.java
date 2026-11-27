@@ -95,13 +95,14 @@ public class LeaderboardQuery extends APIQueryGson {
 
     public LeaderboardResponse getLeaderboard(String sort, int mode, int limit, int offset, Optional<String> country) {
         String url = "/v1/get_leaderboard";
-        url += getParameter() + "sort=" + sort;
+        // TSG-25: values from the visitor are encoded, so they can't add their own parameters
+        url += getParameter() + "sort=" + java.net.URLEncoder.encode(sort, java.nio.charset.StandardCharsets.UTF_8);
         url += getParameter() + "mode=" + mode;
         url += getParameter() + "limit=" + limit;
         url += getParameter() + "offset=" + offset;
 
         if (country.isPresent()) {
-            url += getParameter() + "country=" + country.get();
+            url += getParameter() + "country=" + java.net.URLEncoder.encode(country.get(), java.nio.charset.StandardCharsets.UTF_8);
         }
 
         Request request = APIRequest.build(url);

@@ -46,11 +46,12 @@ public class BeatmapQuery extends APIQuery {
         }
 
         if (artist.isPresent()) {
-            url += getParameter() + "artist=" + artist.get();
+            // TSG-25: values from the visitor are encoded, so they can't add their own parameters
+            url += getParameter() + "artist=" + java.net.URLEncoder.encode(artist.get(), java.nio.charset.StandardCharsets.UTF_8);
         }
 
         if (creator.isPresent()) {
-            url += getParameter() + "creator=" + creator.get();
+            url += getParameter() + "creator=" + java.net.URLEncoder.encode(creator.get(), java.nio.charset.StandardCharsets.UTF_8);
         }
 
         if (mode != 999) {

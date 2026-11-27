@@ -59,86 +59,82 @@ public class SyncedAction {
     }
 
     // Privileges: normal, verified, whitelisted, etc.
-    public static void removePriv(int userId, String[] privs) {
-        removePriv(userId, privs, 0);
+    public static String removePriv(int userId, String[] privs) {
+        return removePriv(userId, privs, 0);
     }
 
-    public static void removePriv(int userId, String[] privs, int adminId) {
+    public static String removePriv(int userId, String[] privs, int adminId) {
         RemovePrivInput removePrivInput = new RemovePrivInput();
         removePrivInput.setId(userId);
         removePrivInput.setUserId(adminId);
         removePrivInput.setPrivs(privs);
 
-        App.jedisPool.publish("removepriv", gson.toJson(removePrivInput));
-        sleepQuietly(500);
+        String result = publishAndWait("removepriv", removePrivInput);
 
         UserInfoCache.reloadUser(userId);
+        return result;
     }
 
     // Privileges: normal, verified, whitelisted, etc.
-    public static void addPriv(int userId, String[] privs) {
-        addPriv(userId, privs, 0);
+    public static String addPriv(int userId, String[] privs) {
+        return addPriv(userId, privs, 0);
     }
 
-    public static void addPriv(int userId, String[] privs, int adminId) {
+    public static String addPriv(int userId, String[] privs, int adminId) {
         AddPrivInput addPrivInput = new AddPrivInput();
         addPrivInput.setId(userId);
         addPrivInput.setUserId(adminId);
         addPrivInput.setPrivs(privs);
 
-        App.jedisPool.publish("addpriv", gson.toJson(addPrivInput));
-        sleepQuietly(500);
+        String result = publishAndWait("addpriv", addPrivInput);
 
         UserInfoCache.reloadUser(userId);
+        return result;
     }
 
     // Durations: s/h/m/d/w
-    public static void addDonatorStatus(int userId, String duration) {
+    public static String addDonatorStatus(int userId, String duration) {
         GiveDonatorInput giveDonatorInput = new GiveDonatorInput();
         giveDonatorInput.setId(userId);
         giveDonatorInput.setDuration(duration);
 
-        App.jedisPool.publish("givedonator", gson.toJson(giveDonatorInput));
-        sleepQuietly(500);
+        String result = publishAndWait("givedonator", giveDonatorInput);
 
         UserInfoCache.reloadUser(userId);
+        return result;
     }
 
-    public static void alertAll(String message) {
+    public static String alertAll(String message) {
         AlertAllInput alertAllInput = new AlertAllInput();
         alertAllInput.setMessage(message);
 
-        App.jedisPool.publish("alert_all", gson.toJson(alertAllInput));
-        sleepQuietly(500);
+        return publishAndWait("alert_all", alertAllInput);
     }
 
-    public static void wipe(int userId, int mode) {
+    public static String wipe(int userId, int mode) {
         WipeInput wipeInput = new WipeInput();
         wipeInput.setId(userId);
         wipeInput.setMode(mode);
 
-        App.jedisPool.publish("wipe", gson.toJson(wipeInput));
-        sleepQuietly(500);
+        return publishAndWait("wipe", wipeInput);
     }
 
-    public static void restrict(int userId, int adminId, String reason) {
+    public static String restrict(int userId, int adminId, String reason) {
         RestrictInput restrictInput = new RestrictInput();
         restrictInput.setId(userId);
         restrictInput.setUserId(adminId);
         restrictInput.setReason(reason);
 
-        App.jedisPool.publish("restrict", gson.toJson(restrictInput));
-        sleepQuietly(500);
+        return publishAndWait("restrict", restrictInput);
     }
 
-    public static void unrestrict(int userId, int adminId, String reason) {
+    public static String unrestrict(int userId, int adminId, String reason) {
         UnrestrictInput unrestrictInput = new UnrestrictInput();
         unrestrictInput.setId(userId);
         unrestrictInput.setUserId(adminId);
         unrestrictInput.setReason(reason);
 
-        App.jedisPool.publish("unrestrict", gson.toJson(unrestrictInput));
-        sleepQuietly(500);
+        return publishAndWait("unrestrict", unrestrictInput);
     }
 
     /**
@@ -146,7 +142,7 @@ public class SyncedAction {
      * the map and the status. Shiina used to write to a separate `beatmaps` table as well,
      * which bancho never reads (AUD-28).
      */
-    public static void changeBeatmapRankStatus(Beatmap beatmap, int newStatus, boolean newFrozenStatus, int userId, String userName) {
+    public static String changeBeatmapRankStatus(Beatmap beatmap, int newStatus, boolean newFrozenStatus, int userId, String userName) {
         int beatmapId = beatmap.getId();
         beatmap.setStatus(newStatus);
         beatmap.setFrozen(newFrozenStatus);
@@ -158,8 +154,7 @@ public class SyncedAction {
         rankOutput.setUser_id(userId);
         rankOutput.setUser_name(userName);
 
-        App.jedisPool.publish("rank", gson.toJson(rankOutput));
-        sleepQuietly(500);
+        return publishAndWait("rank", rankOutput);
     }
 
     public static void changeCountryFlag(int userId, String flag) {
@@ -197,6 +192,34 @@ public class SyncedAction {
         java.util.Map<String, Object> payload = new java.util.HashMap<>();
         payload.put("id", userId);
         publishQuietly("password_changed", gson.toJson(payload));
+    }
+
+    /** AUD-12: how long the panel waits for bancho to say what happened */
+    private static final int ACK_TIMEOUT_SECONDS = 5;
+    public static final String SUCCESS = "success";
+    public static final String NO_ANSWER = "no answer from bancho (is it running?)";
+
+    /**
+     * Sends a panel action to bancho with a request id and waits up to a few seconds
+     * for bancho's answer ("success" or the reason it refused). Before this the panel
+     * always showed success, also when bancho refused or wasn't running.
+     */
+    private static String publishAndWait(String channel, Object input) {
+        String reqId = java.util.UUID.randomUUID().toString().replace("-", "");
+        com.google.gson.JsonObject payload = gson.toJsonTree(input).getAsJsonObject();
+        payload.addProperty("req_id", reqId);
+        try {
+            App.jedisPool.publish(channel, payload.toString());
+            List<String> answer = App.jedisPool.blpop(ACK_TIMEOUT_SECONDS, "ex:ack:" + reqId);
+            if (answer == null || answer.size() < 2) {
+                logger.warn("No answer from bancho for {}", channel);
+                return NO_ANSWER;
+            }
+            return answer.get(1);
+        } catch (Exception e) {
+            logger.warn("Could not send {} to bancho: {}", channel, e.getMessage());
+            return "could not reach Redis";
+        }
     }
 
     private static void publishQuietly(String channel, String json) {

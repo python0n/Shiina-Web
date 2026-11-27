@@ -9,7 +9,7 @@ import dev.osunolimits.modules.ShiinaRoute;
 import dev.osunolimits.modules.ShiinaRoute.ShiinaRequest;
 import dev.osunolimits.utils.Auth;
 import dev.osunolimits.utils.Auth.SessionUser;
-import dev.osunolimits.utils.StringCipher;
+import dev.osunolimits.modules.utils.PasswordReset;
 import spark.Request;
 import spark.Response;
 
@@ -28,16 +28,24 @@ public class HandleTokenDeletion extends Shiina {
             return redirect(res, shiina, "/settings/auth?error=Invalid token");
         }
 
-        StringCipher cipher = new StringCipher(App.appSecret);
-        token = cipher.decode(token);
+        // TSG-27: the form sends the hash of the session; find it among this user's own sessions
+        String wanted = token;
+        token = null;
+        for (Object candidate : App.appCache.lrange("shiina:user:" + shiina.user.id + ":tokens", 0, -1)) {
+            if (candidate instanceof String && PasswordReset.hash((String) candidate).equals(wanted)) {
+                token = (String) candidate;
+                break;
+            }
+        }
+        if (token == null) {
+            return redirect(res, shiina, "/settings/auth?error=Invalid token");
+        }
 
         String userJson = App.appCache.get("shiina:auth:" + token);
 
         if (userJson == null || userJson.isEmpty()) {
             return redirect(res, shiina, "/settings/auth?error=Invalid token");
         }
-
-        App.log.info(userJson);
 
         try {
             SessionUser user = new Gson().fromJson(userJson, Auth.SessionUser.class);

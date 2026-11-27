@@ -1,9 +1,45 @@
 // Panel actions are POST requests. The parameters stay in the address, the
-// server reads them the same way; afterwards the page is loaded again.
+// server reads them the same way. AUD-12: the page is reloaded only when the
+// action really worked; otherwise the reason (e.g. bancho refused) is shown.
+function apResult(response) {
+    return response.text().then(function (text) {
+        if (response.ok && (response.redirected || text.trim() === 'success')) {
+            return null;
+        }
+        return text.trim() || ('HTTP ' + response.status);
+    });
+}
+
 function apPost(url) {
     return fetch(url, { method: 'POST', credentials: 'same-origin' })
-        .then(function () { window.location.reload(); })
+        .then(apResult)
+        .then(function (error) {
+            if (error) { alert('Not done: ' + error); return; }
+            window.location.reload();
+        })
         .catch(function () { alert('Request failed.'); });
+}
+
+function apAction(button, url) {
+    button.disabled = true;
+    var label = button.innerHTML;
+    button.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>';
+    fetch(url, { method: 'POST', credentials: 'same-origin' })
+        .then(apResult)
+        .then(function (error) {
+            if (error) {
+                alert('Not done: ' + error);
+                button.disabled = false;
+                button.innerHTML = label;
+                return;
+            }
+            window.location.reload();
+        })
+        .catch(function () {
+            alert('Request failed.');
+            button.disabled = false;
+            button.innerHTML = label;
+        });
 }
 
 function confirmation(location) {

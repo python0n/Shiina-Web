@@ -13,7 +13,7 @@ import dev.osunolimits.modules.ShiinaRoute;
 import dev.osunolimits.modules.ShiinaRoute.ShiinaRequest;
 import dev.osunolimits.modules.utils.SEOBuilder;
 import dev.osunolimits.plugins.NavbarRegister;
-import dev.osunolimits.utils.StringCipher;
+import dev.osunolimits.modules.utils.PasswordReset;
 import dev.osunolimits.utils.Auth.SessionUser;
 import lombok.Data;
 import spark.Request;
@@ -60,8 +60,8 @@ public class Authentication extends Shiina {
             webSession.setCreated(user.getCreated());
             webSession.setCity(user.getCity());
             webSession.setCountry(user.getCountry());
-            StringCipher cipher = new StringCipher(App.appSecret);
-            webSession.setEncToken(cipher.encode((String) token));
+            // TSG-27: the page gets only a hash of the session token, which can't be turned back into it
+            webSession.setEncToken(PasswordReset.hash((String) token));
             Client c = userAgentParser.parse(user.getUserAgent());
             if (c != null) {
                 webSession.setBrowser(c.userAgent.family);

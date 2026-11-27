@@ -76,6 +76,12 @@ public class PubSubHandler extends Shiina {
         return raw(res, shiina, reason);
     }
 
+    /** AUD-12: bancho refused or didn't answer, so nothing is logged as done */
+    private Object failed(Response res, ShiinaRequest shiina, String result) throws Exception {
+        res.status(409);
+        return raw(res, shiina, result);
+    }
+
     public Object handle(Request req, Response res) throws Exception {
         ShiinaRequest shiina = new ShiinaRoute().handle(req, res);
 
@@ -120,7 +126,10 @@ public class PubSubHandler extends Shiina {
                     return deny(res, shiina, denied);
                 }
 
-                SyncedAction.restrict(userId, adminId, reason);
+                String result = SyncedAction.restrict(userId, adminId, reason);
+                if (!SyncedAction.SUCCESS.equals(result)) {
+                    return failed(res, shiina, result);
+                }
                 auditLogger.restrictUser(shiina.user, userId,reason);
                 break;
             }
@@ -137,7 +146,10 @@ public class PubSubHandler extends Shiina {
                     return deny(res, shiina, denied);
                 }
 
-                SyncedAction.unrestrict(userId, adminId, reason);
+                String result = SyncedAction.unrestrict(userId, adminId, reason);
+                if (!SyncedAction.SUCCESS.equals(result)) {
+                    return failed(res, shiina, result);
+                }
                 
                 auditLogger.unrestrictUser(shiina.user, userId, reason);
                 break;
@@ -155,7 +167,10 @@ public class PubSubHandler extends Shiina {
                     return deny(res, shiina, denied);
                 }
 
-                SyncedAction.wipe(userId, mode);
+                String result = SyncedAction.wipe(userId, mode);
+                if (!SyncedAction.SUCCESS.equals(result)) {
+                    return failed(res, shiina, result);
+                }
 
                 auditLogger.wipeUser(shiina.user, userId, mode, reason);
                 break;
@@ -166,7 +181,10 @@ public class PubSubHandler extends Shiina {
                 }
                 String message = req.queryParams("message");
                 
-                SyncedAction.alertAll(message);
+                String result = SyncedAction.alertAll(message);
+                if (!SyncedAction.SUCCESS.equals(result)) {
+                    return failed(res, shiina, result);
+                }
 
                 auditLogger.alertAll(shiina.user, message);
                 break;
@@ -178,7 +196,10 @@ public class PubSubHandler extends Shiina {
                 userId = Integer.parseInt(req.queryParams("id"));
                 String duration = req.queryParams("duration");
                 
-                SyncedAction.addDonatorStatus(userId, duration);
+                String result = SyncedAction.addDonatorStatus(userId, duration);
+                if (!SyncedAction.SUCCESS.equals(result)) {
+                    return failed(res, shiina, result);
+                }
 
                 new OnAddDonorEvent(duration, userId, shiina.user.id).callListeners();
                 auditLogger.giveDonator(shiina.user, userId, duration);
@@ -199,7 +220,10 @@ public class PubSubHandler extends Shiina {
                     return deny(res, shiina, denied);
                 }
 
-                SyncedAction.addPriv(userId, privs, shiina.user.id);
+                String result = SyncedAction.addPriv(userId, privs, shiina.user.id);
+                if (!SyncedAction.SUCCESS.equals(result)) {
+                    return failed(res, shiina, result);
+                }
               
                 auditLogger.addPriv(shiina.user, userId, privs);
                 res.redirect("/ap/user?id=" + userId);
@@ -219,7 +243,10 @@ public class PubSubHandler extends Shiina {
                     return deny(res, shiina, denied);
                 }
 
-                SyncedAction.removePriv(userId, privs, shiina.user.id);
+                String result = SyncedAction.removePriv(userId, privs, shiina.user.id);
+                if (!SyncedAction.SUCCESS.equals(result)) {
+                    return failed(res, shiina, result);
+                }
 
                 auditLogger.removePriv(shiina.user, userId, privs);
                 res.redirect("/ap/user?id=" + userId);

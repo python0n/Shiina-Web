@@ -76,16 +76,24 @@ public class HandleMapStatusUpdate extends Shiina {
             }
         }
 
+        // AUD-12: bancho answers for every map; only the changed ones go to the audit log
+        List<Integer> changed = new ArrayList<>();
         for (int id : ids) {
             Beatmap beatmap = new Beatmap();
             beatmap.setId(id);
             beatmap.setStatus(status);
-            SyncedAction.changeBeatmapRankStatus(beatmap, status, true, shiina.user.id, shiina.user.name);
+            String result = SyncedAction.changeBeatmapRankStatus(beatmap, status, true, shiina.user.id, shiina.user.name);
+            if (SyncedAction.SUCCESS.equals(result)) {
+                changed.add(id);
+            } else {
+                dev.osunolimits.main.App.log.warn("Map " + id + " status not changed: " + result);
+            }
         }
 
-        AuditLogger auditLogger = new AuditLogger(shiina.mysql, MessageType.RANK);
-
-        auditLogger.rankMap(shiina.user, setId, status, new Gson().toJson(ids));
+        if (!changed.isEmpty()) {
+            AuditLogger auditLogger = new AuditLogger(shiina.mysql, MessageType.RANK);
+            auditLogger.rankMap(shiina.user, setId, status, new Gson().toJson(changed));
+        }
         return redirect(res, shiina, "/ap/mapranking?setId=" + setId);
     }
 }
