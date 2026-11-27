@@ -104,6 +104,7 @@ public final class ReplayPlayerData {
     public static String json(int mode, OsrData osr, OsuData osu, int mods, AnalysisResult analysis) {
         return switch (mode) {
             case 1 -> taiko(osr, osu, mods, analysis);
+            case 2 -> fruits(osr, osu, mods, analysis);
             case 3 -> mania(osr, osu, mods, analysis);
             default -> json(osr, osu, mods, analysis);
         };
@@ -192,6 +193,44 @@ public final class ReplayPlayerData {
         out.put("objects", objects);
         out.put("frames", keyFrames(osr, false));
         return GSON.toJson(out);
+    }
+
+    private static String fruits(OsrData osr, OsuData osu, int mods, AnalysisResult analysis) {
+        var objects = CatchAnalyzer.objects(osu, mods);
+        List<ReplayAnalyzer.NoteResult> notes = analysis.getNoteResults();
+        List<Map<String, Object>> out = new ArrayList<>();
+        int ni = 0;
+        for (var o : objects) {
+            Map<String, Object> m = new LinkedHashMap<>();
+            m.put("t", Math.round(o.time));
+            m.put("x", r1(o.x()));
+            m.put("k", switch (o.kind) { case FRUIT -> "f"; case DROPLET -> "d"; case TINY -> "y"; default -> "b"; });
+            if (o.hyperDash) m.put("h", true);
+            if (o.kind != CatchBeatmap.Kind.BANANA && ni < notes.size()) {
+                var nr = notes.get(ni++);
+                m.put("v", nr.getVerdict());
+                if (nr.getClickTimeMs() != 0) m.put("te", Math.round(nr.getTimingError() * 10.0) / 10.0);
+            }
+            out.add(m);
+        }
+        // frames: time, catcher x (x10), keys (1 = dash)
+        var frames = osr.getFrames();
+        long[] flat = new long[frames.size() * 3];
+        int j = 0;
+        for (var f : frames) {
+            flat[j++] = f.getTimeMs();
+            flat[j++] = Math.round(f.getX() * 10);
+            flat[j++] = f.getKeys();
+        }
+        float cs = ReplayAnalyzer.applyMods(osu.getCs(), mods, 1.3f);
+        float ar = ReplayAnalyzer.applyMods(osu.getAr(), mods, 1.4f);
+        Map<String, Object> data = base(2, mods, analysis);
+        data.put("half", r1((float) (CatchBeatmap.catchWidth(cs) / 2)));
+        data.put("scale", (1.0f - 0.7f * (cs - 5) / 5));
+        data.put("preempt", Math.round(ar > 5 ? 1200 - 750 * (ar - 5) / 5 : 1200 + 600 * (5 - ar) / 5));
+        data.put("objects", out);
+        data.put("frames", flat);
+        return GSON.toJson(data);
     }
 
     private static double r1(float v) {

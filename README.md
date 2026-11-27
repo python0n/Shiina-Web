@@ -33,18 +33,20 @@ still applies. This page lists what the fork changes and the extra settings it n
 - Replay submission: players upload `.osr` files, admins review them in the admin panel. An accepted
   replay is saved by bancho (`/v1/approve_replay`) like a score sent from the game: Relax and Autopilot
   modes, pp, best score rules, the time it was played and the player's stats and rank.
-- Replay analyzer (`/analyzer`) for osu!, taiko and mania, with mode tabs like the beatmaps page.
+- Replay analyzer (`/analyzer`) for osu!, taiko, catch and mania, with mode tabs like the beatmaps page.
   Each mode is judged by its own stable rules: osu! notes are placed like in the game (stacking, HR)
   and slider heads are reported apart from misses; taiko judges don and kat separately (wrong colour
   is a miss); mania uses real-time windows, MAX/300/200/100/50 and hold notes judged from press and
-  release (head and tail apart with ScoreV2). Relax replays have no key presses, so the analyzer clicks
+  release (head and tail apart with ScoreV2); catch builds fruits, droplets, tiny droplets and
+  hyperdashes like lazer (also HR and converts) and checks where each one lands on the catcher.
+  Relax replays have no key presses, so the analyzer clicks
   where Relax would. Charts: timing per note on the song's time axis, hit error distribution, UR across
   the map, aim relative to the movement, stats per pattern or column, and map recommendations.
 - Replay player in the browser, on the analyzer and on score pages ("Watch replay"): osu! (also
   Relax and Autopilot) with sliders, cursor trail, keys and Hidden; taiko with the drum; mania with
-  falling notes and pressed columns. It plays the map's music and shows its background: the `.osz` is
+  falling notes and pressed columns; catch with the catcher, dash and hyperdash. It plays the map's music and shows its background: the `.osz` is
   downloaded once from the mirror and only the audio and background are kept (`data/analyzer-media`,
-  the last 300 sets). Catch is not supported yet.
+  the last 300 sets).
 
 ### Beatmaps
 - Interface for bancho.py-ex's beatmap submission (BSS): maps can be uploaded straight from the editor.

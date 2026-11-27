@@ -33,6 +33,22 @@
 
   <!-- statystyki ogólne -->
   <div class="row g-3 mb-4">
+    <#if mode == 2>
+    <div class="col-6 col-md-3">
+      <div class="card rounded text-center p-3 h-100">
+        <div class="text-muted small mb-1">${t["analyzer.caught"]} <span tabindex="0" data-bs-toggle="tooltip" title="${t["analyzer.caught_tip"]}"><i class="fa-solid fa-circle-info fa-xs opacity-50"></i></span></div>
+        <div class="fw-bold fs-5 ${(analysis.streamAccuracy < 95)?then('text-warning', 'text-success')}">${analysis.streamAccuracy?string("0.0")}%</div>
+        <div class="text-muted small">${t["analyzer.caught_sub"]}</div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="card rounded text-center p-3 h-100">
+        <div class="text-muted small mb-1">${t["analyzer.edge"]} <span tabindex="0" data-bs-toggle="tooltip" title="${t["analyzer.edge_tip"]}"><i class="fa-solid fa-circle-info fa-xs opacity-50"></i></span></div>
+        <div class="fw-bold fs-5 ${(analysis.jumpAccuracy >= 15)?then('text-warning', 'text-success')}">${analysis.jumpAccuracy?string("0.0")}%</div>
+        <div class="text-muted small">±${analysis.timingStdDev?string("0.0")} px</div>
+      </div>
+    </div>
+    <#else>
     <div class="col-6 col-md-3">
       <div class="card rounded text-center p-3 h-100">
         <div class="text-muted small mb-1">${t["analyzer.avg_timing"]} <span tabindex="0" data-bs-toggle="tooltip" title="${t["analyzer.avg_timing_tip"]}"><i class="fa-solid fa-circle-info fa-xs opacity-50"></i></span></div>
@@ -51,6 +67,7 @@
         <div class="text-muted small">±${analysis.timingStdDev?string("0.0")} ms</div>
       </div>
     </div>
+    </#if>
     <div class="col-6 col-md-3">
       <div class="card rounded text-center p-3 h-100">
         <#if mode == 0>
@@ -62,13 +79,17 @@
         <#else>
         <div class="text-muted small mb-1">${t["analyzer.notes"]}</div>
         <div class="fw-bold fs-5">${analysis.analyzedObjects?c}</div>
-        <div class="text-muted small"><#if mode == 3>${analysis.keyCount?c}K<#else>${t["analyzer.notes_taiko"]}</#if></div>
+        <div class="text-muted small"><#if mode == 3>${analysis.keyCount?c}K<#elseif mode == 2>${t["analyzer.notes_catch"]}<#else>${t["analyzer.notes_taiko"]}</#if></div>
         </#if>
       </div>
     </div>
     <div class="col-6 col-md-3">
       <div class="card rounded text-center p-3 h-100">
+        <#if mode == 2>
+        <div class="text-muted small mb-1">${t["analyzer.left_right"]} <span tabindex="0" data-bs-toggle="tooltip" title="${t["analyzer.left_right_tip"]}"><i class="fa-solid fa-circle-info fa-xs opacity-50"></i></span></div>
+        <#else>
         <div class="text-muted small mb-1">${t["analyzer.early_late"]} <span tabindex="0" data-bs-toggle="tooltip" title="${t["analyzer.early_late_tip"]}"><i class="fa-solid fa-circle-info fa-xs opacity-50"></i></span></div>
+        </#if>
         <div class="fw-bold fs-5">${analysis.earlyHits?c} / ${analysis.lateHits?c}</div>
         <div class="text-muted small">${score.nmiss} ${t["analyzer.misses_lc"]}<#if mode == 0 && (analysis.sliderHeadMisses > 0)> &bull; ${t["analyzer.slider_heads_missed"]?replace("{v}", analysis.sliderHeadMisses?c)}</#if></div>
       </div>
@@ -78,7 +99,7 @@
   <!-- wykres timing error -->
   <div class="card rounded mb-4">
     <div class="card-header bg-body border-bottom px-4 py-3 d-flex flex-wrap align-items-center gap-2">
-      <h6 class="mb-0 fw-semibold me-auto"><i class="fa-solid fa-chart-line me-2"></i>${t["analyzer.per_note"]} <span tabindex="0" data-bs-toggle="tooltip" title="${t["analyzer.per_note_tip2"]}"><i class="fa-solid fa-circle-info fa-xs opacity-50"></i></span></h6>
+      <h6 class="mb-0 fw-semibold me-auto"><i class="fa-solid fa-chart-line me-2"></i>${(mode == 2)?then(t["analyzer.per_note_catch"], t["analyzer.per_note"])} <span tabindex="0" data-bs-toggle="tooltip" title="${(mode == 2)?then(t["analyzer.per_note_catch_tip"], t["analyzer.per_note_tip2"])}"><i class="fa-solid fa-circle-info fa-xs opacity-50"></i></span></h6>
       <div id="noteLegend" class="d-flex flex-wrap gap-2 small"></div>
     </div>
     <div class="card-body">
@@ -88,14 +109,15 @@
   </div>
 
   <div class="row g-3 mb-4">
-    <div class="col-lg-6">
+    <div class="${(mode == 2)?then('col-12', 'col-lg-6')}">
       <div class="card rounded h-100">
         <div class="card-header bg-body border-bottom px-4 py-3">
-          <h6 class="mb-0 fw-semibold"><i class="fa-solid fa-chart-column me-2"></i>${t["analyzer.histogram"]} <span tabindex="0" data-bs-toggle="tooltip" title="${t["analyzer.histogram_tip"]}"><i class="fa-solid fa-circle-info fa-xs opacity-50"></i></span></h6>
+          <h6 class="mb-0 fw-semibold"><i class="fa-solid fa-chart-column me-2"></i>${(mode == 2)?then(t["analyzer.histogram_catch"], t["analyzer.histogram"])} <span tabindex="0" data-bs-toggle="tooltip" title="${(mode == 2)?then(t["analyzer.histogram_catch_tip"], t["analyzer.histogram_tip"])}"><i class="fa-solid fa-circle-info fa-xs opacity-50"></i></span></h6>
         </div>
         <div class="card-body"><div style="position:relative;height:220px;"><canvas id="histChart"></canvas></div></div>
       </div>
     </div>
+<#if mode != 2>
     <div class="col-lg-6">
       <div class="card rounded h-100">
         <div class="card-header bg-body border-bottom px-4 py-3">
@@ -104,6 +126,7 @@
         <div class="card-body"><div style="position:relative;height:220px;"><canvas id="urChart"></canvas></div></div>
       </div>
     </div>
+    </#if>
   </div>
 
   <div class="row g-3 mb-4">
@@ -130,7 +153,7 @@
                 <th class="text-end">${t["analyzer.col_notes"]}</th>
                 <th class="text-end">${t["analyzer.col_hit"]}</th>
                 <th class="text-end">${t["analyzer.col_avg"]}</th>
-                <th class="text-end <#if mode != 3>pe-4</#if>">UR</th>
+                <th class="text-end <#if mode != 3>pe-4</#if>"><#if mode == 2>${t["analyzer.spread"]}<#else>UR</#if></th>
                 <#if mode == 3><th class="text-end pe-4">${t["analyzer.col_release"]}</th></#if>
               </tr></thead>
               <tbody>
@@ -139,7 +162,7 @@
                   <td class="ps-4"><span class="analyzer-dot" data-group="${g.key}"></span><#if mode == 3>${t["analyzer.column"]} ${g.key}<#else>${t["analyzer.g." + g.key]}</#if></td>
                   <td class="text-end">${g.objects?c}</td>
                   <td class="text-end">${g.hitRate}%</td>
-                  <td class="text-end">${g.avg} ms</td>
+                  <td class="text-end">${g.avg}<#if g.avg != "-"> ${(mode == 2)?then("px", "ms")}</#if></td>
                   <td class="text-end <#if mode != 3>pe-4</#if>">${g.ur}</td>
                   <#if mode == 3><td class="text-end pe-4">${g.release}<#if g.release != "-"> ms</#if></td></#if>
                 </tr>
@@ -269,7 +292,7 @@ function analyzerWithZoom(draw) {
     }).catch(function() {});
 })();
 <#if noteResultsJson??>
-<#assign jsKeys = ["analyzer.chart_timing", "analyzer.chart_verdict", "analyzer.chart_axis", "analyzer.chart_time", "analyzer.slider_head", "analyzer.slider_head_missed", "analyzer.miss", "analyzer.wrong_colour", "analyzer.g.stream", "analyzer.g.jump", "analyzer.g.burst", "analyzer.g.other", "analyzer.g.don", "analyzer.g.kat", "analyzer.column", "analyzer.hits", "analyzer.aim_along", "analyzer.aim_across", "analyzer.release", "analyzer.player_error", "analyzer.big"]>
+<#assign jsKeys = ["analyzer.chart_timing", "analyzer.chart_verdict", "analyzer.chart_axis", "analyzer.chart_time", "analyzer.slider_head", "analyzer.slider_head_missed", "analyzer.miss", "analyzer.wrong_colour", "analyzer.g.stream", "analyzer.g.jump", "analyzer.g.burst", "analyzer.g.other", "analyzer.g.don", "analyzer.g.kat", "analyzer.column", "analyzer.hits", "analyzer.aim_along", "analyzer.aim_across", "analyzer.release", "analyzer.player_error", "analyzer.big", "analyzer.g.fruit", "analyzer.g.droplet", "analyzer.g.tiny", "analyzer.g.hyper", "analyzer.tiny_missed", "analyzer.offset", "analyzer.chart_axis_catch"]>
 analyzerWithZoom(function() {
   const L = {<#list jsKeys as k>"${k?keep_after("analyzer.")}": "${t[k]?js_string}"<#sep>, </#list>};
   const notes = ${noteResultsJson};
@@ -279,11 +302,13 @@ analyzerWithZoom(function() {
   const scoreId = ${score.id?c};
   if (!notes.length || !document.getElementById('timingChart')) return;
 
-  const C = { stream: '#3b82f6', jump: '#f59e0b', burst: '#14b8a6', other: '#9ca3af', miss: 'rgba(239,68,68,0.45)', sliderMiss: 'rgba(244,114,182,0.45)', don: '#f97316', kat: '#38bdf8' };
+  const C = { stream: '#3b82f6', jump: '#f59e0b', burst: '#14b8a6', other: '#9ca3af', miss: 'rgba(239,68,68,0.45)', sliderMiss: 'rgba(244,114,182,0.45)', don: '#f97316', kat: '#38bdf8', fruit: '#a3e635', droplet: '#38bdf8', tiny: '#c4b5fd', hyper: '#ef4444' };
+  const CATCH = ['fruit', 'droplet', 'tiny'];
   const COLS = ['#60a5fa', '#f472b6', '#34d399', '#fbbf24', '#a78bfa', '#f87171', '#22d3ee', '#a3e635', '#fb923c', '#e879f9'];
   const ZONES = ['#38bdf8', '#22c55e', '#eab308', '#f97316', '#ef4444'];
   function colourOf(n) {
     if (mode === 1) return n.k ? C.kat : C.don;
+    if (mode === 2) return C[CATCH[n.c]];
     if (mode === 3) return COLS[n.c % COLS.length];
     return C[n.g] || C.other;
   }
@@ -292,15 +317,18 @@ analyzerWithZoom(function() {
     const s = Math.floor(ms / 1000);
     return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
   }
-  const isMiss = (n) => n.v === 'miss' || n.v === 'wrong' || n.v === 'slider_miss';
+  const isMiss = (n) => n.v === 'miss' || n.v === 'wrong' || n.v === 'slider_miss' || n.v === 'tiny_miss';
+  const unit = mode === 2 ? ' px' : ' ms';
 
   // legend (same colours as the table dots)
   const legend = document.getElementById('noteLegend');
   const chips = [];
   if (mode === 0) ['stream', 'jump', 'burst', 'other'].forEach(g => chips.push([C[g], L['g.' + g], false]));
   else if (mode === 1) chips.push([C.don, L['g.don'], false], [C.kat, L['g.kat'], false]);
+  else if (mode === 2) CATCH.forEach(g => chips.push([C[g], L['g.' + g], false]));
   chips.push(['#ef4444', L.miss, true]);
   if (mode === 0 && notes.some(n => n.v === 'slider_miss')) chips.push(['#f472b6', L.slider_head_missed, true]);
+  if (mode === 2 && notes.some(n => n.v === 'tiny_miss')) chips.push(['#f472b6', L.tiny_missed, true]);
   if (mode !== 3) legend.innerHTML = chips.map(c => '<span class="analyzer-chip"><i class="' + (c[2] ? 'band' : '') + '" style="background:' + c[0] + '"></i>' + c[1].replace(/[&<>]/g, '') + '</span>').join('');
   document.querySelectorAll('.analyzer-dot').forEach(d => {
     const g = d.dataset.group;
@@ -322,7 +350,7 @@ analyzerWithZoom(function() {
         if (!isMiss(n)) return;
         const px = x.getPixelForValue(n.t);
         if (px < a.left || px > a.right) return;
-        ctx.fillStyle = n.v === 'slider_miss' ? C.sliderMiss : C.miss;
+        ctx.fillStyle = n.v === 'slider_miss' || n.v === 'tiny_miss' ? C.sliderMiss : C.miss;
         ctx.fillRect(px - 1.5, a.top, 3, a.bottom - a.top);
       });
       // hit windows as faint lines
@@ -340,8 +368,10 @@ analyzerWithZoom(function() {
 
   const tooltipLabel = (n) => {
     const lines = [];
-    if (isMiss(n)) lines.push(n.v === 'wrong' ? L.wrong_colour : n.v === 'slider_miss' ? L.slider_head_missed : L.miss);
-    else {
+    if (isMiss(n)) lines.push(n.v === 'wrong' ? L.wrong_colour : n.v === 'slider_miss' ? L.slider_head_missed : n.v === 'tiny_miss' ? L.tiny_missed : L.miss);
+    else if (mode === 2) {
+      lines.push(L.offset + ': ' + (n.te > 0 ? '+' : '') + n.te + ' px');
+    } else {
       lines.push(L.chart_timing + ': ' + (n.te > 0 ? '+' : '') + n.te + ' ms');
       lines.push(L.chart_verdict + ': ' + (n.v === 'slider' ? L.slider_head : n.v));
     }
@@ -350,6 +380,8 @@ analyzerWithZoom(function() {
       if (n.ae !== undefined) lines.push('Aim: ' + n.ae + ' px');
     } else if (mode === 1) {
       lines.push((n.k ? L['g.kat'] : L['g.don']) + (n.b ? ' (' + L.big + ')' : ''));
+    } else if (mode === 2) {
+      lines.push(L['g.' + CATCH[n.c]] + (n.h ? ' (' + L['g.hyper'] + ')' : ''));
     } else {
       lines.push(L.column + ' ' + (n.c + 1));
       if (n.re !== undefined) lines.push(L.release + ': ' + (n.re > 0 ? '+' : '') + n.re + ' ms' + (n.tv ? ' (' + (n.tv === 'miss' ? L.miss : n.tv) + ')' : ''));
@@ -385,7 +417,7 @@ analyzerWithZoom(function() {
       },
       scales: {
         x: { type: 'linear', min: tMin - pad, max: tMax + pad, ticks: { callback: (v) => fmtTime(v), maxTicksLimit: 12 }, grid: { color: grid }, title: { display: true, text: L.chart_time } },
-        y: { min: -yMax, max: yMax, title: { display: true, text: L.chart_axis }, grid: { color: grid } }
+        y: { min: -yMax, max: yMax, title: { display: true, text: mode === 2 ? L.chart_axis_catch : L.chart_axis }, grid: { color: grid } }
       },
       onClick: (evt, els, chart) => {
         const t = chart.scales.x.getValueForPixel(evt.x);
@@ -418,7 +450,7 @@ analyzerWithZoom(function() {
       options: {
         responsive: true, maintainAspectRatio: false, animation: false,
         plugins: { legend: { display: false }, tooltip: { callbacks: {
-          title: (items) => { const c = parseFloat(items[0].label); return (c - bin / 2) + ' .. ' + (c + bin / 2) + ' ms'; },
+          title: (items) => { const c = parseFloat(items[0].label); return (c - bin / 2) + ' .. ' + (c + bin / 2) + unit; },
           label: (ctx) => L.hits + ': ' + ctx.raw
         } } },
         scales: {
@@ -429,8 +461,8 @@ analyzerWithZoom(function() {
     });
   })();
 
-  // UR in parts of the map
-  (function() {
+  // UR in parts of the map (no timing in catch)
+  if (document.getElementById('urChart')) (function() {
     const size = Math.max(20, Math.round(hits.length / 30));
     const pts = [];
     for (let i = 0; i + size <= hits.length; i += size) {

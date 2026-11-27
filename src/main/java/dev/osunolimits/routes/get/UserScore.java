@@ -66,7 +66,8 @@ public class UserScore extends Shiina {
         File osuFile = new File(BanchoData.beatmaps() + mapId + ".osu");
         // osu! (also relax and autopilot) on osu! maps, taiko and mania on maps made for them (no converts)
         int playerMode = mode == 4 || mode == 8 ? 0 : mode;
-        boolean canWatch = (playerMode == 0 || playerMode == 1 || playerMode == 3) && mapMode == playerMode
+        boolean canWatch = (playerMode == 0 || playerMode == 1 || playerMode == 2 || playerMode == 3)
+            && (mapMode == playerMode || (playerMode == 2 && mapMode == 0))
             && osrFile.exists() && osuFile.exists();
         String media = req.queryParams("media");
         if ("1".equals(req.queryParams("replay")) || media != null) {
@@ -88,12 +89,13 @@ public class UserScore extends Shiina {
                 OsrParser.OsrData osr = OsrParser.parse(Files.readAllBytes(osrFile.toPath()), true);
                 OsuFileParser.OsuData osu = OsuFileParser.parse(osuFile.getAbsolutePath());
                 // verdicts for the player; with Relax the analyzer clicks where the game would
-                if (osu.getMode() != playerMode) {
+                if (osu.getMode() != playerMode && !(playerMode == 2 && osu.getMode() == 0)) {
                     res.status(404);
                     return "";
                 }
                 ReplayAnalyzer.AnalysisResult analysis = switch (playerMode) {
                     case 1 -> dev.osunolimits.modules.osr.TaikoAnalyzer.analyze(osr, osu, 0, mods);
+                    case 2 -> dev.osunolimits.modules.osr.CatchAnalyzer.analyze(osr, osu, 0, mods);
                     case 3 -> dev.osunolimits.modules.osr.ManiaAnalyzer.analyze(osr, osu, 0, mods);
                     default -> ReplayAnalyzer.analyze(osr, osu, 0, mods);
                 };

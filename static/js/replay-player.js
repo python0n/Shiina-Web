@@ -75,7 +75,7 @@ window.shiinaReplayPlayer = function(root) {
 
   function prepare() {
     data.objects.forEach(o => {
-      if (o.k !== 's') return;
+      if (data.mode !== 0 || o.k !== 's') return;
       // path as points plus cumulative length, to place the slider ball
       const pts = [];
       for (let i = 0; i < o.p.length; i += 2) pts.push([o.p[i], o.p[i + 1]]);
@@ -85,7 +85,7 @@ window.shiinaReplayPlayer = function(root) {
     });
     const f = data.frames;
     // frames: time, x, y, keys (osu!) or time, keys / pressed columns (taiko, mania)
-    data.stride = data.mode === 0 ? 4 : 2;
+    data.stride = data.mode === 0 ? 4 : data.mode === 2 ? 3 : 2;
     data.n = f.length / data.stride;
     let last = 0;
     data.objects.forEach(o => { last = Math.max(last, o.e !== undefined ? o.e : o.t); });
@@ -94,8 +94,8 @@ window.shiinaReplayPlayer = function(root) {
     seek.min = start; seek.max = end;
     canvas.parentElement.style.aspectRatio = data.mode === 1 ? '16 / 7' : '4 / 3';
     if (data.mode !== 0) {
-      // cursor trail and 300s are osu!-only switches
-      trailBox.closest('.form-check').style.display = 'none';
+      // cursor trail and 300s are osu!-only switches (catch shows its own trail of the catcher)
+      if (data.mode !== 2) trailBox.closest('.form-check').style.display = 'none';
       box300.closest('.form-check').style.display = 'none';
     }
   }
@@ -108,7 +108,7 @@ window.shiinaReplayPlayer = function(root) {
     marks.height = Math.max(1, Math.round(r.height * dpr));
     const c = marks.getContext('2d');
     c.clearRect(0, 0, marks.width, marks.height);
-    const col = { '100': '#88dd55', '50': '#ffbb44', 'GOOD': '#88dd55', 'miss': '#ff4444', 'wrong': '#ff4444', 'slider_miss': '#f472b6' };
+    const col = { '100': '#88dd55', '50': '#ffbb44', 'GOOD': '#88dd55', 'miss': '#ff4444', 'wrong': '#ff4444', 'slider_miss': '#f472b6', 'tiny_miss': '#f472b6' };
     data.objects.forEach(o => {
       const k = col[o.v];
       if (!k) return;
@@ -167,6 +167,7 @@ window.shiinaReplayPlayer = function(root) {
     }
     if (data.mode === 3) { drawMania(W, H); finish(W, H); return; }
     if (data.mode === 1) { drawTaiko(W, H); finish(W, H); return; }
+    if (data.mode === 2) { drawCatch(W, H); finish(W, H); return; }
     ctx.strokeStyle = 'rgba(255,255,255,0.06)';
     ctx.strokeRect(X(0), Y(0), 512 * scale, 384 * scale);
     const r = data.radius * scale;
@@ -472,6 +473,63 @@ window.shiinaReplayPlayer = function(root) {
     part(k & 1, '#eb452c', Math.PI / 2, Math.PI * 1.5, 0, 32 * s);
     part(k & 4, '#eb452c', -Math.PI / 2, Math.PI / 2, 0, 32 * s);
     popup(hitX, cy - half - 24 * s, 26 * s, o => o.k === 'don' || o.k === 'kat');
+  }
+
+  // osu!catch: objects fall to the catcher, which moves with the replay; red outline = hyperdash
+  const FRUIT_COLS = ['#ff6b6b', '#ffd166', '#6ee7b7', '#7dd3fc'];
+  function drawCatch(W, H) {
+    ctx.strokeStyle = 'rgba(255,255,255,0.06)';
+    ctx.strokeRect(X(0), Y(0), 512 * scale, 384 * scale);
+    const pre = data.preempt;
+    const catcherY = 350;
+    const r = 30 * Math.abs(data.scale);
+    const f = data.frames;
+    const i = frameAt(now);
+    let cx = 256, dash = false;
+    if (i >= 0) {
+      cx = f[i * 3 + 1] / 10;
+      dash = (f[i * 3 + 2] & 1) !== 0;
+      if (i + 1 < data.n) {
+        const t0 = f[i * 3], t1 = f[(i + 1) * 3];
+        const k = t1 > t0 ? Math.max(0, Math.min(1, (now - t0) / (t1 - t0))) : 0;
+        cx += (f[(i + 1) * 3 + 1] / 10 - cx) * k;
+      }
+    }
+    const objs = data.objects;
+    let colour = 0;
+    for (let j = 0; j < objs.length; j++) {
+      const o = objs[j];
+      if (o.k === 'f') colour++;
+      if (o.t - pre > now) break;
+      const caught = o.v && o.v !== 'miss' && o.v !== 'tiny_miss';
+      if (now > o.t && (caught || o.k === 'b' || now > o.t + 400)) continue;
+      const y = catcherY - (o.t - now) / pre * catcherY;
+      const rr = o.k === 'f' ? r : o.k === 'd' ? r * 0.55 : o.k === 'y' ? r * 0.3 : r * 0.7;
+      ctx.globalAlpha = now > o.t ? 0.45 : 1;
+      ctx.fillStyle = o.k === 'b' ? '#facc15' : o.k === 'f' ? FRUIT_COLS[colour % FRUIT_COLS.length] : '#e0f2fe';
+      ctx.beginPath(); ctx.arc(X(o.x), Y(y), rr * scale, 0, Math.PI * 2); ctx.fill();
+      if (o.h) { ctx.strokeStyle = '#ef4444'; ctx.lineWidth = 3 * scale; ctx.stroke(); }
+      ctx.globalAlpha = 1;
+    }
+    // catcher: the part that catches, plus its trail while dashing
+    const half = data.half;
+    if (trailBox.checked && i > 0) {
+      ctx.strokeStyle = 'rgba(125,211,252,0.35)';
+      ctx.lineWidth = 2 * scale;
+      ctx.beginPath();
+      let j = i, first = true;
+      while (j > 0 && now - f[j * 3] < 200) {
+        const px = X(f[j * 3 + 1] / 10), py = Y(catcherY + 18 + (now - f[j * 3]) / 12);
+        if (first) { ctx.moveTo(px, py); first = false; } else ctx.lineTo(px, py);
+        j--;
+      }
+      ctx.stroke();
+    }
+    ctx.fillStyle = dash ? '#7dd3fc' : '#f3f4f6';
+    ctx.fillRect(X(cx - half), Y(catcherY), half * 2 * scale, 10 * scale);
+    ctx.fillStyle = 'rgba(255,255,255,0.15)';
+    ctx.fillRect(X(cx - half), Y(catcherY + 10), half * 2 * scale, 18 * scale);
+    popup(X(cx), Y(catcherY - 40), 26 * scale, o => o.v === 'miss');
   }
 
   function fmt(ms) {

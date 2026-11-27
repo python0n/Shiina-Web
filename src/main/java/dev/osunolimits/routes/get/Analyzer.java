@@ -27,6 +27,7 @@ import dev.osunolimits.modules.osr.ReplayAnalyzer;
 import dev.osunolimits.modules.osr.ReplayAnalyzer.AnalysisResult;
 import dev.osunolimits.modules.osr.ManiaAnalyzer;
 import dev.osunolimits.modules.osr.TaikoAnalyzer;
+import dev.osunolimits.modules.osr.CatchAnalyzer;
 import dev.osunolimits.modules.osr.BeatmapMedia;
 import dev.osunolimits.modules.osr.ReplayPlayerData;
 import spark.Request;
@@ -218,7 +219,7 @@ public class Analyzer extends Shiina {
         if (rs == null || !rs.next()) return redirect(res, shiina, "/analyzer");
         if (rs.getInt("userid") != shiina.user.id) return redirect(res, shiina, "/analyzer");
         int mode = rs.getInt("mode");
-        if (mode != 0 && mode != 1 && mode != 3) return redirect(res, shiina, "/analyzer");
+        if (mode < 0 || mode > 3) return redirect(res, shiina, "/analyzer");
         boolean replayJson = "1".equals(req.queryParams("replay"));
 
         int mapId = rs.getInt("map_id");
@@ -290,7 +291,8 @@ public class Analyzer extends Shiina {
             int mods = rs.getInt("mods");
             // converted maps (a std map played in taiko or mania) are built by the game in a way
             // the analyzer does not repeat, so only maps made for the mode are analyzed
-            if (osu.getMode() != mode) {
+            // catch builds its objects from osu! maps the same way as from catch maps, so converts are fine there
+            if (osu.getMode() != mode && !(mode == 2 && osu.getMode() == 0)) {
                 if (replayJson) {
                     res.status(404);
                     res.type("application/json");
@@ -302,6 +304,7 @@ public class Analyzer extends Shiina {
             }
             AnalysisResult analysis = switch (mode) {
                 case 1 -> TaikoAnalyzer.analyze(osr, osu, nmiss, mods);
+                case 2 -> CatchAnalyzer.analyze(osr, osu, nmiss, mods);
                 case 3 -> ManiaAnalyzer.analyze(osr, osu, nmiss, mods);
                 default -> ReplayAnalyzer.analyze(osr, osu, nmiss, mods);
             };
@@ -460,7 +463,7 @@ public class Analyzer extends Shiina {
         for (var n : analysis.getNoteResults()) {
             Map<String, Object> o = new LinkedHashMap<>();
             String v = String.valueOf(n.getVerdict());
-            hasHit = !(v.equals("miss") || v.equals("slider_miss") || v.equals("wrong"));
+            hasHit = !(v.equals("miss") || v.equals("slider_miss") || v.equals("wrong") || v.equals("tiny_miss"));
             o.put("t", n.getNoteTimeMs());
             o.put("v", v);
             if (hasHit) o.put("te", Math.round(n.getTimingError() * 10.0) / 10.0);
@@ -468,6 +471,10 @@ public class Analyzer extends Shiina {
                 case 1 -> {
                     o.put("k", n.isKat());
                     if (n.isBig()) o.put("b", true);
+                }
+                case 2 -> {
+                    o.put("c", n.getColumn()); // 0 fruit, 1 droplet, 2 tiny droplet
+                    if (n.isBig()) o.put("h", true); // hyperdash
                 }
                 case 3 -> {
                     o.put("c", n.getColumn());

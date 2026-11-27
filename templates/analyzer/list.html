@@ -37,9 +37,6 @@
       </div>
     </div>
     <div class="card-body p-0">
-      <#if mode == 2>
-        <div class="alert alert-secondary small m-3 mb-0"><i class="fa-solid fa-circle-info me-2"></i>${t["analyzer.catch_soon"]}</div>
-      </#if>
       <#if scores?size == 0>
         <div class="text-center text-muted py-5">
           <i class="fa-solid fa-inbox" style="font-size: 3rem; opacity: 0.3;"></i>
@@ -61,7 +58,7 @@
             </thead>
             <tbody>
               <#list scores as s>
-              <#if s.hasReplay && mode != 2>
+              <#if s.hasReplay>
               <tr style="cursor:pointer;" onclick="Turbo.visit('/analyzer/${s.id?c}')">
               <#else>
               <tr class="opacity-50">
@@ -109,7 +106,7 @@
     var html = "";
     for (var i = 0; i < scores.length; i++) {
       var s = scores[i];
-      var open = s.hasReplay && s.mode !== 2;
+      var open = s.hasReplay;
       var style = open ? "cursor:pointer;" : "opacity:0.5;";
       var click = open ? " onclick=\"Turbo.visit('/analyzer/" + encodeURIComponent(s.id) + "')\"" : "";
       html += "<div class=\"d-flex align-items-center gap-3 p-2 rounded border mb-1\" style=\"" + style + "\"" + click + ">";

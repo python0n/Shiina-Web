@@ -30,6 +30,7 @@ public class OsuFileParser {
         private int mode;
         private float stackLeniency = 0.7f;
         private double sliderMultiplier = 1.4;
+        private double sliderTickRate = 1;
         private List<HitObject> hitObjects = new ArrayList<>();
         private List<TimingPoint> timingPoints = new ArrayList<>();
     }
@@ -150,6 +151,7 @@ public class OsuFileParser {
             else if (line.startsWith("CircleSize:")) data.cs = num(line, 11);
             else if (line.startsWith("HPDrainRate:")) data.hp = num(line, 12);
             else if (line.startsWith("SliderMultiplier:")) data.sliderMultiplier = num(line, 17);
+            else if (line.startsWith("SliderTickRate:")) data.sliderTickRate = num(line, 15);
         } catch (NumberFormatException ignored) {}
     }
 
