@@ -145,6 +145,7 @@ public final class ReplayPlayerData {
         out.put("rate", ReplayAnalyzer.clockRate(mods));
         out.put("nightcore", (mods & 512) != 0);
         out.put("hidden", (mods & 8) != 0);
+        out.put("flashlight", (mods & 1024) != 0);
         out.put("meter", realWindows(analysis));
         return out;
     }

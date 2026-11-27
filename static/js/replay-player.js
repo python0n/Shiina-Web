@@ -164,8 +164,8 @@ window.shiinaReplayPlayer = function(root) {
     }
     const sw = (box, show) => { box.closest('.form-check').style.display = show ? '' : 'none'; };
     sw(fpBox, data.mode === 0);
-    sw(hdBox, data.mode === 0 && !!data.hidden);
-    sw(flBox, data.mode === 0 && !!data.flashlight);
+    sw(hdBox, !!data.hidden);
+    sw(flBox, !!data.flashlight);
     prepareFollowPoints();
     prepareCombo();
     prepareSounds();
@@ -214,11 +214,16 @@ window.shiinaReplayPlayer = function(root) {
     ctx.globalAlpha = 1;
   }
 
-  // combo over time, from the verdicts (for the flashlight size); a slider counts its head and end
+  // combo over time, from the verdicts (flashlight size, mania hidden); a slider counts its head and end
   function prepareCombo() {
     const ev = [];
     let c = 0;
-    if (data.mode === 0) {
+    const MISS = { miss: 1, wrong: 1, slider_miss: 1 };
+    if (data.mode === 1 || data.mode === 3) {
+      for (const o of data.objects) if (o.v) ev.push([o.t, MISS[o.v] ? (c = 0) : ++c]);
+    } else if (data.mode === 2) {
+      for (const o of data.objects) if (o.k === 'f' || o.k === 'd') ev.push([o.t, o.v === 'miss' ? (c = 0) : ++c]);
+    } else if (data.mode === 0) {
       for (const o of data.objects) {
         if (o.k === 'p') { ev.push([o.e, ++c]); continue; }
         if (o.k === 's') {
@@ -243,13 +248,22 @@ window.shiinaReplayPlayer = function(root) {
   // Flashlight: only a circle around the cursor is visible; smaller at 100 and 200 combo (80% and 60%)
   function drawFlashlight(W, H, cx, cy) {
     const combo = comboAt(now);
-    const rad = 112 * (combo >= 200 ? 0.6 : combo >= 100 ? 0.8 : 1) * scale;
-    const g = ctx.createRadialGradient(X(cx), Y(cy), rad * 0.8, X(cx), Y(cy), rad * 1.2);
+    darkAround(W, H, X(cx), Y(cy), 112 * (combo >= 200 ? 0.6 : combo >= 100 ? 0.8 : 1) * scale);
+  }
+
+  // everything dark except a soft circle (canvas pixels)
+  function darkAround(W, H, px, py, rad) {
+    const g = ctx.createRadialGradient(px, py, rad * 0.8, px, py, rad * 1.2);
     g.addColorStop(0, 'rgba(0,0,0,0)');
     g.addColorStop(1, 'rgba(0,0,0,1)');
     ctx.fillStyle = g;
     ctx.fillRect(0, 0, W, H);
   }
+  const flOn = () => data.flashlight && flBox.checked;
+  // lazer's combo scale for the taiko and catch flashlight
+  const comboScale = () => { const c = comboAt(now); return c >= 200 ? 0.77 : c >= 100 ? 0.885 : 1; };
+  // 1 until the fade starts, then down to 0 over dur ms
+  const fadeOut = (from, dur) => Math.max(0, Math.min(1, 1 - (now - from) / dur));
 
   // ---- hitsounds: short sounds made in the browser, played when an object was hit ----
   let actx = null, sfx = null, prevNow = null;
@@ -683,6 +697,27 @@ window.shiinaReplayPlayer = function(root) {
       if (!(hit && now >= o.t)) ctx.fillRect(x, y - nh, w, nh);
     }
     ctx.globalAlpha = 1;
+    const laneCover = (top, bottom, fadeUp) => {
+      // solid between top and bottom, with a soft edge on the side away from the line
+      const edge = 40 * scale;
+      const g = fadeUp ? ctx.createLinearGradient(0, top - edge, 0, top) : ctx.createLinearGradient(0, bottom + edge, 0, bottom);
+      g.addColorStop(0, 'rgba(11,13,18,0)'); g.addColorStop(1, 'rgba(11,13,18,1)');
+      ctx.fillStyle = g;
+      if (fadeUp) ctx.fillRect(x0, top - edge, colW * K, edge); else ctx.fillRect(x0, bottom, colW * K, edge);
+      ctx.fillStyle = 'rgb(11,13,18)';
+      ctx.fillRect(x0, top, colW * K, bottom - top);
+    };
+    if (hdOn()) {
+      // Hidden: the lane above the line is covered, more as the combo grows (like lazer: 20% to 50%)
+      const cov = 0.2 + 0.3 * Math.min(1, comboAt(now) / 480);
+      laneCover(lineY - lineY * cov, lineY, true);
+    }
+    if (flOn()) {
+      // Flashlight: only a band above the line is visible
+      laneCover(0, lineY - lineY * 0.3, false);
+    }
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(x0, lineY, colW * K, 2 * scale);
     popup(W / 2, lineY - 150 * scale, 30 * scale);
     // keys
     for (let c = 0; c < K; c++) {
@@ -731,11 +766,14 @@ window.shiinaReplayPlayer = function(root) {
       if (hit && now >= o.t) continue;
       const r = (o.b ? 42 : 28) * s;
       ctx.globalAlpha = !hit && now > o.t ? 0.4 : 1;
+      // Hidden (lazer): a note fades out over the first 37.5% of its way to the hit circle
+      if (hdOn()) ctx.globalAlpha *= fadeOut(o.t - 1100, 1100 * 0.375);
       ctx.fillStyle = o.k === 'kat' ? '#448aca' : '#eb452c';
       ctx.beginPath(); ctx.arc(x, cy, r, 0, Math.PI * 2); ctx.fill();
       ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 3 * s; ctx.stroke();
       ctx.globalAlpha = 1;
     }
+    if (flOn()) darkAround(W, H, hitX, cy, 200 * s * comboScale());
     // drum on the left: 1 left centre, 4 right centre, 2 left rim, 8 right rim
     const k = keysAt(now);
     const dx = 70 * s;
@@ -783,11 +821,14 @@ window.shiinaReplayPlayer = function(root) {
       const y = catcherY - (o.t - now) / pre * catcherY;
       const rr = o.k === 'f' ? r : o.k === 'd' ? r * 0.55 : o.k === 'y' ? r * 0.3 : r * 0.7;
       ctx.globalAlpha = now > o.t ? 0.45 : 1;
+      // Hidden (lazer): visible for the first 60% of the fall, then fades out
+      if (hdOn() && o.k !== 'b') ctx.globalAlpha *= fadeOut(o.t - pre * 0.4, pre * 0.44);
       ctx.fillStyle = o.k === 'b' ? '#facc15' : o.k === 'f' ? FRUIT_COLS[colour % FRUIT_COLS.length] : '#e0f2fe';
       ctx.beginPath(); ctx.arc(X(o.x), Y(y), rr * scale, 0, Math.PI * 2); ctx.fill();
       if (o.h) { ctx.strokeStyle = '#ef4444'; ctx.lineWidth = 3 * scale; ctx.stroke(); }
       ctx.globalAlpha = 1;
     }
+    if (flOn()) darkAround(W, H, X(cx), Y(catcherY), 130 * comboScale() * scale);
     // catcher: the part that catches, plus its trail while dashing
     const half = data.half;
     if (trailBox.checked && i > 0) {
