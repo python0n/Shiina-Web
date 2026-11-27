@@ -237,7 +237,7 @@ public class Analyzer extends Shiina {
         // music and background for the replay player, from the beatmap set
         String media = req.queryParams("media");
         if ("audio".equals(media) || "bg".equals(media)) {
-            java.nio.file.Path file = mode == 0 && osuFile.exists()
+            java.nio.file.Path file = osuFile.exists()
                 ? BeatmapMedia.get(rs.getInt("set_id"), osuFile.getAbsolutePath(), media, App.env.get("ANALYZER_OSZ_URL"))
                 : null;
             if (file == null) {
@@ -247,7 +247,7 @@ public class Analyzer extends Shiina {
             return BeatmapMedia.serve(req, res, file);
         }
 
-        if (replayJson && (!osrFile.exists() || !osuFile.exists() || mode != 0)) {
+        if (replayJson && (!osrFile.exists() || !osuFile.exists())) {
             res.status(404);
             res.type("application/json");
             return "{}";
@@ -274,6 +274,11 @@ public class Analyzer extends Shiina {
             // converted maps (a std map played in taiko or mania) are built by the game in a way
             // the analyzer does not repeat, so only maps made for the mode are analyzed
             if (osu.getMode() != mode) {
+                if (replayJson) {
+                    res.status(404);
+                    res.type("application/json");
+                    return "{}";
+                }
                 shiina.data.put("error", "Converted maps cannot be analyzed. Only maps made for this mode are supported.");
                 shiina.data.put("seo", new SEOBuilder("Analyzer", ""));
                 return renderTemplate("analyzer/view.html", shiina, res, req);
@@ -286,7 +291,7 @@ public class Analyzer extends Shiina {
 
             if (replayJson) {
                 res.type("application/json");
-                return ReplayPlayerData.json(osr, osu, mods, analysis);
+                return ReplayPlayerData.json(mode, osr, osu, mods, analysis);
             }
 
             List<Map<String, Object>> recommendedMaps = mode == 0

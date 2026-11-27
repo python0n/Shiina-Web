@@ -84,10 +84,20 @@ window.shiinaReplayPlayer = function(root) {
       o.pts = pts; o.cum = cum;
     });
     const f = data.frames;
-    data.n = f.length / 4;
+    // frames: time, x, y, keys (osu!) or time, keys / pressed columns (taiko, mania)
+    data.stride = data.mode === 0 ? 4 : 2;
+    data.n = f.length / data.stride;
+    let last = 0;
+    data.objects.forEach(o => { last = Math.max(last, o.e !== undefined ? o.e : o.t); });
     start = data.objects.length ? data.objects[0].t - 1500 : 0;
-    end = data.objects.length ? data.objects[data.objects.length - 1].e + 1500 : (data.n ? f[(data.n - 1) * 4] : 0);
+    end = data.objects.length ? last + 1500 : (data.n ? f[(data.n - 1) * data.stride] : 0);
     seek.min = start; seek.max = end;
+    canvas.parentElement.style.aspectRatio = data.mode === 1 ? '16 / 7' : '4 / 3';
+    if (data.mode !== 0) {
+      // cursor trail and 300s are osu!-only switches
+      trailBox.closest('.form-check').style.display = 'none';
+      box300.closest('.form-check').style.display = 'none';
+    }
   }
 
   // 100s, 50s and misses along the whole replay, above the seek bar
@@ -98,13 +108,13 @@ window.shiinaReplayPlayer = function(root) {
     marks.height = Math.max(1, Math.round(r.height * dpr));
     const c = marks.getContext('2d');
     c.clearRect(0, 0, marks.width, marks.height);
-    const col = { '100': '#88dd55', '50': '#ffbb44', 'miss': '#ff4444', 'slider_miss': '#f472b6' };
+    const col = { '100': '#88dd55', '50': '#ffbb44', 'GOOD': '#88dd55', 'miss': '#ff4444', 'wrong': '#ff4444', 'slider_miss': '#f472b6' };
     data.objects.forEach(o => {
       const k = col[o.v];
       if (!k) return;
       const x = (o.t - start) / Math.max(1, end - start) * marks.width;
       c.fillStyle = k;
-      c.fillRect(Math.round(x), o.v === 'miss' ? 0 : marks.height * 0.35, Math.max(1, dpr * 1.5), marks.height);
+      c.fillRect(Math.round(x), o.v === 'miss' || o.v === 'wrong' ? 0 : marks.height * 0.35, Math.max(1, dpr * 1.5), marks.height);
     });
   }
 
@@ -125,7 +135,7 @@ window.shiinaReplayPlayer = function(root) {
     if (hi < 0) return -1;
     while (lo < hi) {
       const mid = (lo + hi + 1) >> 1;
-      if (f[mid * 4] <= t) lo = mid; else hi = mid - 1;
+      if (f[mid * data.stride] <= t) lo = mid; else hi = mid - 1;
     }
     return lo;
   }
@@ -155,6 +165,8 @@ window.shiinaReplayPlayer = function(root) {
       ctx.drawImage(bg, (W - bg.width * k) / 2, (H - bg.height * k) / 2, bg.width * k, bg.height * k);
       ctx.globalAlpha = 1;
     }
+    if (data.mode === 3) { drawMania(W, H); finish(W, H); return; }
+    if (data.mode === 1) { drawTaiko(W, H); finish(W, H); return; }
     ctx.strokeStyle = 'rgba(255,255,255,0.06)';
     ctx.strokeRect(X(0), Y(0), 512 * scale, 384 * scale);
     const r = data.radius * scale;
@@ -289,27 +301,177 @@ window.shiinaReplayPlayer = function(root) {
         ctx.fillText(k[0], bx + 17 * scale, by + 13 * scale);
       });
     }
-    // hit error meter: hits of the last 3 seconds
-    const w = data.windows || [0, 0, 0], unit = 1.1 * scale;
-    const my = H - 18 * scale, mx = X(256);
-    [[w[2], 'rgba(255,187,68,0.55)'], [w[1], 'rgba(136,221,85,0.55)'], [w[0], 'rgba(102,204,255,0.6)']].forEach(b => {
-      ctx.fillStyle = b[1];
-      ctx.fillRect(mx - b[0] * unit, my - 2 * scale, b[0] * 2 * unit, 4 * scale);
-    });
-    ctx.fillStyle = '#ffffff';
-    ctx.fillRect(mx - scale, my - 8 * scale, 2 * scale, 16 * scale);
-    for (let j = objs.length - 1; j >= 0; j--) {
-      const o = objs[j];
-      if (o.t > now) continue;
-      if (now - o.t > 3000) break;
-      if (o.te === undefined) continue;
-      const a = 1 - (now - o.t) / 3000;
-      const songErr = o.te * data.rate;
-      ctx.fillStyle = Math.abs(songErr) <= w[0] ? 'rgba(102,204,255,' + a + ')' : Math.abs(songErr) <= w[1] ? 'rgba(136,221,85,' + a + ')' : 'rgba(255,187,68,' + a + ')';
-      ctx.fillRect(mx + songErr * unit - scale, my - 7 * scale, 2 * scale, 14 * scale);
+    finish(W, H);
+  }
+
+  // hit error meter (hits of the last 3 seconds), seek bar and time
+  const BANDS = { 2: ['#66ccff', '#88dd55'], 3: ['#66ccff', '#88dd55', '#ffbb44'], 5: ['#d8f3ff', '#66ccff', '#88dd55', '#ffbb44', '#ff8844'] };
+  function finish(W, H) {
+    const w = data.meter || [];
+    if (w.length) {
+      const pal = BANDS[w.length] || BANDS[3];
+      const unit = 150 * scale / w[w.length - 1];
+      const my = H - 18 * scale, mx = W / 2;
+      for (let i = w.length - 1; i >= 0; i--) {
+        ctx.globalAlpha = 0.55;
+        ctx.fillStyle = pal[i];
+        ctx.fillRect(mx - w[i] * unit, my - 2 * scale, w[i] * 2 * unit, 4 * scale);
+      }
+      ctx.globalAlpha = 1;
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(mx - scale, my - 8 * scale, 2 * scale, 16 * scale);
+      const objs = data.objects;
+      for (let j = objs.length - 1; j >= 0; j--) {
+        const o = objs[j];
+        if (o.t > now) continue;
+        if (now - o.t > 3000) break;
+        if (o.te === undefined) continue;
+        let band = w.findIndex(x => Math.abs(o.te) <= x);
+        if (band < 0) band = w.length - 1;
+        ctx.globalAlpha = 1 - (now - o.t) / 3000;
+        ctx.fillStyle = pal[band];
+        ctx.fillRect(mx + o.te * unit - scale, my - 7 * scale, 2 * scale, 14 * scale);
+      }
+      ctx.globalAlpha = 1;
     }
     seek.value = now;
     timeLabel.textContent = fmt(now - start) + ' / ' + fmt(end - start);
+  }
+
+  const VCOLOR = { MAX: '#d8f3ff', '300': '#66ccff', '200': '#88dd55', '100': '#88dd55', '50': '#ffbb44', GREAT: '#66ccff', GOOD: '#88dd55', miss: '#ff4444', wrong: '#ff4444' };
+  // the newest judgement up to 400 ms old, shown at (x, y)
+  function popup(x, y, size, filter) {
+    const objs = data.objects;
+    for (let j = objs.length - 1; j >= 0; j--) {
+      const o = objs[j];
+      if (o.t > now || !o.v || (filter && !filter(o))) continue;
+      if (now - o.t > 400) break;
+      ctx.globalAlpha = 1 - (now - o.t) / 400;
+      ctx.fillStyle = VCOLOR[o.v] || '#ffffff';
+      ctx.font = 'bold ' + Math.round(size) + 'px sans-serif';
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText(o.v === 'wrong' || o.v === 'miss' ? '\u00d7' : o.v, x, y);
+      ctx.globalAlpha = 1;
+      return;
+    }
+  }
+
+  function keysAt(t) {
+    const i = frameAt(t);
+    return i >= 0 ? data.frames[i * data.stride + 1] : 0;
+  }
+
+  // osu!mania: notes fall to the judgement line, pressed columns light up
+  function drawMania(W, H) {
+    const K = data.keys;
+    const colW = Math.min(W * 0.8 / K, 64 * scale);
+    const x0 = (W - colW * K) / 2;
+    const lineY = H - 70 * scale;
+    const speed = lineY / 650; // px per ms of the song
+    const COLS = K % 2 === 1 ? i => (i === (K - 1) / 2 ? '#f2c94c' : (Math.min(i, K - 1 - i) % 2 === 0 ? '#e8e8e8' : '#4fa3ff'))
+                             : i => (Math.min(i, K - 1 - i) % 2 === 0 ? '#e8e8e8' : '#4fa3ff');
+    ctx.fillStyle = 'rgba(0,0,0,0.55)';
+    ctx.fillRect(x0, 0, colW * K, H);
+    const mask = keysAt(now);
+    for (let c = 0; c < K; c++) {
+      if (mask & (1 << c)) {
+        const g = ctx.createLinearGradient(0, lineY, 0, lineY - 160 * scale);
+        g.addColorStop(0, 'rgba(255,255,255,0.28)'); g.addColorStop(1, 'rgba(255,255,255,0)');
+        ctx.fillStyle = g;
+        ctx.fillRect(x0 + c * colW, lineY - 160 * scale, colW, 160 * scale);
+      }
+      ctx.strokeStyle = 'rgba(255,255,255,0.08)';
+      ctx.beginPath(); ctx.moveTo(x0 + c * colW, 0); ctx.lineTo(x0 + c * colW, H); ctx.stroke();
+    }
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(x0, lineY, colW * K, 2 * scale);
+    const nh = 12 * scale;
+    for (const o of data.objects) {
+      if (o.t - now > 700) break;
+      const endT = o.e !== undefined ? o.e : o.t;
+      if (endT - now < -300) continue;
+      const hit = o.v && o.v !== 'miss';
+      const x = x0 + o.c * colW + 2 * scale, w = colW - 4 * scale;
+      const y = lineY - (o.t - now) * speed;
+      ctx.globalAlpha = o.v === 'miss' && now > o.t ? 0.35 : 1;
+      ctx.fillStyle = COLS(o.c);
+      if (o.e !== undefined) {
+        const yEnd = lineY - (o.e - now) * speed;
+        const yHead = hit && now >= o.t ? lineY : y;
+        ctx.globalAlpha *= 0.65;
+        ctx.fillRect(x + w * 0.15, yEnd, w * 0.7, Math.max(0, yHead - yEnd));
+        ctx.globalAlpha = o.v === 'miss' && now > o.t ? 0.35 : 1;
+      }
+      if (!(hit && now >= o.t)) ctx.fillRect(x, y - nh, w, nh);
+    }
+    ctx.globalAlpha = 1;
+    popup(W / 2, lineY - 150 * scale, 30 * scale);
+    // keys
+    for (let c = 0; c < K; c++) {
+      ctx.fillStyle = mask & (1 << c) ? COLS(c) : 'rgba(255,255,255,0.12)';
+      ctx.fillRect(x0 + c * colW + 3 * scale, lineY + 10 * scale, colW - 6 * scale, 24 * scale);
+    }
+  }
+
+  // osu!taiko: notes scroll to the hit circle on the left, the drum shows the keys
+  function drawTaiko(W, H) {
+    const s = H / 300;
+    const cy = H * 0.45, half = 55 * s;
+    const hitX = 170 * s;
+    const speed = (W - hitX) / 1100;
+    ctx.fillStyle = 'rgba(0,0,0,0.6)';
+    ctx.fillRect(0, cy - half, W, half * 2);
+    ctx.strokeStyle = 'rgba(255,255,255,0.35)'; ctx.lineWidth = 2 * s;
+    ctx.beginPath(); ctx.arc(hitX, cy, 30 * s, 0, Math.PI * 2); ctx.stroke();
+    ctx.beginPath(); ctx.arc(hitX, cy, 44 * s, 0, Math.PI * 2); ctx.stroke();
+    const objs = data.objects;
+    const vis = [];
+    for (const o of objs) {
+      if (o.t - now > 1200) break;
+      const endT = o.e !== undefined ? o.e : o.t;
+      if (hitX + (endT - now) * speed < -60 * s) continue;
+      vis.push(o);
+    }
+    for (let i = vis.length - 1; i >= 0; i--) {
+      const o = vis[i];
+      const x = hitX + (o.t - now) * speed;
+      if (o.k === 'roll') {
+        const x2 = hitX + (o.e - now) * speed;
+        ctx.fillStyle = '#f2b02c';
+        ctx.beginPath(); ctx.arc(x, cy, 26 * s, Math.PI / 2, Math.PI * 1.5); ctx.lineTo(x2, cy - 26 * s);
+        ctx.arc(x2, cy, 26 * s, -Math.PI / 2, Math.PI / 2); ctx.closePath(); ctx.fill();
+        continue;
+      }
+      if (o.k === 'swell') {
+        const sx = now >= o.t ? hitX : x;
+        if (now > o.e) continue;
+        ctx.fillStyle = '#f2c94c';
+        ctx.beginPath(); ctx.arc(sx, cy, 34 * s, 0, Math.PI * 2); ctx.fill();
+        continue;
+      }
+      const hit = o.v && o.v !== 'miss' && o.v !== 'wrong';
+      if (hit && now >= o.t) continue;
+      const r = (o.b ? 42 : 28) * s;
+      ctx.globalAlpha = !hit && now > o.t ? 0.4 : 1;
+      ctx.fillStyle = o.k === 'kat' ? '#448aca' : '#eb452c';
+      ctx.beginPath(); ctx.arc(x, cy, r, 0, Math.PI * 2); ctx.fill();
+      ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 3 * s; ctx.stroke();
+      ctx.globalAlpha = 1;
+    }
+    // drum on the left: 1 left centre, 4 right centre, 2 left rim, 8 right rim
+    const k = keysAt(now);
+    const dx = 70 * s;
+    ctx.fillStyle = 'rgba(20,20,28,0.95)';
+    ctx.fillRect(0, cy - half, 130 * s, half * 2);
+    const part = (on, colour, startA, endA, r1, r2) => {
+      ctx.fillStyle = on ? colour : 'rgba(255,255,255,0.08)';
+      ctx.beginPath(); ctx.arc(dx, cy, r2, startA, endA); ctx.arc(dx, cy, r1, endA, startA, true); ctx.closePath(); ctx.fill();
+    };
+    part(k & 2, '#448aca', Math.PI / 2, Math.PI * 1.5, 34 * s, 46 * s);
+    part(k & 8, '#448aca', -Math.PI / 2, Math.PI / 2, 34 * s, 46 * s);
+    part(k & 1, '#eb452c', Math.PI / 2, Math.PI * 1.5, 0, 32 * s);
+    part(k & 4, '#eb452c', -Math.PI / 2, Math.PI / 2, 0, 32 * s);
+    popup(hitX, cy - half - 24 * s, 26 * s, o => o.k === 'don' || o.k === 'kat');
   }
 
   function fmt(ms) {

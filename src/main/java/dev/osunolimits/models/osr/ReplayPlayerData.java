@@ -86,6 +86,7 @@ public final class ReplayPlayerData {
             flat[j++] = f.getKeys();
         }
         Map<String, Object> out = new LinkedHashMap<>();
+        out.put("mode", 0);
         out.put("radius", r1((float) (54.4 - 4.48 * cs)));
         out.put("preempt", Math.round(ar > 5 ? 1200 - 750 * (ar - 5) / 5 : 1200 + 600 * (5 - ar) / 5));
         out.put("rate", ReplayAnalyzer.clockRate(mods));
@@ -93,8 +94,103 @@ public final class ReplayPlayerData {
         out.put("nightcore", (mods & 512) != 0);
         int[] w = OsuFileParser.TimingPoint.getHitWindows((mods & 16) != 0 ? Math.min(osu.getOd() * 1.4f, 10f) : (mods & 2) != 0 ? osu.getOd() * 0.5f : osu.getOd());
         out.put("windows", w);
+        out.put("meter", realWindows(analysis));
         out.put("objects", objects);
         out.put("frames", flat);
+        return GSON.toJson(out);
+    }
+
+    /** Player data for any analyzed mode: 0 osu! (also relax, autopilot), 1 taiko, 3 mania. */
+    public static String json(int mode, OsrData osr, OsuData osu, int mods, AnalysisResult analysis) {
+        return switch (mode) {
+            case 1 -> taiko(osr, osu, mods, analysis);
+            case 3 -> mania(osr, osu, mods, analysis);
+            default -> json(osr, osu, mods, analysis);
+        };
+    }
+
+    /** Hit windows in real ms, narrowest first, for the hit error meter. */
+    private static List<Double> realWindows(AnalysisResult analysis) {
+        List<Double> w = new ArrayList<>();
+        if (analysis != null) for (Map<String, Object> m : analysis.getHitWindows()) w.add(((Number) m.get("ms")).doubleValue());
+        return w;
+    }
+
+    private static Map<String, Object> verdict(Map<String, Object> m, ReplayAnalyzer.NoteResult nr) {
+        m.put("v", nr.getVerdict());
+        boolean hit = !("miss".equals(nr.getVerdict()) || "wrong".equals(nr.getVerdict()) || "slider_miss".equals(nr.getVerdict()));
+        if (hit) m.put("te", Math.round(nr.getTimingError() * 10.0) / 10.0);
+        return m;
+    }
+
+    /** Frames as one flat array: time, keys (taiko) or pressed columns (mania). */
+    private static long[] keyFrames(OsrData osr, boolean columns) {
+        var frames = osr.getFrames();
+        long[] flat = new long[frames.size() * 2];
+        int j = 0;
+        for (var f : frames) {
+            flat[j++] = f.getTimeMs();
+            flat[j++] = columns ? Math.max(0, (long) f.getX()) : f.getKeys();
+        }
+        return flat;
+    }
+
+    private static Map<String, Object> base(int mode, int mods, AnalysisResult analysis) {
+        Map<String, Object> out = new LinkedHashMap<>();
+        out.put("mode", mode);
+        out.put("rate", ReplayAnalyzer.clockRate(mods));
+        out.put("nightcore", (mods & 512) != 0);
+        out.put("hidden", (mods & 8) != 0);
+        out.put("meter", realWindows(analysis));
+        return out;
+    }
+
+    private static String mania(OsrData osr, OsuData osu, int mods, AnalysisResult analysis) {
+        var all = osu.getHitObjects();
+        int keys = Math.max(1, Math.min(18, Math.round(osu.getCs())));
+        List<ReplayAnalyzer.NoteResult> notes = analysis.getNoteResults();
+        List<Map<String, Object>> objects = new ArrayList<>();
+        for (int i = 0; i < all.size(); i++) {
+            var o = all.get(i);
+            Map<String, Object> m = new LinkedHashMap<>();
+            m.put("t", o.getTimeMs());
+            if (o.isHold()) m.put("e", o.getEndTimeMs());
+            int c = (int) Math.floor(o.getX() * keys / 512f);
+            m.put("c", Math.max(0, Math.min(keys - 1, c)));
+            if (i < notes.size()) {
+                verdict(m, notes.get(i));
+                if (notes.get(i).getTailVerdict() != null) m.put("tv", notes.get(i).getTailVerdict());
+            }
+            objects.add(m);
+        }
+        Map<String, Object> out = base(3, mods, analysis);
+        out.put("keys", keys);
+        out.put("objects", objects);
+        out.put("frames", keyFrames(osr, true));
+        return GSON.toJson(out);
+    }
+
+    private static String taiko(OsrData osr, OsuData osu, int mods, AnalysisResult analysis) {
+        List<ReplayAnalyzer.NoteResult> notes = analysis.getNoteResults();
+        List<Map<String, Object>> objects = new ArrayList<>();
+        int ni = 0;
+        for (var o : osu.getHitObjects()) {
+            Map<String, Object> m = new LinkedHashMap<>();
+            m.put("t", o.getTimeMs());
+            if (o.isCircle()) {
+                m.put("k", (o.getHitSound() & (2 | 8)) != 0 ? "kat" : "don");
+                if ((o.getHitSound() & 4) != 0) m.put("b", true);
+                if (ni < notes.size()) verdict(m, notes.get(ni++));
+            } else {
+                // drumroll (slider) or swell (spinner): shown, not judged
+                m.put("k", o.isSpinner() ? "swell" : "roll");
+                m.put("e", o.getEndTimeMs());
+            }
+            objects.add(m);
+        }
+        Map<String, Object> out = base(1, mods, analysis);
+        out.put("objects", objects);
+        out.put("frames", keyFrames(osr, false));
         return GSON.toJson(out);
     }
 

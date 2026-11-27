@@ -64,7 +64,10 @@ public class UserScore extends Shiina {
         }
         File osrFile = new File(BanchoData.replays() + id + ".osr");
         File osuFile = new File(BanchoData.beatmaps() + mapId + ".osu");
-        boolean canWatch = (mode == 0 || mode == 4 || mode == 8) && mapMode == 0 && osrFile.exists() && osuFile.exists();
+        // osu! (also relax and autopilot) on osu! maps, taiko and mania on maps made for them (no converts)
+        int playerMode = mode == 4 || mode == 8 ? 0 : mode;
+        boolean canWatch = (playerMode == 0 || playerMode == 1 || playerMode == 3) && mapMode == playerMode
+            && osrFile.exists() && osuFile.exists();
         String media = req.queryParams("media");
         if ("1".equals(req.queryParams("replay")) || media != null) {
             if (!canWatch) {
@@ -83,9 +86,17 @@ public class UserScore extends Shiina {
                 OsrParser.OsrData osr = OsrParser.parse(Files.readAllBytes(osrFile.toPath()), true);
                 OsuFileParser.OsuData osu = OsuFileParser.parse(osuFile.getAbsolutePath());
                 // verdicts for the player; with Relax the analyzer clicks where the game would
-                ReplayAnalyzer.AnalysisResult analysis = ReplayAnalyzer.analyze(osr, osu, 0, mods);
+                if (osu.getMode() != playerMode) {
+                    res.status(404);
+                    return "";
+                }
+                ReplayAnalyzer.AnalysisResult analysis = switch (playerMode) {
+                    case 1 -> dev.osunolimits.modules.osr.TaikoAnalyzer.analyze(osr, osu, 0, mods);
+                    case 3 -> dev.osunolimits.modules.osr.ManiaAnalyzer.analyze(osr, osu, 0, mods);
+                    default -> ReplayAnalyzer.analyze(osr, osu, 0, mods);
+                };
                 res.type("application/json");
-                return ReplayPlayerData.json(osr, osu, mods, analysis);
+                return ReplayPlayerData.json(playerMode, osr, osu, mods, analysis);
             } catch (Exception e) {
                 log.error("Failed to build replay data {}: {}", id, e.getMessage(), e);
                 res.status(500);
