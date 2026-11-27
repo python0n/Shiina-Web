@@ -1,10 +1,11 @@
 package dev.osunolimits.modules.osr;
 
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import dev.osunolimits.modules.osr.OsrParser.OsrData;
 import dev.osunolimits.modules.osr.OsrParser.ReplayFrame;
@@ -17,25 +18,31 @@ import lombok.Data;
  * Replay analysis for osu!standard.
  *
  * Clicks are matched to objects the way the stable client does it (notelock: a click can only
- * hit the earliest object that hasn't been hit or missed yet). Mods are taken into account:
- * HR flips the playfield and raises CS/OD, EZ lowers them, DT/NC/HT change the clock rate.
+ * hit the earliest object that hasn't been hit or missed yet). Objects are placed where the game
+ * shows them: stacked objects are moved by their stack height, and HR flips the playfield.
+ * Mods are taken into account: HR raises CS/OD/AR, EZ lowers them, DT/NC/HT change the clock rate.
  * Timing errors are reported in real time (milliseconds as the player felt them), so the
  * numbers match the in-game hit error meter and unstable rate.
- * Known simplification: stacked objects use their raw positions from the .osu file.
+ * A slider head that was not clicked is not a miss in the game (the slider can still be
+ * finished), so it is reported separately.
  */
 public class ReplayAnalyzer {
 
     @Data
     public static class AnalysisResult {
+        private int mode;
         private double avgTimingError;
         private double timingStdDev;
         private double unstableRate;
         private int earlyHits;
         private int lateHits;
-        private int missCount;
+        private int missCount;          // misses from the game (the score)
+        private int analyzerMisses;     // objects the analyzer found no hit for
+        private int sliderHeadMisses;   // std: slider heads without a click (not misses in the game)
         private int analyzedObjects;
         private double avgAimError;
         private double aimStdDev;
+        private double radius;          // std: circle radius in osu! pixels, after mods
         private double streamAccuracy;
         private double jumpAccuracy;
         private double burstAccuracy;
@@ -45,6 +52,11 @@ public class ReplayAnalyzer {
         private double avgBpm;
         private double maxBpm;
         private double clockRate = 1.0;
+        private int keyCount;           // mania
+        // hit windows in real milliseconds (after mods and rate), the widest last
+        private List<Map<String, Object>> hitWindows = new ArrayList<>();
+        // per pattern (std), per colour (taiko) or per column (mania)
+        private List<Map<String, Object>> groupStats = new ArrayList<>();
         private List<NoteResult> noteResults = new ArrayList<>();
         private List<String> weaknesses = new ArrayList<>();
         private List<String> insights = new ArrayList<>();
@@ -61,18 +73,26 @@ public class ReplayAnalyzer {
         private long clickTimeMs;
         private double timingError;
         private double aimError;
+        private double aimAlong;    // std: + = past the note in the direction of movement, - = short of it
+        private double aimAcross;   // std: + = to the right of the movement, - = to the left
+        private boolean aimDirected;
         private String verdict;
         private boolean slider;
         private boolean inStream;
         private boolean inJump;
+        private boolean inBurst;
         private double bpmAtNote;
+        private int column = -1;    // mania
+        private boolean kat;        // taiko
+        private boolean big;        // taiko
+        private Double releaseError; // mania hold notes
     }
 
-    private static final int MOD_EASY = 2;
-    private static final int MOD_HARDROCK = 16;
-    private static final int MOD_DOUBLETIME = 64;
-    private static final int MOD_HALFTIME = 256;
-    private static final int MOD_NIGHTCORE = 512;
+    static final int MOD_EASY = 2;
+    static final int MOD_HARDROCK = 16;
+    static final int MOD_DOUBLETIME = 64;
+    static final int MOD_HALFTIME = 256;
+    static final int MOD_NIGHTCORE = 512;
 
     private static final int MIN_STREAM_LENGTH = 4;
     private static final double JUMP_DISTANCE_THRESHOLD = 100.0;
@@ -84,31 +104,57 @@ public class ReplayAnalyzer {
         return 1.0;
     }
 
-    private static float applyMods(float value, int mods, float hrMultiplier) {
+    static float applyMods(float value, int mods, float hrMultiplier) {
         if ((mods & MOD_HARDROCK) != 0) return Math.min(value * hrMultiplier, 10f);
         if ((mods & MOD_EASY) != 0) return value * 0.5f;
         return value;
     }
 
+    /** Stacks the objects and returns {x, y, endX, endY} of every object as shown in the game (HR flip included). */
+    public static float[][] placedPositions(OsuData osu, int mods) {
+        boolean hardRock = (mods & MOD_HARDROCK) != 0;
+        float cs = applyMods(osu.getCs(), mods, 1.3f);
+        float ar = applyMods(osu.getAr(), mods, 1.4f);
+        List<HitObject> all = osu.getHitObjects();
+        Stacking.apply(all, osu.getFormatVersion(), osu.getStackLeniency(), ar);
+        double offset = Stacking.scale(cs) * -6.4;
+        float[][] pos = new float[all.size()][];
+        for (int i = 0; i < all.size(); i++) {
+            HitObject o = all.get(i);
+            float y = hardRock ? PLAYFIELD_HEIGHT - o.getY() : o.getY();
+            float endY = hardRock ? PLAYFIELD_HEIGHT - o.getEndY() : o.getEndY();
+            float s = (float) (o.getStackHeight() * offset);
+            pos[i] = new float[]{o.getX() + s, y + s, o.getEndX() + s, endY + s};
+        }
+        return pos;
+    }
+
     public static AnalysisResult analyze(OsrData osr, OsuData osu, int officialMissCount, int mods) {
         AnalysisResult result = new AnalysisResult();
+        result.mode = 0;
+        result.setMissCount(officialMissCount);
         if (osr.getFrames().isEmpty() || osu.getHitObjects().isEmpty()) {
             insight(result, "No data available for analysis.", "no_data", "");
             return result;
         }
 
-        boolean hardRock = (mods & MOD_HARDROCK) != 0;
         double rate = clockRate(mods);
         result.clockRate = rate;
         float cs = applyMods(osu.getCs(), mods, 1.3f);
         float od = applyMods(osu.getOd(), mods, 1.4f);
         double radius = 54.4 - 4.48 * cs;
+        result.radius = radius;
         // hit windows in song time (the replay is in song time too)
         int[] hitWindows = OsuFileParser.TimingPoint.getHitWindows(od);
         int w300 = hitWindows[0], w100 = hitWindows[1], w50 = hitWindows[2];
+        addWindow(result, "300", w300 / rate);
+        addWindow(result, "100", w100 / rate);
+        addWindow(result, "50", w50 / rate);
+
+        List<HitObject> all = osu.getHitObjects();
+        float[][] pos = placedPositions(osu, mods);
 
         // clickable objects: circles and slider heads; spinners don't need aim or timing
-        List<HitObject> all = osu.getHitObjects();
         List<Integer> idx = new ArrayList<>();
         for (int i = 0; i < all.size(); i++) {
             if (!all.get(i).isSpinner()) idx.add(i);
@@ -125,8 +171,8 @@ public class ReplayAnalyzer {
             if (next >= n) break;
             HitObject o = all.get(idx.get(next));
             if (click.getTimeMs() < o.getTimeMs() - w50) continue;
-            float oy = hardRock ? PLAYFIELD_HEIGHT - o.getY() : o.getY();
-            if (distance(click.getX(), click.getY(), o.getX(), oy) <= radius) {
+            float[] p = pos[idx.get(next)];
+            if (distance(click.getX(), click.getY(), p[0], p[1]) <= radius) {
                 hitBy[next] = click;
                 next++;
             }
@@ -134,6 +180,11 @@ public class ReplayAnalyzer {
 
         List<Double> timingErrors = new ArrayList<>();
         List<Double> aimErrors = new ArrayList<>();
+        // per pattern: stream, jump, burst, other
+        String[] groups = {"stream", "jump", "burst", "other"};
+        Map<String, List<Double>> groupErrors = new LinkedHashMap<>();
+        Map<String, int[]> groupCounts = new LinkedHashMap<>(); // {objects, hits}
+        for (String g : groups) { groupErrors.put(g, new ArrayList<>()); groupCounts.put(g, new int[2]); }
         int streamHits = 0, streamTotal = 0, jumpHits = 0, jumpTotal = 0, burstHits = 0, burstTotal = 0;
         int allHits = 0;
         double totalBpm = 0, maxBpm = 0;
@@ -142,34 +193,40 @@ public class ReplayAnalyzer {
         for (int k = 0; k < n; k++) {
             int i = idx.get(k);
             HitObject note = all.get(i);
-            float noteY = hardRock ? PLAYFIELD_HEIGHT - note.getY() : note.getY();
+            float[] p = pos[i];
             double bpm = OsuFileParser.getBpmAt(osu, note.getTimeMs()) * rate;
             if (bpm > 0) { totalBpm += bpm; maxBpm = Math.max(maxBpm, bpm); bpmCount++; }
 
             boolean inStream = OsuFileParser.isInStream(osu, i, MIN_STREAM_LENGTH);
             boolean inJump = isJump(osu, i);
             boolean inBurst = !inStream && !inJump && isNearby(osu, i);
+            String group = inStream ? "stream" : inJump ? "jump" : inBurst ? "burst" : "other";
 
             NoteResult nr = new NoteResult();
             nr.noteTimeMs = note.getTimeMs();
-            nr.noteX = note.getX();
-            nr.noteY = noteY;
+            nr.noteX = p[0];
+            nr.noteY = p[1];
             nr.slider = note.isSlider();
             nr.inStream = inStream;
             nr.inJump = inJump;
+            nr.inBurst = inBurst;
             nr.bpmAtNote = bpm;
 
             ReplayFrame click = hitBy[k];
             boolean hit = click != null;
+            groupCounts.get(group)[0]++;
             if (hit) {
                 double songErr = click.getTimeMs() - note.getTimeMs();
                 double realErr = songErr / rate;
-                double aimErr = distance(click.getX(), click.getY(), note.getX(), noteY);
+                double aimErr = distance(click.getX(), click.getY(), p[0], p[1]);
                 nr.clickTimeMs = click.getTimeMs();
                 nr.timingError = realErr;
                 nr.aimError = aimErr;
+                directAim(nr, click, p, previousEnd(all, pos, idx, k));
                 timingErrors.add(realErr);
                 aimErrors.add(aimErr);
+                groupErrors.get(group).add(realErr);
+                groupCounts.get(group)[1]++;
                 long absSong = Math.abs(Math.round(songErr));
                 if (note.isSlider()) nr.verdict = "slider";
                 else if (absSong <= w300) nr.verdict = "300";
@@ -177,8 +234,12 @@ public class ReplayAnalyzer {
                 else nr.verdict = "50";
                 if (realErr < 0) result.earlyHits++; else result.lateHits++;
                 allHits++;
+            } else if (note.isSlider()) {
+                nr.verdict = "slider_miss";
+                result.sliderHeadMisses++;
             } else {
                 nr.verdict = "miss";
+                result.analyzerMisses++;
             }
             if (inStream) { streamTotal++; if (hit) streamHits++; }
             else if (inJump) { jumpTotal++; if (hit) jumpHits++; }
@@ -188,13 +249,18 @@ public class ReplayAnalyzer {
 
         result.analyzedObjects = n;
         if (!timingErrors.isEmpty()) {
-            result.avgTimingError = timingErrors.stream().mapToDouble(d -> d).average().orElse(0);
+            result.avgTimingError = mean(timingErrors);
             result.timingStdDev = stdDev(timingErrors);
             result.unstableRate = result.timingStdDev * 10;
         }
         if (!aimErrors.isEmpty()) {
-            result.avgAimError = aimErrors.stream().mapToDouble(d -> d).average().orElse(0);
+            result.avgAimError = mean(aimErrors);
             result.aimStdDev = stdDev(aimErrors);
+        }
+        for (String g : groups) {
+            int[] c = groupCounts.get(g);
+            if (c[0] == 0) continue;
+            result.groupStats.add(groupStat(g, c[0], c[1], groupErrors.get(g)));
         }
         result.streamNotes = streamTotal;
         result.jumpNotes = jumpTotal;
@@ -204,14 +270,52 @@ public class ReplayAnalyzer {
         result.burstAccuracy = burstTotal > 0 ? (double) burstHits / burstTotal * 100 : -1;
         result.avgBpm = bpmCount > 0 ? totalBpm / bpmCount : 0;
         result.maxBpm = maxBpm;
-        result.setMissCount(officialMissCount);
 
         double overall = n > 0 ? (double) allHits / n * 100 : 100;
         generateInsights(result, overall);
         return result;
     }
 
-    private static List<ReplayFrame> extractClicks(List<ReplayFrame> frames) {
+    /** Where the cursor came from: the end of the previous clickable object. */
+    private static float[] previousEnd(List<HitObject> all, float[][] pos, List<Integer> idx, int k) {
+        if (k == 0) return null;
+        float[] p = pos[idx.get(k - 1)];
+        return new float[]{p[2], p[3]};
+    }
+
+    /** Splits the aim error into "along the movement" and "across it". */
+    private static void directAim(NoteResult nr, ReplayFrame click, float[] note, float[] from) {
+        double ex = click.getX() - note[0], ey = click.getY() - note[1];
+        if (from == null) return;
+        double mx = note[0] - from[0], my = note[1] - from[1];
+        double len = Math.sqrt(mx * mx + my * my);
+        if (len < 20) return; // no clear direction (stacks, short movements)
+        mx /= len; my /= len;
+        nr.aimAlong = ex * mx + ey * my;
+        // screen y grows downwards, so (mx, my) turned 90 degrees clockwise points to the right
+        nr.aimAcross = ex * -my + ey * mx;
+        nr.aimDirected = true;
+    }
+
+    static void addWindow(AnalysisResult r, String name, double ms) {
+        Map<String, Object> w = new LinkedHashMap<>();
+        w.put("name", name);
+        w.put("ms", Math.round(ms * 10) / 10.0);
+        r.hitWindows.add(w);
+    }
+
+    static Map<String, Object> groupStat(String key, int objects, int hits, List<Double> errors) {
+        Map<String, Object> m = new LinkedHashMap<>();
+        m.put("key", key);
+        m.put("objects", objects);
+        m.put("hits", hits);
+        m.put("hitRate", String.format(Locale.ROOT, "%.1f", objects > 0 ? hits * 100.0 / objects : 0));
+        m.put("avg", errors.isEmpty() ? "-" : String.format(Locale.ROOT, "%+.1f", mean(errors)));
+        m.put("ur", errors.size() < 2 ? "-" : String.format(Locale.ROOT, "%.0f", stdDev(errors) * 10));
+        return m;
+    }
+
+    static List<ReplayFrame> extractClicks(List<ReplayFrame> frames) {
         List<ReplayFrame> clicks = new ArrayList<>();
         ReplayFrame prev = null;
         for (ReplayFrame f : frames) {
@@ -236,30 +340,41 @@ public class ReplayAnalyzer {
         return gap > 0 && gap < 300;
     }
 
-    private static double distance(float x1, float y1, float x2, float y2) {
+    static double distance(float x1, float y1, float x2, float y2) {
         double dx = x1 - x2, dy = y1 - y2;
         return Math.sqrt(dx * dx + dy * dy);
     }
 
-    private static double stdDev(List<Double> v) {
+    static double mean(List<Double> v) {
+        return v.stream().mapToDouble(d -> d).average().orElse(0);
+    }
+
+    static double stdDev(List<Double> v) {
         if (v.size() < 2) return 0;
-        double mean = v.stream().mapToDouble(d -> d).average().orElse(0);
+        double mean = mean(v);
         return Math.sqrt(v.stream().mapToDouble(d -> (d - mean) * (d - mean)).average().orElse(0));
     }
 
-    private static void insight(AnalysisResult r, String english, String key, String value) {
+    static void insight(AnalysisResult r, String english, String key, String value) {
+        insight(r, english, key, value, "");
+    }
+
+    /** value goes into {v} of the translation, value2 into {w}. */
+    static void insight(AnalysisResult r, String english, String key, String value, String value2) {
         r.insights.add(english);
         Map<String, String> code = new HashMap<>();
         code.put("key", key);
         code.put("value", value);
+        code.put("value2", value2);
         r.insightCodes.add(code);
     }
 
-    private static String fmt(String pattern, double v) {
+    static String fmt(String pattern, double v) {
         return String.format(Locale.ROOT, pattern, v);
     }
 
-    private static void generateInsights(AnalysisResult r, double overallHitRate) {
+    /** Timing insights shared by every mode. */
+    static void timingInsights(AnalysisResult r, double unstableLimit) {
         List<String> wk = r.weaknesses;
         if (Math.abs(r.avgTimingError) > 10) {
             String v = fmt("%.0f", Math.abs(r.avgTimingError));
@@ -269,11 +384,24 @@ public class ReplayAnalyzer {
             insight(r, "Timing well centered (avg " + fmt("%.1f", r.avgTimingError) + " ms).", "centered", fmt("%.1f", r.avgTimingError));
         }
         String ur = fmt("%.0f", r.unstableRate);
-        if (r.unstableRate > 200) { insight(r, "Unstable timing (UR " + ur + ") - practice with a metronome.", "unstable_ur", ur); wk.add("unstable_timing"); }
+        if (r.unstableRate > unstableLimit) { insight(r, "Unstable timing (UR " + ur + ") - practice with a metronome.", "unstable_ur", ur); wk.add("unstable_timing"); }
         else insight(r, "Timing stability: UR " + ur + ".", "stability_ur", ur);
+    }
+
+    private static void generateInsights(AnalysisResult r, double overallHitRate) {
+        List<String> wk = r.weaknesses;
+        timingInsights(r, 200);
         String aim = fmt("%.0f", r.avgAimError);
         if (r.avgAimError > 30) { insight(r, "Inaccurate aim - avg " + aim + " px from center.", "poor_aim", aim); wk.add("poor_aim"); }
         else insight(r, "Aim: avg " + aim + " px from center.", "aim", aim);
+        // overshoot / undershoot: only with enough directed hits
+        List<Double> along = new ArrayList<>();
+        for (NoteResult n : r.noteResults) if (n.aimDirected) along.add(n.aimAlong);
+        if (along.size() >= 30) {
+            double a = mean(along);
+            if (a > 4) insight(r, "You tend to overshoot notes (avg " + fmt("%.0f", a) + " px past them).", "overshoot", fmt("%.0f", a));
+            else if (a < -4) insight(r, "You tend to stop short of notes (avg " + fmt("%.0f", -a) + " px before them).", "undershoot", fmt("%.0f", -a));
+        }
         // skill types: only when there are enough notes of that type to say something
         if (r.streamNotes >= 30 && r.streamAccuracy >= 0 && r.streamAccuracy < overallHitRate - 5) {
             insight(r, "Streams: you hit " + fmt("%.0f", r.streamAccuracy) + "% of stream notes, clearly less than the rest of the map.", "weak_streams", fmt("%.0f", r.streamAccuracy));

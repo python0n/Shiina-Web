@@ -10,7 +10,7 @@
         <div class="d-flex justify-content-between align-items-start">
           <div>
             <h5 class="fw-bold mb-1">${score.artist} - ${score.title} [${score.version}]</h5>
-            <div class="opacity-75 small"><span class="js-stars" data-map="${score.map_id?c}" data-mods="${score.mods?c}" data-nomod="${t["analyzer.nomod"]}">★ ${score.diff}</span><#if score.mods_str?has_content> &nbsp;|&nbsp; +${score.mods_str}</#if> &nbsp;|&nbsp; ${t["stats.score"]}: ${score.score?string(",##0")} &nbsp;|&nbsp; ${score.acc}% &nbsp;|&nbsp; ${score.pp}pp</div>
+            <div class="opacity-75 small"><#if (score.mode!0) == 1><span class="badge text-bg-secondary me-1">taiko</span><#elseif (score.mode!0) == 3><span class="badge text-bg-secondary me-1">mania</span></#if><span class="js-stars" data-map="${score.map_id?c}" data-mods="${score.mods?c}" data-nomod="${t["analyzer.nomod"]}">★ ${score.diff}</span><#if score.mods_str?has_content> &nbsp;|&nbsp; +${score.mods_str}</#if> &nbsp;|&nbsp; ${t["stats.score"]}: ${score.score?string(",##0")} &nbsp;|&nbsp; ${score.acc}% &nbsp;|&nbsp; ${score.pp}pp</div>
           </div>
           <a href="/analyzer" class="btn btn-sm btn-outline-light"><i class="fa-solid fa-arrow-left me-1"></i>${t["common.back"]}</a>
         </div>
@@ -25,11 +25,16 @@
   </#if>
 
   <#if analysis??>
+  <#assign mode = analysis.mode>
+
+  <#if analysis.analyzerMisses != analysis.missCount>
+  <div class="alert alert-secondary small py-2"><i class="fa-solid fa-circle-info me-2"></i>${t["analyzer.mismatch"]?replace("{a}", analysis.analyzerMisses?c)?replace("{g}", analysis.missCount?c)}</div>
+  </#if>
 
   <!-- statystyki ogólne -->
   <div class="row g-3 mb-4">
-    <div class="col-md-3">
-      <div class="card rounded text-center p-3">
+    <div class="col-6 col-md-3">
+      <div class="card rounded text-center p-3 h-100">
         <div class="text-muted small mb-1">${t["analyzer.avg_timing"]} <span tabindex="0" data-bs-toggle="tooltip" title="${t["analyzer.avg_timing_tip"]}"><i class="fa-solid fa-circle-info fa-xs opacity-50"></i></span></div>
         <div class="fw-bold fs-5 ${(analysis.avgTimingError < -10)?then('text-warning', (analysis.avgTimingError > 10)?then('text-danger', 'text-success'))}">
           ${analysis.avgTimingError?string("0.0")} ms
@@ -37,43 +42,152 @@
         <div class="text-muted small">${(analysis.avgTimingError < 0)?then(t["analyzer.early"], t["analyzer.late"])}</div>
       </div>
     </div>
-    <div class="col-md-3">
-      <div class="card rounded text-center p-3">
+    <div class="col-6 col-md-3">
+      <div class="card rounded text-center p-3 h-100">
         <div class="text-muted small mb-1">${t["analyzer.stability"]} <span tabindex="0" data-bs-toggle="tooltip" title="${t["analyzer.stability_tip"]}"><i class="fa-solid fa-circle-info fa-xs opacity-50"></i></span></div>
         <div class="fw-bold fs-5 ${(analysis.unstableRate > 200)?then('text-danger', (analysis.unstableRate > 130)?then('text-warning', 'text-success'))}">
-          ±${analysis.timingStdDev?string("0.0")} ms
+          UR ${analysis.unstableRate?string("0")}
         </div>
-        <div class="text-muted small">UR ${analysis.unstableRate?string("0")}</div>
+        <div class="text-muted small">±${analysis.timingStdDev?string("0.0")} ms</div>
       </div>
     </div>
-    <div class="col-md-3">
-      <div class="card rounded text-center p-3">
+    <div class="col-6 col-md-3">
+      <div class="card rounded text-center p-3 h-100">
+        <#if mode == 0>
         <div class="text-muted small mb-1">${t["analyzer.avg_aim"]} <span tabindex="0" data-bs-toggle="tooltip" title="${t["analyzer.avg_aim_tip"]}"><i class="fa-solid fa-circle-info fa-xs opacity-50"></i></span></div>
         <div class="fw-bold fs-5 ${(analysis.avgAimError > 30)?then('text-danger', (analysis.avgAimError > 15)?then('text-warning', 'text-success'))}">
           ${analysis.avgAimError?string("0.0")} px
         </div>
         <div class="text-muted small">${t["analyzer.from_center"]}</div>
+        <#else>
+        <div class="text-muted small mb-1">${t["analyzer.notes"]}</div>
+        <div class="fw-bold fs-5">${analysis.analyzedObjects?c}</div>
+        <div class="text-muted small"><#if mode == 3>${analysis.keyCount?c}K<#else>${t["analyzer.notes_taiko"]}</#if></div>
+        </#if>
       </div>
     </div>
-    <div class="col-md-3">
-      <div class="card rounded text-center p-3">
+    <div class="col-6 col-md-3">
+      <div class="card rounded text-center p-3 h-100">
         <div class="text-muted small mb-1">${t["analyzer.early_late"]} <span tabindex="0" data-bs-toggle="tooltip" title="${t["analyzer.early_late_tip"]}"><i class="fa-solid fa-circle-info fa-xs opacity-50"></i></span></div>
-        <div class="fw-bold fs-5">${analysis.earlyHits} / ${analysis.lateHits}</div>
-        <div class="text-muted small">${score.nmiss} ${t["analyzer.misses_lc"]}</div>
+        <div class="fw-bold fs-5">${analysis.earlyHits?c} / ${analysis.lateHits?c}</div>
+        <div class="text-muted small">${score.nmiss} ${t["analyzer.misses_lc"]}<#if mode == 0 && (analysis.sliderHeadMisses > 0)> &bull; ${t["analyzer.slider_heads_missed"]?replace("{v}", analysis.sliderHeadMisses?c)}</#if></div>
       </div>
     </div>
   </div>
 
-  <!-- pattern accuracy -->
   <!-- wykres timing error -->
   <div class="card rounded mb-4">
-    <div class="card-header bg-body border-bottom px-4 py-3">
-      <h6 class="mb-0 fw-semibold"><i class="fa-solid fa-chart-line me-2"></i>${t["analyzer.per_note"]} <span tabindex="0" data-bs-toggle="tooltip" title="${t["analyzer.per_note_tip"]}"><i class="fa-solid fa-circle-info fa-xs opacity-50"></i></span></h6>
+    <div class="card-header bg-body border-bottom px-4 py-3 d-flex flex-wrap align-items-center gap-2">
+      <h6 class="mb-0 fw-semibold me-auto"><i class="fa-solid fa-chart-line me-2"></i>${t["analyzer.per_note"]} <span tabindex="0" data-bs-toggle="tooltip" title="${t["analyzer.per_note_tip2"]}"><i class="fa-solid fa-circle-info fa-xs opacity-50"></i></span></h6>
+      <div id="noteLegend" class="d-flex flex-wrap gap-2 small"></div>
     </div>
     <div class="card-body">
-      <canvas id="timingChart" height="120"></canvas>
+      <div style="position:relative;height:260px;"><canvas id="timingChart"></canvas></div>
+      <#if mode == 0><div class="text-muted small mt-2">${t["analyzer.chart_hint"]}</div></#if>
     </div>
   </div>
+
+  <div class="row g-3 mb-4">
+    <div class="col-lg-6">
+      <div class="card rounded h-100">
+        <div class="card-header bg-body border-bottom px-4 py-3">
+          <h6 class="mb-0 fw-semibold"><i class="fa-solid fa-chart-column me-2"></i>${t["analyzer.histogram"]} <span tabindex="0" data-bs-toggle="tooltip" title="${t["analyzer.histogram_tip"]}"><i class="fa-solid fa-circle-info fa-xs opacity-50"></i></span></h6>
+        </div>
+        <div class="card-body"><div style="position:relative;height:220px;"><canvas id="histChart"></canvas></div></div>
+      </div>
+    </div>
+    <div class="col-lg-6">
+      <div class="card rounded h-100">
+        <div class="card-header bg-body border-bottom px-4 py-3">
+          <h6 class="mb-0 fw-semibold"><i class="fa-solid fa-wave-square me-2"></i>${t["analyzer.ur_time"]} <span tabindex="0" data-bs-toggle="tooltip" title="${t["analyzer.ur_time_tip"]}"><i class="fa-solid fa-circle-info fa-xs opacity-50"></i></span></h6>
+        </div>
+        <div class="card-body"><div style="position:relative;height:220px;"><canvas id="urChart"></canvas></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-3 mb-4">
+    <#if mode == 0>
+    <div class="col-lg-6">
+      <div class="card rounded h-100">
+        <div class="card-header bg-body border-bottom px-4 py-3">
+          <h6 class="mb-0 fw-semibold"><i class="fa-solid fa-crosshairs me-2"></i>${t["analyzer.aim_map"]} <span tabindex="0" data-bs-toggle="tooltip" title="${t["analyzer.aim_map_tip"]}"><i class="fa-solid fa-circle-info fa-xs opacity-50"></i></span></h6>
+        </div>
+        <div class="card-body"><div style="position:relative;height:300px;max-width:340px;margin:0 auto;"><canvas id="aimChart"></canvas></div></div>
+      </div>
+    </div>
+    </#if>
+    <div class="${(mode == 0)?then('col-lg-6', 'col-12')}">
+      <div class="card rounded h-100">
+        <div class="card-header bg-body border-bottom px-4 py-3">
+          <h6 class="mb-0 fw-semibold"><i class="fa-solid fa-table me-2"></i>${t["analyzer.groups_" + mode?c]} <span tabindex="0" data-bs-toggle="tooltip" title="${t["analyzer.groups_tip"]}"><i class="fa-solid fa-circle-info fa-xs opacity-50"></i></span></h6>
+        </div>
+        <div class="card-body p-0">
+          <div class="table-responsive">
+            <table class="table table-sm mb-0 align-middle">
+              <thead><tr>
+                <th class="ps-4">${t["analyzer.col_group"]}</th>
+                <th class="text-end">${t["analyzer.col_notes"]}</th>
+                <th class="text-end">${t["analyzer.col_hit"]}</th>
+                <th class="text-end">${t["analyzer.col_avg"]}</th>
+                <th class="text-end <#if mode != 3>pe-4</#if>">UR</th>
+                <#if mode == 3><th class="text-end pe-4">${t["analyzer.col_release"]}</th></#if>
+              </tr></thead>
+              <tbody>
+              <#list analysis.groupStats as g>
+                <tr>
+                  <td class="ps-4"><span class="analyzer-dot" data-group="${g.key}"></span><#if mode == 3>${t["analyzer.column"]} ${g.key}<#else>${t["analyzer.g." + g.key]}</#if></td>
+                  <td class="text-end">${g.objects?c}</td>
+                  <td class="text-end">${g.hitRate}%</td>
+                  <td class="text-end">${g.avg} ms</td>
+                  <td class="text-end <#if mode != 3>pe-4</#if>">${g.ur}</td>
+                  <#if mode == 3><td class="text-end pe-4">${g.release}<#if g.release != "-"> ms</#if></td></#if>
+                </tr>
+              </#list>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <#if mode == 0>
+  <!-- odtwarzacz powtórki -->
+  <div class="card rounded mb-4">
+    <div class="card-header bg-body border-bottom px-4 py-3 d-flex align-items-center gap-2">
+      <h6 class="mb-0 fw-semibold me-auto"><i class="fa-solid fa-film me-2"></i>${t["analyzer.player"]} <span tabindex="0" data-bs-toggle="tooltip" title="${t["analyzer.player_tip"]}"><i class="fa-solid fa-circle-info fa-xs opacity-50"></i></span></h6>
+      <button type="button" class="btn btn-sm btn-primary" id="playerLoad"><i class="fa-solid fa-play me-1"></i>${t["analyzer.player_load"]}</button>
+    </div>
+    <div class="card-body" id="playerBody" style="display:none;">
+      <div id="playerWrap" style="position:relative;width:100%;max-width:900px;margin:0 auto;aspect-ratio:4/3;background:#0b0d12;border-radius:8px;overflow:hidden;">
+        <canvas id="playerCanvas" tabindex="0" style="width:100%;height:100%;display:block;outline:none;"></canvas>
+      </div>
+      <div class="d-flex flex-wrap align-items-center gap-2 mt-3" style="max-width:900px;margin:0 auto;">
+        <button type="button" class="btn btn-sm btn-secondary" id="playerPlay" style="width:42px;"><i class="fa-solid fa-play"></i></button>
+        <div class="flex-grow-1" style="min-width:160px;">
+          <canvas id="playerMarks" style="width:100%;height:10px;display:block;"></canvas>
+          <input type="range" class="form-range" id="playerSeek" min="0" max="1000" value="0">
+        </div>
+        <span class="small text-muted font-monospace" id="playerTime">0:00 / 0:00</span>
+        <select class="form-select form-select-sm" id="playerSpeed" style="width:auto;">
+          <option value="0.25">0.25x</option><option value="0.5">0.5x</option><option value="1" selected>1x</option><option value="1.5">1.5x</option><option value="2">2x</option>
+        </select>
+        <span class="small text-muted" title="${t["analyzer.player_volume"]}"><i class="fa-solid fa-volume-high"></i></span>
+        <input type="range" class="form-range" id="playerVolume" min="0" max="1" step="0.05" value="0.4" style="width:90px;" title="${t["analyzer.player_volume"]}">
+        <div class="form-check form-switch mb-0 small">
+          <input class="form-check-input" type="checkbox" id="playerTrail" checked>
+          <label class="form-check-label" for="playerTrail">${t["analyzer.player_trail"]}</label>
+        </div>
+        <div class="form-check form-switch mb-0 small">
+          <input class="form-check-input" type="checkbox" id="player300">
+          <label class="form-check-label" for="player300">${t["analyzer.player_300"]}</label>
+        </div>
+      </div>
+      <div class="text-muted small mt-2 text-center"><span id="playerAudioNote" style="display:none;">${t["analyzer.player_no_audio"]} </span>${t["analyzer.player_keys"]}</div>
+    </div>
+  </div>
+  </#if>
 
   <!-- insighty -->
   <div class="row g-3 mb-4">
@@ -86,7 +200,7 @@
           <#list analysis.insightCodes as insight>
           <div class="d-flex gap-2 mb-2">
             <i class="fa-solid fa-circle-info text-muted mt-1 flex-shrink-0"></i>
-            <span class="small">${t["analyzer.ins." + insight.key]?replace("{v}", insight.value)}</span>
+            <span class="small">${t["analyzer.ins." + insight.key]?replace("{v}", insight.value)?replace("{w}", insight.value2!"")}</span>
           </div>
           </#list>
         </div>
@@ -100,7 +214,7 @@
           <h6 class="mb-0 fw-semibold">
   <i class="fa-solid fa-map me-2 text-info"></i>${t["analyzer.recommended"]}
   <span data-bs-toggle="tooltip" data-bs-placement="right"
-    title="${t["analyzer.recommended_tip"]}">
+    title="${(mode == 0)?then(t["analyzer.recommended_tip"], t["analyzer.recommended_tip_other"])}">
     <i class="fa-solid fa-circle-info text-muted ms-1" style="font-size:0.8rem;cursor:help;"></i>
   </span>
 </h6>
@@ -119,13 +233,13 @@
                 <div class="text-muted" style="font-size:0.75rem;">[${m.version}] &#9733; ${m.diff} &nbsp;&bull;&nbsp; ${m.bpm} BPM</div>
               </div>
               <#if m.skillset == "stream">
-                <span class="badge" style="background:#e74c3c;">Stream</span>
+                <span class="badge" style="background:#3b82f6;">Stream</span>
               <#elseif m.skillset == "burst">
-                <span class="badge" style="background:#e67e22;">Burst</span>
+                <span class="badge" style="background:#14b8a6;">Burst</span>
               <#elseif m.skillset == "jump">
-                <span class="badge" style="background:#3498db;">Jump</span>
-              <#else>
-                <span class="badge" style="background:#8e44ad;">Tech</span>
+                <span class="badge" style="background:#f59e0b;color:#111;">Jump</span>
+              <#elseif m.skillset == "tech">
+                <span class="badge" style="background:#8b5cf6;">Tech</span>
               </#if>
             </a>
             </#list>
@@ -137,6 +251,12 @@
 
   </#if>
 </div>
+<style>
+.analyzer-dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:8px;vertical-align:0;background:#6b7280}
+.analyzer-chip{display:inline-flex;align-items:center;gap:5px;opacity:.85}
+.analyzer-chip i{display:inline-block;width:10px;height:10px;border-radius:50%}
+.analyzer-chip i.band{border-radius:2px;width:4px;height:12px}
+</style>
 
 <script><#noautoesc>
 // works on a normal page load and after a Turbo visit (DOMContentLoaded only fires on the first one)
@@ -170,71 +290,596 @@ function analyzerWithZoom(draw) {
       var v = d[e.dataset.map + ':' + e.dataset.mods];
       if (v === undefined) return;
       e.title = e.dataset.nomod + ' ' + e.textContent.trim();
-      e.textContent = '\u2605 ' + v.toFixed(2);
+      e.textContent = '★ ' + v.toFixed(2);
     }).catch(function() {});
 })();
 <#if noteResultsJson??>
+<#assign jsKeys = ["analyzer.chart_timing", "analyzer.chart_verdict", "analyzer.chart_axis", "analyzer.chart_time", "analyzer.slider_head", "analyzer.slider_head_missed", "analyzer.miss", "analyzer.wrong_colour", "analyzer.g.stream", "analyzer.g.jump", "analyzer.g.burst", "analyzer.g.other", "analyzer.g.don", "analyzer.g.kat", "analyzer.column", "analyzer.hits", "analyzer.aim_along", "analyzer.aim_across", "analyzer.release", "analyzer.player_error", "analyzer.big"]>
 analyzerWithZoom(function() {
+  const L = {<#list jsKeys as k>"${k?keep_after("analyzer.")}": "${t[k]?js_string}"<#sep>, </#list>};
   const notes = ${noteResultsJson};
-  if (!notes.length) return;
-  const labels = notes.map((n, i) => i + 1);
-  // missy jako czerwony pas przez cały wykres; wcześniej miały wysokość 0 i wyglądały jak przerwy
-  const maxAbs = Math.max(10, ...notes.filter(n => n.v !== 'miss').map(n => Math.abs(n.te)));
-  const timingData = notes.map(n => n.v === 'miss' ? [-maxAbs, maxAbs] : [0, n.te]);
-  const colors = notes.map(n => {
-    if (n.v === 'miss') return 'rgba(220,53,69,0.35)';
-    if (n.j) return 'rgba(255,193,7,0.7)';
-    if (n.s) return 'rgba(13,110,253,0.6)';
-    return 'rgba(108,117,125,0.5)';
+  const mode = ${analysis.mode?c};
+  const windows = ${hitWindowsJson};
+  const radius = ${analysis.radius?c};
+  const scoreId = ${score.id?c};
+  if (!notes.length || !document.getElementById('timingChart')) return;
+
+  const C = { stream: '#3b82f6', jump: '#f59e0b', burst: '#14b8a6', other: '#9ca3af', miss: 'rgba(239,68,68,0.45)', sliderMiss: 'rgba(244,114,182,0.45)', don: '#f97316', kat: '#38bdf8' };
+  const COLS = ['#60a5fa', '#f472b6', '#34d399', '#fbbf24', '#a78bfa', '#f87171', '#22d3ee', '#a3e635', '#fb923c', '#e879f9'];
+  const ZONES = ['#38bdf8', '#22c55e', '#eab308', '#f97316', '#ef4444'];
+  function colourOf(n) {
+    if (mode === 1) return n.k ? C.kat : C.don;
+    if (mode === 3) return COLS[n.c % COLS.length];
+    return C[n.g] || C.other;
+  }
+  function fmtTime(ms) {
+    ms = Math.max(0, ms);
+    const s = Math.floor(ms / 1000);
+    return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
+  }
+  const isMiss = (n) => n.v === 'miss' || n.v === 'wrong' || n.v === 'slider_miss';
+
+  // legend (same colours as the table dots)
+  const legend = document.getElementById('noteLegend');
+  const chips = [];
+  if (mode === 0) ['stream', 'jump', 'burst', 'other'].forEach(g => chips.push([C[g], L['g.' + g], false]));
+  else if (mode === 1) chips.push([C.don, L['g.don'], false], [C.kat, L['g.kat'], false]);
+  chips.push(['#ef4444', L.miss, true]);
+  if (mode === 0 && notes.some(n => n.v === 'slider_miss')) chips.push(['#f472b6', L.slider_head_missed, true]);
+  if (mode !== 3) legend.innerHTML = chips.map(c => '<span class="analyzer-chip"><i class="' + (c[2] ? 'band' : '') + '" style="background:' + c[0] + '"></i>' + c[1].replace(/[&<>]/g, '') + '</span>').join('');
+  document.querySelectorAll('.analyzer-dot').forEach(d => {
+    const g = d.dataset.group;
+    d.style.background = mode === 3 ? COLS[(parseInt(g, 10) - 1) % COLS.length] : (C[g] || C.other);
   });
-  const ctx = document.getElementById('timingChart');
-  if (!ctx) return;
-  const chart = new Chart(ctx, {
-    type: 'bar',
-    data: {
-      labels: labels,
-      datasets: [{
-        label: '${t["analyzer.chart_label"]?js_string}',
-        data: timingData,
-        backgroundColor: colors,
-        borderWidth: 0,
-        barPercentage: 0.8,
-        // a hit right on time (0 ms) would have no height and look like a gap
-        minBarLength: 3,
-      }]
-    },
+
+  const hits = notes.filter(n => !isMiss(n));
+  const widest = windows.length ? windows[windows.length - 1].ms : 100;
+  const yMax = Math.ceil(Math.max(widest, ...hits.map(n => Math.abs(n.te))) / 10) * 10;
+  const grid = 'rgba(255,255,255,0.06)';
+
+  // misses drawn as vertical bands behind the dots
+  const missBands = {
+    id: 'missBands',
+    beforeDatasetsDraw(chart) {
+      const { ctx, chartArea: a, scales: { x } } = chart;
+      ctx.save();
+      notes.forEach(n => {
+        if (!isMiss(n)) return;
+        const px = x.getPixelForValue(n.t);
+        if (px < a.left || px > a.right) return;
+        ctx.fillStyle = n.v === 'slider_miss' ? C.sliderMiss : C.miss;
+        ctx.fillRect(px - 1.5, a.top, 3, a.bottom - a.top);
+      });
+      // hit windows as faint lines
+      const y = chart.scales.y;
+      ctx.strokeStyle = 'rgba(255,255,255,0.12)';
+      ctx.setLineDash([4, 4]);
+      windows.forEach(w => [w.ms, -w.ms].forEach(v => {
+        const py = y.getPixelForValue(v);
+        if (py < a.top || py > a.bottom) return;
+        ctx.beginPath(); ctx.moveTo(a.left, py); ctx.lineTo(a.right, py); ctx.stroke();
+      }));
+      ctx.restore();
+    }
+  };
+
+  const tooltipLabel = (n) => {
+    const lines = [];
+    if (isMiss(n)) lines.push(n.v === 'wrong' ? L.wrong_colour : n.v === 'slider_miss' ? L.slider_head_missed : L.miss);
+    else {
+      lines.push(L.chart_timing + ': ' + (n.te > 0 ? '+' : '') + n.te + ' ms');
+      lines.push(L.chart_verdict + ': ' + (n.v === 'slider' ? L.slider_head : n.v));
+    }
+    if (mode === 0) {
+      lines.push(L['g.' + n.g]);
+      if (n.ae !== undefined) lines.push('Aim: ' + n.ae + ' px');
+    } else if (mode === 1) {
+      lines.push((n.k ? L['g.kat'] : L['g.don']) + (n.b ? ' (' + L.big + ')' : ''));
+    } else {
+      lines.push(L.column + ' ' + (n.c + 1));
+      if (n.re !== undefined) lines.push(L.release + ': ' + (n.re > 0 ? '+' : '') + n.re + ' ms');
+    }
+    return lines;
+  };
+
+  const tMin = notes[0].t, tMax = notes[notes.length - 1].t;
+  const pad = Math.max(500, (tMax - tMin) * 0.01);
+  const timingChart = new Chart(document.getElementById('timingChart'), {
+    type: 'scatter',
+    data: { datasets: [{
+      data: hits.map(n => ({ x: n.t, y: n.te, n: n })),
+      pointBackgroundColor: hits.map(colourOf),
+      pointBorderWidth: 0,
+      pointRadius: hits.length > 1500 ? 1.6 : 2.4,
+      pointHoverRadius: 5,
+    }] },
+    plugins: [missBands],
     options: {
-      responsive: true,
+      responsive: true, maintainAspectRatio: false, animation: false,
       plugins: {
         legend: { display: false },
-        tooltip: {
-          callbacks: {
-            label: (ctx) => {
-              const n = notes[ctx.dataIndex];
-              return [
-                n.v === 'miss' ? 'Miss' : '${t["analyzer.chart_timing"]?js_string}' + ': ' + (n.te > 0 ? '+' : '') + n.te + ' ms',
-                '${t["analyzer.chart_verdict"]?js_string}' + ': ' + (n.v === 'slider' ? '${t["analyzer.slider_head"]?js_string}' : n.v),
-                n.j ? 'Jump' : n.s ? 'Stream' : '${t["analyzer.other"]?js_string}'
-              ];
-            }
-          }
-        },
+        tooltip: { callbacks: {
+          title: (items) => fmtTime(items[0].raw.x),
+          label: (ctx) => tooltipLabel(ctx.raw.n)
+        } },
         zoom: {
+          limits: { x: { min: tMin - pad, max: tMax + pad } },
           pan: { enabled: true, mode: 'x' },
           zoom: { wheel: { enabled: true }, pinch: { enabled: true }, mode: 'x' }
         }
       },
       scales: {
-        x: { display: false },
-        y: {
-          title: { display: true, text: '${t["analyzer.chart_axis"]?js_string}' },
-          grid: { color: 'rgba(255,255,255,0.05)' }
-        }
+        x: { type: 'linear', min: tMin - pad, max: tMax + pad, ticks: { callback: (v) => fmtTime(v), maxTicksLimit: 12 }, grid: { color: grid }, title: { display: true, text: L.chart_time } },
+        y: { min: -yMax, max: yMax, title: { display: true, text: L.chart_axis }, grid: { color: grid } }
+      },
+      onClick: (evt, els, chart) => {
+        const t = chart.scales.x.getValueForPixel(evt.x);
+        if (window.analyzerPlayerSeek) window.analyzerPlayerSeek(t);
       }
     }
   });
-  ctx.addEventListener('dblclick', () => { if (chart.resetZoom) chart.resetZoom(); });
+  document.getElementById('timingChart').addEventListener('dblclick', () => { if (timingChart.resetZoom) timingChart.resetZoom(); });
+
+  // histogram of hit errors, coloured by hit window
+  (function() {
+    const bin = Math.max(1, Math.round(widest / 25));
+    const lim = Math.ceil(widest / bin) * bin;
+    const labels = [], counts = [], colours = [];
+    for (let v = -lim; v < lim; v += bin) {
+      labels.push(v + bin / 2);
+      counts.push(0);
+      const mid = Math.abs(v + bin / 2);
+      let z = windows.findIndex(w => mid <= w.ms);
+      if (z < 0) z = windows.length;
+      colours.push(ZONES[Math.min(ZONES.length - 1, z + (mode === 3 ? 0 : 1))]);
+    }
+    hits.forEach(n => {
+      const i = Math.floor((n.te + lim) / bin);
+      if (i >= 0 && i < counts.length) counts[i]++;
+    });
+    new Chart(document.getElementById('histChart'), {
+      type: 'bar',
+      data: { labels: labels, datasets: [{ data: counts, backgroundColor: colours, barPercentage: 1, categoryPercentage: 1 }] },
+      options: {
+        responsive: true, maintainAspectRatio: false, animation: false,
+        plugins: { legend: { display: false }, tooltip: { callbacks: {
+          title: (items) => { const c = parseFloat(items[0].label); return (c - bin / 2) + ' .. ' + (c + bin / 2) + ' ms'; },
+          label: (ctx) => L.hits + ': ' + ctx.raw
+        } } },
+        scales: {
+          x: { ticks: { callback: (v, i) => (Math.round(labels[i] - bin / 2) % (bin * 5) === 0 ? Math.round(labels[i] - bin / 2) : ''), autoSkip: false, maxRotation: 0 }, grid: { display: false } },
+          y: { beginAtZero: true, grid: { color: grid } }
+        }
+      }
+    });
+  })();
+
+  // UR in parts of the map
+  (function() {
+    const size = Math.max(20, Math.round(hits.length / 30));
+    const pts = [];
+    for (let i = 0; i + size <= hits.length; i += size) {
+      const part = hits.slice(i, i + size).map(n => n.te);
+      const m = part.reduce((a, b) => a + b, 0) / part.length;
+      const sd = Math.sqrt(part.reduce((a, b) => a + (b - m) * (b - m), 0) / part.length);
+      pts.push({ x: (hits[i].t + hits[i + size - 1].t) / 2, y: Math.round(sd * 100) / 10, m: Math.round(m * 10) / 10 });
+    }
+    new Chart(document.getElementById('urChart'), {
+      type: 'line',
+      data: { datasets: [{ data: pts, borderColor: '#a78bfa', backgroundColor: 'rgba(167,139,250,0.15)', fill: true, tension: 0.3, pointRadius: 2 }] },
+      options: {
+        responsive: true, maintainAspectRatio: false, animation: false,
+        plugins: { legend: { display: false }, tooltip: { callbacks: {
+          title: (items) => fmtTime(items[0].raw.x),
+          label: (ctx) => ['UR ' + ctx.raw.y, L.chart_timing + ': ' + (ctx.raw.m > 0 ? '+' : '') + ctx.raw.m + ' ms']
+        } } },
+        scales: {
+          x: { type: 'linear', ticks: { callback: (v) => fmtTime(v), maxTicksLimit: 8 }, grid: { color: grid } },
+          y: { beginAtZero: true, grid: { color: grid } }
+        }
+      }
+    });
+  })();
+
+  // aim relative to the direction of movement
+  if (mode === 0 && document.getElementById('aimChart')) {
+    const pts = notes.filter(n => n.aa !== undefined).map(n => ({ x: n.ac, y: n.aa, n: n }));
+    const lim = Math.ceil(radius * 1.25 / 10) * 10;
+    const ring = {
+      id: 'ring',
+      beforeDatasetsDraw(chart) {
+        const { ctx, scales: { x, y } } = chart;
+        const cx = x.getPixelForValue(0), cy = y.getPixelForValue(0);
+        const rx = Math.abs(x.getPixelForValue(radius) - cx), ry = Math.abs(y.getPixelForValue(radius) - cy);
+        ctx.save();
+        ctx.strokeStyle = 'rgba(255,255,255,0.35)';
+        ctx.beginPath(); ctx.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2); ctx.stroke();
+        ctx.strokeStyle = 'rgba(255,255,255,0.12)';
+        ctx.beginPath(); ctx.moveTo(cx, y.top); ctx.lineTo(cx, y.bottom); ctx.moveTo(x.left, cy); ctx.lineTo(x.right, cy); ctx.stroke();
+        // arrow: direction of movement
+        ctx.fillStyle = 'rgba(255,255,255,0.35)';
+        ctx.beginPath(); ctx.moveTo(cx, y.top + 2); ctx.lineTo(cx - 6, y.top + 12); ctx.lineTo(cx + 6, y.top + 12); ctx.fill();
+        ctx.restore();
+      }
+    };
+    new Chart(document.getElementById('aimChart'), {
+      type: 'scatter',
+      data: { datasets: [{ data: pts, pointBackgroundColor: pts.map(p => colourOf(p.n)), pointRadius: 2, pointBorderWidth: 0 }] },
+      plugins: [ring],
+      options: {
+        responsive: true, maintainAspectRatio: false, animation: false,
+        plugins: { legend: { display: false }, tooltip: { callbacks: {
+          title: (items) => fmtTime(items[0].raw.n.t),
+          label: (ctx) => [L.aim_along + ': ' + ctx.raw.y + ' px', L.aim_across + ': ' + ctx.raw.x + ' px']
+        } } },
+        scales: {
+          x: { min: -lim, max: lim, ticks: { stepSize: 10 }, title: { display: true, text: L.aim_across }, grid: { display: false } },
+          y: { min: -lim, max: lim, ticks: { stepSize: 10 }, title: { display: true, text: L.aim_along }, grid: { display: false } }
+        },
+        onClick: (evt, els) => { if (els.length && window.analyzerPlayerSeek) window.analyzerPlayerSeek(pts[els[0].index].n.t); }
+      }
+    });
+  }
+
+  if (mode === 0) analyzerPlayer(scoreId, L);
 });
+
+// ---------- replay player (osu!standard) ----------
+function analyzerPlayer(scoreId, L) {
+  const loadBtn = document.getElementById('playerLoad');
+  if (!loadBtn) return;
+  const body = document.getElementById('playerBody');
+  const canvas = document.getElementById('playerCanvas');
+  const ctx = canvas.getContext('2d');
+  const playBtn = document.getElementById('playerPlay');
+  const seek = document.getElementById('playerSeek');
+  const timeLabel = document.getElementById('playerTime');
+  const speedSel = document.getElementById('playerSpeed');
+  const trailBox = document.getElementById('playerTrail');
+  const box300 = document.getElementById('player300');
+  const volume = document.getElementById('playerVolume');
+  const marks = document.getElementById('playerMarks');
+  try { const v = localStorage.getItem('analyzer-volume'); if (v !== null) volume.value = v; } catch (e) {}
+  let audio = null, bg = null;
+  const COMBO = ['#ff6b8b', '#5ec8ff', '#8ce08a', '#ffc85e'];
+  const VERDICT = { '300': ['300', '#66ccff'], '100': ['100', '#88dd55'], '50': ['50', '#ffbb44'], 'miss': ['×', '#ff4444'], 'slider_miss': ['×', '#f472b6'] };
+  let data = null, playing = false, now = 0, last = 0, start = 0, end = 0, pendingSeek = null, loading = false;
+
+  function load() {
+    if (data || loading) return Promise.resolve();
+    loading = true;
+    loadBtn.disabled = true;
+    // music and background are optional: the player works without them
+    const base = '/analyzer/' + scoreId;
+    const music = new Promise((resolve) => {
+      const a = new Audio();
+      a.preload = 'auto';
+      a.addEventListener('canplay', () => resolve(a), { once: true });
+      a.addEventListener('error', () => resolve(null), { once: true });
+      a.src = base + '?media=audio';
+    });
+    return Promise.all([
+      fetch(base + '?replay=1', { credentials: 'same-origin' }).then(r => { if (!r.ok) throw new Error(); return r.json(); }),
+      music
+    ])
+      .then(([d, a]) => {
+        data = d;
+        if (a) {
+          audio = a;
+          audio.volume = parseFloat(volume.value);
+          if ('preservesPitch' in audio) audio.preservesPitch = !data.nightcore;
+        } else {
+          document.getElementById('playerAudioNote').style.display = '';
+        }
+        const img = new Image();
+        img.onload = () => { bg = img; draw(); };
+        img.src = base + '?media=bg';
+        prepare();
+        body.style.display = '';
+        loadBtn.style.display = 'none';
+        resize();
+        drawMarks();
+        now = pendingSeek !== null ? pendingSeek : start;
+        pendingSeek = null;
+        draw();
+      })
+      .catch(() => { loadBtn.disabled = false; loadBtn.textContent = L.player_error; })
+      .finally(() => { loading = false; });
+  }
+
+  function prepare() {
+    data.objects.forEach(o => {
+      if (o.k !== 's') return;
+      // path as points plus cumulative length, to place the slider ball
+      const pts = [];
+      for (let i = 0; i < o.p.length; i += 2) pts.push([o.p[i], o.p[i + 1]]);
+      const cum = [0];
+      for (let i = 1; i < pts.length; i++) cum.push(cum[i - 1] + Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]));
+      o.pts = pts; o.cum = cum;
+    });
+    const f = data.frames;
+    data.n = f.length / 4;
+    start = data.objects.length ? data.objects[0].t - 1500 : 0;
+    end = data.objects.length ? data.objects[data.objects.length - 1].e + 1500 : (data.n ? f[(data.n - 1) * 4] : 0);
+    seek.min = start; seek.max = end;
+  }
+
+  // 100s, 50s and misses along the whole replay, above the seek bar
+  function drawMarks() {
+    const r = marks.getBoundingClientRect();
+    const dpr = window.devicePixelRatio || 1;
+    marks.width = Math.max(1, Math.round(r.width * dpr));
+    marks.height = Math.max(1, Math.round(r.height * dpr));
+    const c = marks.getContext('2d');
+    c.clearRect(0, 0, marks.width, marks.height);
+    const col = { '100': '#88dd55', '50': '#ffbb44', 'miss': '#ff4444', 'slider_miss': '#f472b6' };
+    data.objects.forEach(o => {
+      const k = col[o.v];
+      if (!k) return;
+      const x = (o.t - start) / Math.max(1, end - start) * marks.width;
+      c.fillStyle = k;
+      c.fillRect(Math.round(x), o.v === 'miss' ? 0 : marks.height * 0.35, Math.max(1, dpr * 1.5), marks.height);
+    });
+  }
+
+  function along(o, dist) {
+    const c = o.cum, p = o.pts;
+    if (!p.length) return [o.x, o.y];
+    let i = 1;
+    while (i < c.length - 1 && c[i] < dist) i++;
+    const seg = c[i] - c[i - 1] || 1;
+    const t = Math.max(0, Math.min(1, (dist - c[i - 1]) / seg));
+    return [p[i - 1][0] + (p[i][0] - p[i - 1][0]) * t, p[i - 1][1] + (p[i][1] - p[i - 1][1]) * t];
+  }
+
+  // index of the last frame at or before time t
+  function frameAt(t) {
+    const f = data.frames;
+    let lo = 0, hi = data.n - 1;
+    if (hi < 0) return -1;
+    while (lo < hi) {
+      const mid = (lo + hi + 1) >> 1;
+      if (f[mid * 4] <= t) lo = mid; else hi = mid - 1;
+    }
+    return lo;
+  }
+
+  let scale = 1, ox = 0, oy = 0;
+  function resize() {
+    const r = canvas.getBoundingClientRect();
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = Math.round(r.width * dpr);
+    canvas.height = Math.round(r.height * dpr);
+    // playfield 512x384 with a margin, like the game
+    scale = Math.min(canvas.width / 640, canvas.height / 480);
+    ox = (canvas.width - 512 * scale) / 2;
+    oy = (canvas.height - 384 * scale) / 2 + 8 * scale;
+  }
+  window.addEventListener('resize', () => { if (data) { resize(); drawMarks(); draw(); } });
+
+  const X = (x) => ox + x * scale, Y = (y) => oy + y * scale;
+
+  function draw() {
+    const W = canvas.width, H = canvas.height;
+    ctx.clearRect(0, 0, W, H);
+    if (bg) {
+      // cover the canvas, dimmed like in the game
+      const k = Math.max(W / bg.width, H / bg.height);
+      ctx.globalAlpha = 0.22;
+      ctx.drawImage(bg, (W - bg.width * k) / 2, (H - bg.height * k) / 2, bg.width * k, bg.height * k);
+      ctx.globalAlpha = 1;
+    }
+    ctx.strokeStyle = 'rgba(255,255,255,0.06)';
+    ctx.strokeRect(X(0), Y(0), 512 * scale, 384 * scale);
+    const r = data.radius * scale;
+    const pre = data.preempt;
+    const fadeIn = 400 * Math.min(1, pre / 450);
+    const objs = data.objects;
+    // visible objects, drawn from the last to the first so earlier ones are on top
+    const vis = [];
+    for (let i = 0; i < objs.length; i++) {
+      const o = objs[i];
+      if (o.t - pre > now) break;
+      if (o.e + 600 < now) continue;
+      vis.push(o);
+    }
+    for (let i = vis.length - 1; i >= 0; i--) {
+      const o = vis[i];
+      const appear = Math.max(0, Math.min(1, (now - (o.t - pre)) / fadeIn));
+      const gone = now > o.e ? Math.max(0, 1 - (now - o.e) / 200) : 1;
+      const alpha = appear * gone;
+      if (o.k === 'p') {
+        if (now < o.t - 300 || now > o.e + 200) continue;
+        const prog = Math.max(0, Math.min(1, (now - o.t) / Math.max(1, o.e - o.t)));
+        ctx.globalAlpha = alpha * 0.8;
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 3 * scale;
+        ctx.beginPath(); ctx.arc(X(256), Y(192), 180 * scale * (1 - prog) + 8 * scale, 0, Math.PI * 2); ctx.stroke();
+        ctx.globalAlpha = 1;
+        continue;
+      }
+      const col = COMBO[o.c % COMBO.length];
+      if (o.k === 's' && now <= o.e) {
+        ctx.globalAlpha = alpha * 0.9;
+        ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+        ctx.beginPath();
+        o.pts.forEach((p, j) => j ? ctx.lineTo(X(p[0]), Y(p[1])) : ctx.moveTo(X(p[0]), Y(p[1])));
+        ctx.strokeStyle = '#ffffff'; ctx.lineWidth = r * 2; ctx.stroke();
+        ctx.strokeStyle = '#1b1f2a'; ctx.lineWidth = r * 2 - 4 * scale; ctx.stroke();
+        // slider ball
+        if (now >= o.t) {
+          const len = o.cum[o.cum.length - 1];
+          const span = (o.e - o.t) / o.r;
+          const k = Math.min(o.r - 1e-6, (now - o.t) / span);
+          let f = k - Math.floor(k);
+          if (Math.floor(k) % 2 === 1) f = 1 - f;
+          const p = along(o, f * len);
+          ctx.globalAlpha = alpha;
+          ctx.fillStyle = col;
+          ctx.beginPath(); ctx.arc(X(p[0]), Y(p[1]), r * 0.85, 0, Math.PI * 2); ctx.fill();
+          ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 2 * scale;
+          ctx.beginPath(); ctx.arc(X(p[0]), Y(p[1]), r * 1.9, 0, Math.PI * 2); ctx.stroke();
+        }
+      }
+      // head circle (fades once it was hit)
+      if (now <= o.t + 150) {
+        const ha = now > o.t ? alpha * Math.max(0, 1 - (now - o.t) / 150) : alpha;
+        ctx.globalAlpha = ha;
+        ctx.fillStyle = col;
+        ctx.beginPath(); ctx.arc(X(o.x), Y(o.y), r * 0.92, 0, Math.PI * 2); ctx.fill();
+        ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 3 * scale;
+        ctx.beginPath(); ctx.arc(X(o.x), Y(o.y), r * 0.92, 0, Math.PI * 2); ctx.stroke();
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold ' + Math.round(r * 0.8) + 'px sans-serif';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.fillText(o.n, X(o.x), Y(o.y) + 1);
+        if (!data.hidden && now < o.t) {
+          const ap = 1 + 3 * (o.t - now) / pre;
+          ctx.strokeStyle = col; ctx.lineWidth = 2.5 * scale;
+          ctx.beginPath(); ctx.arc(X(o.x), Y(o.y), r * ap, 0, Math.PI * 2); ctx.stroke();
+        }
+      }
+      // verdict from the analyzer, shortly after the hit time
+      const v = VERDICT[o.v];
+      if (v && now >= o.t && now < o.t + 600 && (o.v !== '300' || box300.checked)) {
+        ctx.globalAlpha = 1 - (now - o.t) / 600;
+        ctx.fillStyle = v[1];
+        ctx.font = 'bold ' + Math.round(r * 0.7) + 'px sans-serif';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.fillText(v[0], X(o.x), Y(o.y) - r * 1.2);
+      }
+    }
+    ctx.globalAlpha = 1;
+    // cursor and trail
+    const i = frameAt(now);
+    if (i >= 0) {
+      const f = data.frames;
+      let cx = f[i * 4 + 1] / 10, cy = f[i * 4 + 2] / 10;
+      if (i + 1 < data.n) {
+        const t0 = f[i * 4], t1 = f[(i + 1) * 4];
+        const k = t1 > t0 ? Math.max(0, Math.min(1, (now - t0) / (t1 - t0))) : 0;
+        cx += (f[(i + 1) * 4 + 1] / 10 - cx) * k;
+        cy += (f[(i + 1) * 4 + 2] / 10 - cy) * k;
+      }
+      if (trailBox.checked) {
+        ctx.lineWidth = 2 * scale;
+        let j = i;
+        let px = cx, py = cy;
+        while (j > 0 && now - f[j * 4] < 120) {
+          const a = 1 - (now - f[j * 4]) / 120;
+          ctx.strokeStyle = 'rgba(255,220,120,' + (a * 0.7) + ')';
+          ctx.beginPath(); ctx.moveTo(X(px), Y(py));
+          px = f[j * 4 + 1] / 10; py = f[j * 4 + 2] / 10;
+          ctx.lineTo(X(px), Y(py)); ctx.stroke();
+          j--;
+        }
+      }
+      const keys = f[i * 4 + 3];
+      const down = (keys & 15) !== 0;
+      ctx.fillStyle = down ? '#ffd34d' : '#ffffff';
+      ctx.beginPath(); ctx.arc(X(cx), Y(cy), (down ? 7 : 5.5) * scale, 0, Math.PI * 2); ctx.fill();
+      // keys
+      const k1 = (keys & 4) !== 0, k2 = (keys & 8) !== 0;
+      const m1 = (keys & 1) !== 0 && !k1, m2 = (keys & 2) !== 0 && !k2;
+      [['K1', k1], ['K2', k2], ['M1', m1], ['M2', m2]].forEach((k, n) => {
+        const bx = Math.min(W - 40 * scale, X(512) + 10 * scale), by = H / 2 - 60 * scale + n * 32 * scale;
+        ctx.fillStyle = k[1] ? '#ffd34d' : 'rgba(255,255,255,0.12)';
+        ctx.fillRect(bx, by, 34 * scale, 26 * scale);
+        ctx.fillStyle = k[1] ? '#111' : 'rgba(255,255,255,0.6)';
+        ctx.font = 'bold ' + Math.round(12 * scale) + 'px sans-serif';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.fillText(k[0], bx + 17 * scale, by + 13 * scale);
+      });
+    }
+    // hit error meter: hits of the last 3 seconds
+    const w = data.windows, unit = 1.1 * scale;
+    const my = H - 18 * scale, mx = X(256);
+    [[w[2], 'rgba(255,187,68,0.55)'], [w[1], 'rgba(136,221,85,0.55)'], [w[0], 'rgba(102,204,255,0.6)']].forEach(b => {
+      ctx.fillStyle = b[1];
+      ctx.fillRect(mx - b[0] * unit, my - 2 * scale, b[0] * 2 * unit, 4 * scale);
+    });
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(mx - scale, my - 8 * scale, 2 * scale, 16 * scale);
+    for (let j = objs.length - 1; j >= 0; j--) {
+      const o = objs[j];
+      if (o.t > now) continue;
+      if (now - o.t > 3000) break;
+      if (o.te === undefined) continue;
+      const a = 1 - (now - o.t) / 3000;
+      const songErr = o.te * data.rate;
+      ctx.fillStyle = Math.abs(songErr) <= w[0] ? 'rgba(102,204,255,' + a + ')' : Math.abs(songErr) <= w[1] ? 'rgba(136,221,85,' + a + ')' : 'rgba(255,187,68,' + a + ')';
+      ctx.fillRect(mx + songErr * unit - scale, my - 7 * scale, 2 * scale, 14 * scale);
+    }
+    seek.value = now;
+    timeLabel.textContent = fmt(now - start) + ' / ' + fmt(end - start);
+  }
+
+  function fmt(ms) {
+    const s = Math.max(0, Math.floor(ms / 1000));
+    return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
+  }
+
+  function tick(ts) {
+    if (!playing) return;
+    if (!document.body.contains(canvas)) { playing = false; if (audio) audio.pause(); return; } // page left (Turbo)
+    const dt = last ? ts - last : 0;
+    last = ts;
+    if (audio && !audio.paused && !audio.ended) {
+      now = audio.currentTime * 1000; // the music is the clock, so the picture stays in sync
+    } else {
+      now += dt * data.rate * parseFloat(speedSel.value);
+      if (audio && audio.paused && !audio.ended && now >= 0 && now < audio.duration * 1000) startAudio();
+    }
+    if (now >= end) { now = end; setPlaying(false); }
+    draw();
+    requestAnimationFrame(tick);
+  }
+
+  function startAudio() {
+    if (!audio || now < 0) return;
+    audio.playbackRate = data.rate * parseFloat(speedSel.value);
+    audio.currentTime = now / 1000;
+    audio.play().catch(() => {});
+  }
+
+  function setPlaying(p) {
+    playing = p;
+    playBtn.innerHTML = p ? '<i class="fa-solid fa-pause"></i>' : '<i class="fa-solid fa-play"></i>';
+    if (p) { last = 0; startAudio(); requestAnimationFrame(tick); }
+    else if (audio) audio.pause();
+  }
+
+  loadBtn.addEventListener('click', () => load().then(() => { if (data) setPlaying(true); }));
+  playBtn.addEventListener('click', () => { if (!data) return; if (now >= end) now = start; setPlaying(!playing); });
+  seek.addEventListener('input', () => { if (!data) return; now = parseFloat(seek.value); if (playing) startAudio(); draw(); });
+  speedSel.addEventListener('change', () => { if (audio) audio.playbackRate = data.rate * parseFloat(speedSel.value); });
+  volume.addEventListener('input', () => {
+    if (audio) audio.volume = parseFloat(volume.value);
+    try { localStorage.setItem('analyzer-volume', volume.value); } catch (e) {}
+  });
+  box300.addEventListener('change', () => { if (data) draw(); });
+  canvas.addEventListener('keydown', (e) => {
+    if (!data) return;
+    if (e.code === 'Space') { e.preventDefault(); setPlaying(!playing); }
+    else if (e.code === 'ArrowLeft') { now = Math.max(start, now - 2000); if (playing) startAudio(); draw(); }
+    else if (e.code === 'ArrowRight') { now = Math.min(end, now + 2000); if (playing) startAudio(); draw(); }
+  });
+  canvas.addEventListener('click', () => { canvas.focus(); if (data) setPlaying(!playing); });
+
+  // clicking a note on the charts jumps here
+  window.analyzerPlayerSeek = function(t) {
+    const target = t - 1000;
+    if (!data) {
+      pendingSeek = target;
+      load().then(() => { if (data) { canvas.scrollIntoView({ behavior: 'smooth', block: 'center' }); } });
+      return;
+    }
+    setPlaying(false);
+    now = Math.max(start, Math.min(end, target));
+    draw();
+    canvas.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  };
+}
 </#if>
 </#noautoesc></script>
 <#include "../assets/footer.html">

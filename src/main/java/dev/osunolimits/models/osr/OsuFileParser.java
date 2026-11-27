@@ -1,8 +1,11 @@
 package dev.osunolimits.modules.osr;
 
 import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,11 +22,14 @@ public class OsuFileParser {
         private String title;
         private String artist;
         private String version;    // nazwa trudności
-        private float ar;
-        private float od;
-        private float cs;
-        private float hp;
+        private int formatVersion = 14;
+        private float ar = -1;
+        private float od = 5;
+        private float cs = 5;
+        private float hp = 5;
         private int mode;
+        private float stackLeniency = 0.7f;
+        private double sliderMultiplier = 1.4;
         private List<HitObject> hitObjects = new ArrayList<>();
         private List<TimingPoint> timingPoints = new ArrayList<>();
     }
@@ -33,17 +39,29 @@ public class OsuFileParser {
         private float x;
         private float y;
         private long timeMs;       // czas uderzenia w ms
-        private int type;          // bitmask: 1=circle, 2=slider, 8=spinner
+        private int type;          // bitmask: 1=circle, 2=slider, 8=spinner, 128=mania hold
         private int hitSound;
+        private long endTimeMs;    // end of a slider, spinner or hold note; = timeMs otherwise
+        // sliders
+        private String curve;
+        private int slides = 1;
+        private double pixelLength;
+        private transient SliderPath path;
+        private float endX;        // where the slider ends (tail or head, depending on repeats)
+        private float endY;
+        // filled in by Stacking
+        private int stackHeight;
 
         public boolean isCircle() { return (type & 1) != 0 && (type & 8) == 0; }
         public boolean isSlider() { return (type & 2) != 0; }
         public boolean isSpinner() { return (type & 8) != 0; }
+        public boolean isHold() { return (type & 128) != 0; }
         public boolean isNewCombo() { return (type & 4) != 0; }
     }
 
     @Data
     public static class TimingPoint {
+        private double time;
         private long timeMs;
         private double beatLength;  // ms per beat (ujemna = inherited)
         private int meter;
@@ -68,6 +86,7 @@ public class OsuFileParser {
     private static final long MAX_FILE_BYTES = 8L * 1024 * 1024;
     private static final int MAX_HIT_OBJECTS = 30_000;
     private static final int MAX_TIMING_POINTS = 20_000;
+    private static final double MAX_SLIDER_LENGTH = 100_000;
 
     public static OsuData parse(String filePath) throws IOException {
         if (new java.io.File(filePath).length() > MAX_FILE_BYTES) {
@@ -76,10 +95,19 @@ public class OsuFileParser {
         OsuData data = new OsuData();
         String section = "";
 
-        try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(Files.newInputStream(Path.of(filePath)), StandardCharsets.UTF_8))) {
             String line;
+            boolean first = true;
             while ((line = reader.readLine()) != null) {
                 line = line.trim();
+                if (first) {
+                    first = false;
+                    line = line.replace("﻿", "");
+                    if (line.startsWith("osu file format v")) {
+                        try { data.formatVersion = Integer.parseInt(line.substring(17).trim()); } catch (NumberFormatException ignored) {}
+                        continue;
+                    }
+                }
                 if (line.isEmpty() || line.startsWith("//")) continue;
 
                 if (line.startsWith("[") && line.endsWith("]")) {
@@ -99,7 +127,9 @@ public class OsuFileParser {
                 }
             }
         }
-
+        if (data.ar < 0) data.ar = data.od; // very old maps: AR was the same as OD
+        data.timingPoints.sort((a, b) -> Double.compare(a.time, b.time));
+        computeSliders(data);
         return data;
     }
 
@@ -109,15 +139,25 @@ public class OsuFileParser {
         else if (line.startsWith("Version:")) data.version = line.substring(8).trim();
     }
 
+    private static float num(String line, int from) {
+        return Float.parseFloat(line.substring(from).trim());
+    }
+
     private static void parseDifficulty(String line, OsuData data) {
-        if (line.startsWith("ApproachRate:")) data.ar = Float.parseFloat(line.substring(13).trim());
-        else if (line.startsWith("OverallDifficulty:")) data.od = Float.parseFloat(line.substring(18).trim());
-        else if (line.startsWith("CircleSize:")) data.cs = Float.parseFloat(line.substring(11).trim());
-        else if (line.startsWith("HPDrainRate:")) data.hp = Float.parseFloat(line.substring(12).trim());
+        try {
+            if (line.startsWith("ApproachRate:")) data.ar = num(line, 13);
+            else if (line.startsWith("OverallDifficulty:")) data.od = num(line, 18);
+            else if (line.startsWith("CircleSize:")) data.cs = num(line, 11);
+            else if (line.startsWith("HPDrainRate:")) data.hp = num(line, 12);
+            else if (line.startsWith("SliderMultiplier:")) data.sliderMultiplier = num(line, 17);
+        } catch (NumberFormatException ignored) {}
     }
 
     private static void parseGeneral(String line, OsuData data) {
-        if (line.startsWith("Mode:")) data.mode = Integer.parseInt(line.substring(5).trim());
+        try {
+            if (line.startsWith("Mode:")) data.mode = Integer.parseInt(line.substring(5).trim());
+            else if (line.startsWith("StackLeniency:")) data.stackLeniency = num(line, 14);
+        } catch (NumberFormatException ignored) {}
     }
 
     private static void parseTimingPoint(String line, OsuData data) {
@@ -125,10 +165,13 @@ public class OsuFileParser {
         if (parts.length < 2) return;
         try {
             TimingPoint tp = new TimingPoint();
-            tp.timeMs = (long) Double.parseDouble(parts[0].trim());
+            tp.time = Double.parseDouble(parts[0].trim());
+            tp.timeMs = (long) tp.time;
             tp.beatLength = Double.parseDouble(parts[1].trim());
             tp.meter = parts.length > 2 ? Integer.parseInt(parts[2].trim()) : 4;
-            tp.inherited = tp.beatLength < 0;
+            // field 7 says if the point is uninherited; old files don't have it
+            if (parts.length > 6) tp.inherited = "0".equals(parts[6].trim());
+            else tp.inherited = tp.beatLength < 0;
             data.timingPoints.add(tp);
         } catch (NumberFormatException ignored) {}
     }
@@ -140,11 +183,61 @@ public class OsuFileParser {
             HitObject ho = new HitObject();
             ho.x = Float.parseFloat(parts[0].trim());
             ho.y = Float.parseFloat(parts[1].trim());
-            ho.timeMs = Long.parseLong(parts[2].trim());
+            ho.timeMs = (long) Double.parseDouble(parts[2].trim());
             ho.type = Integer.parseInt(parts[3].trim());
             ho.hitSound = Integer.parseInt(parts[4].trim());
+            ho.endTimeMs = ho.timeMs;
+            ho.endX = ho.x;
+            ho.endY = ho.y;
+            if (ho.isSlider() && parts.length > 7) {
+                ho.curve = parts[5].trim();
+                ho.slides = Math.max(1, Math.min(10_000, Integer.parseInt(parts[6].trim())));
+                ho.pixelLength = Math.max(0, Math.min(MAX_SLIDER_LENGTH, Double.parseDouble(parts[7].trim())));
+            } else if (ho.isSpinner() && parts.length > 5) {
+                ho.endTimeMs = Math.max(ho.timeMs, (long) Double.parseDouble(parts[5].trim()));
+            } else if (ho.isHold() && parts.length > 5) {
+                String end = parts[5].split(":")[0].trim();
+                ho.endTimeMs = Math.max(ho.timeMs, (long) Double.parseDouble(end));
+            }
             data.hitObjects.add(ho);
         } catch (NumberFormatException ignored) {}
+    }
+
+    /** Beat length (ms) and slider velocity multiplier in force at the given time. */
+    private static double[] timingAt(OsuData data, double time) {
+        double beatLength = 500, sv = 1;
+        boolean found = false;
+        for (TimingPoint tp : data.timingPoints) {
+            if (tp.time > time) break;
+            if (!tp.inherited) {
+                beatLength = tp.beatLength;
+                sv = 1;
+                found = true;
+            } else if (tp.beatLength < 0) {
+                sv = Math.max(0.1, Math.min(10, -100.0 / tp.beatLength));
+            }
+        }
+        if (!found) {
+            // before the first timing point the first red line counts
+            for (TimingPoint tp : data.timingPoints) {
+                if (!tp.inherited) { beatLength = tp.beatLength; break; }
+            }
+        }
+        return new double[]{beatLength, sv};
+    }
+
+    private static void computeSliders(OsuData data) {
+        for (HitObject o : data.hitObjects) {
+            if (!o.isSlider() || o.curve == null) continue;
+            o.path = SliderPath.parse(o.x, o.y, o.curve, o.pixelLength);
+            double[] tm = timingAt(data, o.timeMs);
+            double velocity = 100 * data.sliderMultiplier * tm[1] / tm[0]; // px per ms
+            double span = velocity > 0 ? o.path.getLength() / velocity : 0;
+            o.endTimeMs = o.timeMs + Math.round(span * o.slides);
+            float[] end = o.path.endPosition(o.slides);
+            o.endX = end[0];
+            o.endY = end[1];
+        }
     }
 
     /**
@@ -155,6 +248,11 @@ public class OsuFileParser {
         for (TimingPoint tp : data.timingPoints) {
             if (tp.timeMs > timeMs) break;
             if (!tp.inherited) bpm = tp.getBpm();
+        }
+        if (bpm == 0) {
+            for (TimingPoint tp : data.timingPoints) {
+                if (!tp.inherited && tp.beatLength > 0) return tp.getBpm();
+            }
         }
         return bpm;
     }
