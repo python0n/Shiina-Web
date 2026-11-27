@@ -3494,3 +3494,27 @@ END LEADERBOARD */
         transform: translateY(-40px);
     }
 }
+
+/* home: on phones keep the header text (name, stats, buttons) visible over the video; the big logo stays hidden */
+@media (max-width: 767px) {
+    .container.desktop,
+    .home-video {
+        min-height: 420px !important;
+    }
+    .home-video .video {
+        height: 420px !important;
+    }
+    .overlay > .row {
+        flex: 1 1 auto;
+        margin: 0;
+    }
+    .lol {
+        display: flex;
+        align-items: center;
+        flex: 0 0 100%;
+        max-width: 100%;
+    }
+    .logo-col {
+        display: none;
+    }
+}
