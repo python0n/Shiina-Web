@@ -89,6 +89,8 @@
                             <span class="badge bg-secondary">GLOBAL ALERT</span>
                         <#elseif log.action == "RANK">
                             <span class="badge bg-purple" style="background-color: #6f42c1 !important;">RANKED</span>
+                        <#elseif log.action == "RECOVERY_LINK">
+                            <span class="badge bg-warning text-dark">RECOVERY LINK</span>
                         <#else>
                             <span class="badge bg-light text-dark">${log.action}</span>
                         </#if>

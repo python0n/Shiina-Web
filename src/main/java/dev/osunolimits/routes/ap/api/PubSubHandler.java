@@ -26,7 +26,8 @@ public class PubSubHandler extends Shiina {
         REMOVEPRIV,
         NONE,
         RMPB,
-        RMUP
+        RMUP,
+        RECOVERY_LINK
     }
 
     // bancho bits: MODERATOR | ADMINISTRATOR | DEVELOPER
@@ -291,7 +292,8 @@ public class PubSubHandler extends Shiina {
             }
 
             default:
-                break;
+                // RECOVERY_LINK and NONE are not actions of this endpoint
+                return raw(res, shiina, "invalid type");
         }
 
         return raw(res, shiina, "success");

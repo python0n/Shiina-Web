@@ -67,8 +67,30 @@ public class AuditLogger {
         fire(user.id, targetId, null, reason, null, null);
     }
 
+    /** An admin created a link for setting a new password on someone's account. */
+    public void recoveryLink(Auth.User user, int targetId) {
+        mysql.Exec("INSERT INTO `sh_audit`(`action`, `user_id`, `target_id`) VALUES (?,?,?);", type, user.id, targetId);
+        fire(user.id, targetId, null, null, null, null);
+    }
+
+    // staff actions that also go to the staff channel on Discord (through the bot)
+    private static final java.util.Set<String> ALERTED = java.util.Set.of(
+            "RESTRICT", "UNRESTRICT", "ADDPRIV", "REMOVEPRIV", "WIPE", "GIVEDONATOR", "RECOVERY_LINK");
+
     public void fire(Integer userId, Integer targetId, String[] privs, String reason, Integer status, Integer mode) {
         new OnAuditLogEvent(type, userId, targetId, privs, reason, status, mode).callListeners();
+        if (ALERTED.contains(type) && userId != null && targetId != null) {
+            String what = type.toLowerCase().replace('_', ' ');
+            if (privs != null) {
+                what += " " + String.join(", ", privs);
+            } else if (reason != null && !reason.isBlank()) {
+                what += ": " + reason;
+            }
+            if (mode != null) {
+                what += " (mode " + mode + ")";
+            }
+            SecurityEvents.publish(mysql, "staff_action", targetId, userId, what);
+        }
     }
 
 

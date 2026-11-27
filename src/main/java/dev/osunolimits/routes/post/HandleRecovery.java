@@ -72,6 +72,7 @@ public class HandleRecovery extends Shiina {
         PasswordReset.consumeAll(shiina.mysql, userId);
         SessionBuilder.deleteAllSessions(userId);
         SyncedAction.passwordChanged(userId);
+        dev.osunolimits.modules.utils.SecurityEvents.publish(shiina.mysql, "password_reset", userId, 0, null);
         UserInfoCache.reloadUser(userId);
 
         NotificationsApi.add(shiina.mysql, userId, "password_changed", Map.of(), "/settings/auth");

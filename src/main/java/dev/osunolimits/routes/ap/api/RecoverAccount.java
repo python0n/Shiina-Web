@@ -6,6 +6,8 @@ import dev.osunolimits.modules.Shiina;
 import dev.osunolimits.modules.ShiinaRoute;
 import dev.osunolimits.modules.ShiinaRoute.ShiinaRequest;
 import dev.osunolimits.modules.pubsubs.SyncedAction;
+import dev.osunolimits.modules.utils.AuditLogger;
+import dev.osunolimits.routes.ap.api.PubSubHandler.MessageType;
 import dev.osunolimits.plugins.events.admin.OnRecoveryTokenGenerated;
 import dev.osunolimits.utils.Validation;
 import dev.osunolimits.utils.osu.PermissionHelper;
@@ -49,6 +51,8 @@ public class RecoverAccount extends Shiina {
         output.url = "/auth/recover?token=" + token;
 
         new OnRecoveryTokenGenerated(userid, token).callListeners();
+        // who made a recovery link for whom goes to the audit log and the staff channel
+        new AuditLogger(shiina.mysql, MessageType.RECOVERY_LINK).recoveryLink(shiina.user, userid);
 
         return raw(res, shiina, gson.toJson(output));
     }

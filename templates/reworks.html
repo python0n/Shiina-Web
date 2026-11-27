@@ -37,6 +37,10 @@
                     </div>
                     <p class="mt-3 mb-2" id="rw-desc"></p>
                     <ul class="rw-changes mb-2" id="rw-changes"></ul>
+                    <details class="rw-details mb-2" id="rw-details" hidden>
+                        <summary class="fw-semibold" id="rw-details-label"></summary>
+                        <div class="mt-2" id="rw-details-body"></div>
+                    </details>
                     <div class="text-muted small" id="rw-updated"></div>
                 </div>
             </div>
@@ -260,6 +264,18 @@
         ul.textContent = '';
         (v.changes || []).forEach(function (c) { ul.appendChild(el('li', null, loc(c))); });
         ul.hidden = !(v.changes || []).length;
+        var det = document.getElementById('rw-details');
+        var detBody = document.getElementById('rw-details-body');
+        detBody.textContent = '';
+        det.open = false;
+        det.hidden = !(v.details && (v.details.sections || []).length);
+        if (!det.hidden) {
+            document.getElementById('rw-details-label').textContent = loc(v.details.label);
+            v.details.sections.forEach(function (sec) {
+                detBody.appendChild(el('div', 'fw-semibold mt-3 mb-1', loc(sec.title)));
+                detBody.appendChild(el('p', 'mb-2 small', loc(sec.text)));
+            });
+        }
         var upd = document.getElementById('rw-updated');
         var run = hasRun(v, state.mode);
         upd.textContent = '';
