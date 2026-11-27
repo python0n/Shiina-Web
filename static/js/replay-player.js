@@ -29,17 +29,70 @@ window.shiinaReplayPlayer = function(root) {
   const VERDICT = { '300': ['300', '#66ccff'], '100': ['100', '#88dd55'], '50': ['50', '#ffbb44'], 'miss': ['×', '#ff4444'], 'slider_miss': ['×', '#f472b6'] };
   let data = null, playing = false, now = 0, last = 0, start = 0, end = 0, pendingSeek = null, loading = null;
 
+  // An <audio> element that can play src; when it fails, tries the fallback address.
+  function audioElement(src, fallback) {
+    return new Promise((resolve) => {
+      const a = new Audio();
+      a.preload = 'auto';
+      a.addEventListener('canplay', () => resolve(a), { once: true });
+      a.addEventListener('error', () => resolve(fallback ? audioElement(fallback) : null), { once: true });
+      a.src = src;
+    });
+  }
+
+  // Browsers seek in an MP3 by guessing the position from the bitrate, which for many files
+  // lands tens or hundreds of ms away from the real spot (more the further into the song), so
+  // the music drifts away from the notes after a seek. An MP3 is decoded once and played as
+  // plain PCM (WAV), where seeking is exact. Other formats are played as they are.
+  function loadMusic(url) {
+    return fetch(url, { credentials: 'same-origin' })
+      .then(r => {
+        if (!r.ok) throw new Error();
+        const type = r.headers.get('content-type') || '';
+        return r.arrayBuffer().then(buf => ({ buf, type }));
+      })
+      .then(({ buf, type }) => {
+        const original = URL.createObjectURL(new Blob([buf], { type: type || 'audio/mpeg' }));
+        const OAC = window.OfflineAudioContext || window.webkitOfflineAudioContext;
+        if (!type.includes('mpeg') || !OAC) return audioElement(original, url);
+        let ctx;
+        try { ctx = new OAC(2, 1, 44100); } catch (e) { return audioElement(original, url); }
+        return ctx.decodeAudioData(buf)
+          .then(decoded => audioElement(URL.createObjectURL(wavBlob(decoded)), original))
+          .catch(() => audioElement(original, url));
+      })
+      .catch(() => audioElement(url));
+  }
+
+  // 16-bit WAV from decoded audio (mono for long songs, to keep the memory use down)
+  function wavBlob(d) {
+    const ch = d.duration > 360 ? 1 : Math.min(2, d.numberOfChannels);
+    const n = d.length, rate = d.sampleRate;
+    const buf = new ArrayBuffer(44 + n * ch * 2);
+    const v = new DataView(buf);
+    const str = (o, t) => { for (let i = 0; i < t.length; i++) v.setUint8(o + i, t.charCodeAt(i)); };
+    str(0, 'RIFF'); v.setUint32(4, 36 + n * ch * 2, true); str(8, 'WAVE');
+    str(12, 'fmt '); v.setUint32(16, 16, true); v.setUint16(20, 1, true); v.setUint16(22, ch, true);
+    v.setUint32(24, rate, true); v.setUint32(28, rate * ch * 2, true); v.setUint16(32, ch * 2, true); v.setUint16(34, 16, true);
+    str(36, 'data'); v.setUint32(40, n * ch * 2, true);
+    const chans = [];
+    for (let c = 0; c < d.numberOfChannels; c++) chans.push(d.getChannelData(c));
+    const out = new Int16Array(buf, 44);
+    for (let i = 0; i < n; i++) {
+      for (let c = 0; c < ch; c++) {
+        let x = ch === 1 && chans.length > 1 ? (chans[0][i] + chans[1][i]) / 2 : chans[c][i];
+        x = Math.max(-1, Math.min(1, x));
+        out[i * ch + c] = x < 0 ? x * 0x8000 : x * 0x7fff;
+      }
+    }
+    return new Blob([buf], { type: 'audio/wav' });
+  }
+
   function load() {
     if (data) return Promise.resolve(true);
     if (loading) return loading;
     // music and background are optional: the player works without them
-    const music = new Promise((resolve) => {
-      const a = new Audio();
-      a.preload = 'auto';
-      a.addEventListener('canplay', () => resolve(a), { once: true });
-      a.addEventListener('error', () => resolve(null), { once: true });
-      a.src = base + '?media=audio';
-    });
+    const music = loadMusic(base + '?media=audio');
     loading = Promise.all([
       fetch(base + '?replay=1', { credentials: 'same-origin' }).then(r => { if (!r.ok) throw new Error(); return r.json(); }),
       music
