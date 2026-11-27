@@ -357,6 +357,32 @@ public class AppCache {
         }
     }
 
+    /**
+     * TSG-29: Java deserialization of a file is dangerous when the file can be changed by
+     * someone else, because a crafted file can run code while it is being read. The cache
+     * only ever holds strings, numbers, lists and maps, so only those classes are let in;
+     * anything else stops the load (logged) and the cache starts empty.
+     */
+    private static final Set<Class<?>> CACHE_CLASSES = Set.of(
+            HashMap.class, TreeMap.class, ArrayList.class, String.class, Boolean.class,
+            Integer.class, Long.class, Double.class, Float.class, Short.class, Byte.class, Number.class,
+            CacheEntry.class, Object[].class, Map.Entry[].class);
+
+    private static final ObjectInputFilter CACHE_FILTER = info -> {
+        if (info.depth() > 20 || info.references() > 2_000_000 || info.arrayLength() > 1_000_000) {
+            return ObjectInputFilter.Status.REJECTED;
+        }
+        Class<?> c = info.serialClass();
+        if (c == null) {
+            return ObjectInputFilter.Status.UNDECIDED;
+        }
+        if (CACHE_CLASSES.contains(c)) {
+            return ObjectInputFilter.Status.ALLOWED;
+        }
+        LoggerFactory.getLogger(AppCache.class).warn("PersistentCache: refused class in cache file: {}", c.getName());
+        return ObjectInputFilter.Status.REJECTED;
+    };
+
     /** Load cache from binary file. */
     @SuppressWarnings("unchecked")
     private void loadFromDisk() {
@@ -368,6 +394,7 @@ public class AppCache {
 
         try (ObjectInputStream ois = new ObjectInputStream(
                 new BufferedInputStream(new FileInputStream(file)))) {
+            ois.setObjectInputFilter(CACHE_FILTER);
             Map<String, CacheEntry> map = (Map<String, CacheEntry>) ois.readObject();
             if (map != null) {
                 for (Map.Entry<String, CacheEntry> e : map.entrySet()) {
