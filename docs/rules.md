@@ -10,7 +10,7 @@ behindLogin:false
 taksiegra is a private osu! server run by one person for friends and anyone who wants to join. There are only a few rules and most of them are common sense. By creating an account you accept them.
 
 > [!NOTE]
-> These rules apply from 30.10.2026, last changed 15.11.2026. Scores and accounts from before 30.10.2026 stay as they are.
+> These rules apply from 30.10.2026, last changed 27.11.2026. Scores and accounts from before 30.10.2026 stay as they are.
 
 ## Accounts
 
@@ -106,13 +106,15 @@ There are no advertising or tracking cookies, which is why there is no cookie ba
 
 - **Cloudflare**: part of the website traffic goes through their servers, and their Turnstile check protects forms from bots.
 - **catboy.best and osu.direct**: the sources of beatmaps downloaded in game and on the website. Downloads go through the taksiegra server, so they see the server's address, not yours.
-- **ip-api.com**: when you log in from the game or on the website, the server looks up your country (and, for the session list, your city) from your IP address there. Only the IP address is sent.
+- **DB-IP**: the server looks up your country from your IP address in their database, which is stored on the taksiegra server, so your address isn't sent anywhere. Database: [IP Geolocation by DB-IP](https://db-ip.com), licensed under CC BY 4.0.
+- **Brevo**: sends the password reset and password changed e-mails. It receives your e-mail address, username and the e-mail itself.
 - **YouTube**: videos that players put on their profile pages load from YouTube's servers (youtube-nocookie.com). When you view such a profile, YouTube sees your IP address.
 
 ### Your data
 
 - You can download a copy of your data in your account settings, in the data section.
 - You can ask for your account to be deleted in the settings or by writing to the admin. The admin reviews the request and then deletes the account together with its scores, statistics and messages. After that it can't be undone, but you can cancel the request until it is reviewed.
+- Records of staff actions (restrictions, privilege changes, wiped scores, admin panel actions) stay after an account is deleted, linked to the account's number. They are needed to check who did what and why.
 - If a deleted account had a restriction, its username and hardware hashes are kept for one year, so the restriction can't be dodged with a new account. They are removed automatically after that. Nothing is kept for accounts without a restriction.
 - The server makes a backup every day and keeps the last 7. Deleted data is gone from the backups after 7 days at most.
 

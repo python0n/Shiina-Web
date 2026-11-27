@@ -10,7 +10,7 @@ behindLogin:false
 taksiegra to prywatny serwer osu! prowadzony przez jedną osobę dla znajomych i wszystkich chętnych. Zasad jest niewiele i większość z nich to zdrowy rozsądek. Zakładając konto, akceptujesz poniższe punkty.
 
 > [!NOTE]
-> Regulamin obowiązuje od 30.10.2026, ostatnia zmiana 15.11.2026. Wyniki i konta sprzed 30.10.2026 zostają bez zmian.
+> Regulamin obowiązuje od 30.10.2026, ostatnia zmiana 27.11.2026. Wyniki i konta sprzed 30.10.2026 zostają bez zmian.
 
 ## Konto
 
@@ -106,13 +106,15 @@ Nie ma ciasteczek reklamowych ani śledzących, dlatego strona nie pokazuje bane
 
 - **Cloudflare** - część ruchu do strony przechodzi przez ich serwery, a ich weryfikacja Turnstile chroni formularze przed botami.
 - **catboy.best i osu.direct** - źródła map pobieranych w grze i na stronie. Pobieranie idzie przez serwer taksiegra, więc widzą adres serwera, nie twój.
-- **ip-api.com** - przy logowaniu z gry i na stronę serwer sprawdza u nich kraj (a dla listy sesji także miasto) na podstawie twojego adresu IP. Wysyłany jest tylko adres IP.
+- **DB-IP** - kraj na podstawie adresu IP serwer sprawdza w ich bazie, która leży na serwerze taksiegra, więc twój adres nie jest nigdzie wysyłany. Baza: [IP Geolocation by DB-IP](https://db-ip.com), licencja CC BY 4.0.
+- **Brevo** - wysyła maile z resetem hasła i potwierdzeniem zmiany hasła. Dostaje twój adres e-mail, nick i treść maila.
 - **YouTube** - filmy, które gracze wstawiają na swoje strony profilu, ładują się z serwerów YouTube (youtube-nocookie.com). Gdy oglądasz taki profil, YouTube widzi twój adres IP.
 
 ### Twoje dane
 
 - Kopię swoich danych pobierzesz w ustawieniach konta, w sekcji danych.
 - O usunięcie konta poprosisz w ustawieniach albo pisząc do admina. Admin sprawdza prośbę i usuwa konto razem z wynikami, statystykami i wiadomościami. Potem nie da się tego cofnąć, ale do czasu rozpatrzenia możesz anulować prośbę.
+- Wpisy o działaniach obsługi (restrykcje, zmiany uprawnień, czyszczenie wyników, akcje w panelu) zostają po usunięciu konta, przypisane do numeru konta. Są potrzebne, żeby dało się sprawdzić, kto i dlaczego coś zrobił.
 - Jeśli usuwane konto ma restrykcję, przez rok zostają jego nick i skróty identyfikatorów sprzętu, żeby nie dało się obejść restrykcji nowym kontem. Po roku znikają same. Przy kontach bez restrykcji nic nie zostaje.
 - Serwer codziennie robi kopię zapasową i trzyma 7 ostatnich. Usunięte dane znikają z kopii zapasowych najpóźniej po 7 dniach.
 
