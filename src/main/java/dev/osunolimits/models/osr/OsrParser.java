@@ -142,8 +142,12 @@ public class OsrParser {
     // the replay comes from the player, so the header of the LZMA stream is not
     // trusted: it may ask for a dictionary of gigabytes or unpack into gigabytes
     private static final int LZMA_MEMORY_LIMIT_KIB = 128 * 1024;
-    private static final int MAX_DECOMPRESSED_BYTES = 16 * 1024 * 1024;
+    // a long map recorded with a 1000 Hz mouse is over 20 MB of text
+    private static final int MAX_DECOMPRESSED_BYTES = 64 * 1024 * 1024;
     private static final int MAX_FRAMES = 1_000_000;
+    // frames closer than this to the previous kept one are dropped when the keys did not change:
+    // presses stay exact, the cursor path keeps more points than the game draws
+    private static final long MIN_FRAME_GAP_MS = 4;
 
     private static String decompressLZMA(byte[] compressed) throws IOException {
         // osu! używa LZMA bez nagłówka XZ — raw LZMA stream
@@ -160,6 +164,8 @@ public class OsrParser {
     private static List<ReplayFrame> parseReplayFrames(String replayStr) {
         List<ReplayFrame> frames = new ArrayList<>();
         long absoluteTime = 0;
+        long lastKeptTime = Long.MIN_VALUE;
+        int lastKeys = -1;
 
         // walk the string instead of split(","), so a huge replay does not
         // turn into millions of substrings at once
@@ -185,6 +191,9 @@ public class OsrParser {
                 if (delta == -12345) continue;
 
                 absoluteTime += delta;
+                if (keys == lastKeys && absoluteTime - lastKeptTime < MIN_FRAME_GAP_MS && absoluteTime >= lastKeptTime) continue;
+                lastKeptTime = absoluteTime;
+                lastKeys = keys;
 
                 ReplayFrame frame = new ReplayFrame();
                 frame.timeMs = absoluteTime;
