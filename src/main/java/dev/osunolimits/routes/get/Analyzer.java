@@ -50,12 +50,27 @@ public class Analyzer extends Shiina {
         }
 
         String scoreIdParam = req.params(":score_id");
-        if ("search".equals(scoreIdParam)) {
-            return handleSearch(req, res, shiina);
-        } else if (scoreIdParam == null) {
-            return handleList(req, res, shiina);
-        } else {
-            return handleAnalysis(req, res, shiina, scoreIdParam);
+        // JSON and media answers do not render a page, and only rendering gives the database
+        // connection back, so they give it back here (otherwise the pool runs out)
+        boolean dataRequest = "search".equals(scoreIdParam) || req.queryParams("replay") != null || req.queryParams("media") != null;
+        try {
+            if ("search".equals(scoreIdParam)) {
+                return handleSearch(req, res, shiina);
+            } else if (scoreIdParam == null) {
+                return handleList(req, res, shiina);
+            } else {
+                return handleAnalysis(req, res, shiina, scoreIdParam);
+            }
+        } finally {
+            if (dataRequest) release(shiina);
+        }
+    }
+
+    /** Gives the request's database connection back to the pool (safe to call twice). */
+    static void release(ShiinaRequest shiina) {
+        if (shiina.mysql != null) {
+            shiina.mysql.close();
+            shiina.mysql = null;
         }
     }
 
@@ -237,8 +252,10 @@ public class Analyzer extends Shiina {
         // music and background for the replay player, from the beatmap set
         String media = req.queryParams("media");
         if ("audio".equals(media) || "bg".equals(media)) {
+            int setId = rs.getInt("set_id");
+            release(shiina); // the download of a set can take a while
             java.nio.file.Path file = osuFile.exists()
-                ? BeatmapMedia.get(rs.getInt("set_id"), osuFile.getAbsolutePath(), media, App.env.get("ANALYZER_OSZ_URL"))
+                ? BeatmapMedia.get(setId, osuFile.getAbsolutePath(), media, App.env.get("ANALYZER_OSZ_URL"))
                 : null;
             if (file == null) {
                 res.status(404);

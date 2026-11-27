@@ -70,6 +70,8 @@ public class UserScore extends Shiina {
             && osrFile.exists() && osuFile.exists();
         String media = req.queryParams("media");
         if ("1".equals(req.queryParams("replay")) || media != null) {
+            // no page is rendered, so the database connection goes back to the pool here
+            Analyzer.release(shiina);
             if (!canWatch) {
                 res.status(404);
                 return "";
