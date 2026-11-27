@@ -1283,7 +1283,9 @@ if (!window.shiinaNotifInit) (function () {
         map_comment: 'fa-comment',
         deletion_rejected: 'fa-user-shield',
         password_changed: 'fa-key text-warning',
-        ban_evasion: 'fa-user-secret text-danger'
+        ban_evasion: 'fa-user-secret text-danger',
+        ac_token: 'fa-shield-halved text-danger',
+        lastfm_flags: 'fa-triangle-exclamation text-warning'
     };
     function when(sec) {
         var d = new Date(sec * 1000), now = new Date();
