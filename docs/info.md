@@ -7,7 +7,7 @@ navbar:true
 footer:true
 behindLogin:false
 
-> 🇵🇱 [Wersja polska](info-pl)
+> [Wersja polska](info-pl)
 
 Honestly, on my own initiative, I wanted to try setting up my own homelab - as you can see at https://taksiegra.ovh/changelog, I eventually managed to pull it off. The name taksiegra was basically coined by Pioye_, as far as I can remember after submitting an insane score and a short discussion about what to name the site.
 
