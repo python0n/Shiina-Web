@@ -25,6 +25,22 @@
       <input class="form-check-input" type="checkbox" data-rp="show300" id="${rpId}-300">
       <label class="form-check-label" for="${rpId}-300">${t["analyzer.player_300"]}</label>
     </div>
+    <div class="form-check form-switch mb-0 small">
+      <input class="form-check-input" type="checkbox" data-rp="hitsounds" id="${rpId}-hs" checked>
+      <label class="form-check-label" for="${rpId}-hs">${t["analyzer.player_hitsounds"]}</label>
+    </div>
+    <div class="form-check form-switch mb-0 small">
+      <input class="form-check-input" type="checkbox" data-rp="followpoints" id="${rpId}-fp" checked>
+      <label class="form-check-label" for="${rpId}-fp">${t["analyzer.player_followpoints"]}</label>
+    </div>
+    <div class="form-check form-switch mb-0 small" style="display:none;">
+      <input class="form-check-input" type="checkbox" data-rp="hd" id="${rpId}-hd" checked>
+      <label class="form-check-label" for="${rpId}-hd">${t["analyzer.player_hidden"]}</label>
+    </div>
+    <div class="form-check form-switch mb-0 small" style="display:none;">
+      <input class="form-check-input" type="checkbox" data-rp="fl" id="${rpId}-fl" checked>
+      <label class="form-check-label" for="${rpId}-fl">${t["analyzer.player_flashlight"]}</label>
+    </div>
   </div>
   <div class="text-muted small mt-2 text-center"><span data-rp="noaudio" style="display:none;">${t["analyzer.player_no_audio"]} </span>${t["analyzer.player_keys"]}</div>
 </div>

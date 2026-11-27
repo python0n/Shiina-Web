@@ -19,11 +19,22 @@ window.shiinaReplayPlayer = function(root) {
   const speedSel = q('speed');
   const trailBox = q('trail');
   const box300 = q('show300');
+  const hsBox = q('hitsounds');
+  const fpBox = q('followpoints');
+  const hdBox = q('hd');
+  const flBox = q('fl');
   const volume = q('volume');
   const marks = q('marks');
   const audioNote = q('noaudio');
   const errorNote = q('error');
   try { const v = localStorage.getItem('analyzer-volume'); if (v !== null) volume.value = v; } catch (e) {}
+  // remembered switches (per browser)
+  [[hsBox, 'analyzer-hitsounds'], [fpBox, 'analyzer-followpoints']].forEach(([box, key]) => {
+    try { const v = localStorage.getItem(key); if (v !== null) box.checked = v === '1'; } catch (e) {}
+    box.addEventListener('change', () => { try { localStorage.setItem(key, box.checked ? '1' : '0'); } catch (e) {} if (data) draw(); });
+  });
+  [hdBox, flBox].forEach(box => box.addEventListener('change', () => { if (data) draw(); }));
+  const hdOn = () => data.hidden && hdBox.checked;
   let audio = null, bg = null;
   const COMBO = ['#ff6b8b', '#5ec8ff', '#8ce08a', '#ffc85e'];
   const VERDICT = { '300': ['300', '#66ccff'], '100': ['100', '#88dd55'], '50': ['50', '#ffbb44'], 'miss': ['×', '#ff4444'], 'slider_miss': ['×', '#f472b6'] };
@@ -151,6 +162,175 @@ window.shiinaReplayPlayer = function(root) {
       if (data.mode !== 2) trailBox.closest('.form-check').style.display = 'none';
       box300.closest('.form-check').style.display = 'none';
     }
+    const sw = (box, show) => { box.closest('.form-check').style.display = show ? '' : 'none'; };
+    sw(fpBox, data.mode === 0);
+    sw(hdBox, data.mode === 0 && !!data.hidden);
+    sw(flBox, data.mode === 0 && !!data.flashlight);
+    prepareFollowPoints();
+    prepareCombo();
+    prepareSounds();
+  }
+
+  // where an object ends (a slider ends at the tail or, after an even number of repeats, at the head)
+  function endPos(o) {
+    if (o.k === 's' && o.pts && o.pts.length) return along(o, o.r % 2 === 1 ? o.cum[o.cum.length - 1] : 0);
+    return [o.x, o.y];
+  }
+
+  // follow points between objects of the same combo, like lazer: every 32 px, from 48 px on
+  function prepareFollowPoints() {
+    data.fp = [];
+    if (data.mode !== 0) return;
+    const objs = data.objects;
+    for (let i = 1; i < objs.length; i++) {
+      const a = objs[i - 1], b = objs[i];
+      if (a.k === 'p' || b.k === 'p' || b.n === 1) continue;
+      const p = endPos(a);
+      const dx = b.x - p[0], dy = b.y - p[1], dist = Math.hypot(dx, dy);
+      if (dist < 80) continue;
+      data.fp.push({ x: p[0], y: p[1], dx: dx / dist, dy: dy / dist, dist, t0: a.k === 's' ? a.e : a.t, t1: b.t, ang: Math.atan2(dy, dx) });
+    }
+  }
+
+  function drawFollowPoints() {
+    const PRE = 800, FADE = 400, size = 5 * scale;
+    ctx.fillStyle = '#ffffff';
+    for (const c of data.fp) {
+      if (now < c.t0 - PRE || now > c.t1 + FADE) continue;
+      for (let d = 48; d < c.dist - 32; d += 32) {
+        const f = d / c.dist;
+        const tp = c.t0 + f * (c.t1 - c.t0); // the point fades out at this moment
+        const fin = tp - PRE;
+        if (now < fin || now > tp + FADE) continue;
+        const a = now < tp ? Math.min(1, (now - fin) / FADE) : 1 - (now - tp) / FADE;
+        ctx.globalAlpha = a * 0.7;
+        ctx.save();
+        ctx.translate(X(c.x + c.dx * d), Y(c.y + c.dy * d));
+        ctx.rotate(c.ang);
+        ctx.beginPath(); ctx.moveTo(size, 0); ctx.lineTo(-size * 0.6, -size * 0.7); ctx.lineTo(-size * 0.6, size * 0.7); ctx.closePath(); ctx.fill();
+        ctx.restore();
+      }
+    }
+    ctx.globalAlpha = 1;
+  }
+
+  // combo over time, from the verdicts (for the flashlight size); a slider counts its head and end
+  function prepareCombo() {
+    const ev = [];
+    let c = 0;
+    if (data.mode === 0) {
+      for (const o of data.objects) {
+        if (o.k === 'p') { ev.push([o.e, ++c]); continue; }
+        if (o.k === 's') {
+          ev.push([o.t, o.v === 'slider' ? ++c : (c = 0)]);
+          ev.push([o.e, o.sr === 'miss' || o.sr === '50' ? (c = 0) : ++c]);
+        } else {
+          ev.push([o.t, o.v === 'miss' ? (c = 0) : ++c]);
+        }
+      }
+    }
+    ev.sort((a, b) => a[0] - b[0]);
+    data.comboEv = ev;
+  }
+
+  function comboAt(t) {
+    const ev = data.comboEv;
+    let lo = 0, hi = ev.length - 1, c = 0;
+    while (lo <= hi) { const m = (lo + hi) >> 1; if (ev[m][0] <= t) { c = ev[m][1]; lo = m + 1; } else hi = m - 1; }
+    return c;
+  }
+
+  // Flashlight: only a circle around the cursor is visible; smaller at 100 and 200 combo (80% and 60%)
+  function drawFlashlight(W, H, cx, cy) {
+    const combo = comboAt(now);
+    const rad = 112 * (combo >= 200 ? 0.6 : combo >= 100 ? 0.8 : 1) * scale;
+    const g = ctx.createRadialGradient(X(cx), Y(cy), rad * 0.8, X(cx), Y(cy), rad * 1.2);
+    g.addColorStop(0, 'rgba(0,0,0,0)');
+    g.addColorStop(1, 'rgba(0,0,0,1)');
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, W, H);
+  }
+
+  // ---- hitsounds: short sounds made in the browser, played when an object was hit ----
+  let actx = null, sfx = null, prevNow = null;
+  function prepareSounds() {
+    const ev = [];
+    const hitT = (o) => o.t + (o.te || 0) * data.rate;
+    for (const o of data.objects) {
+      if (data.mode === 0) {
+        const hs = o.hs || 0;
+        if (o.k === 'p') { ev.push([o.e, 'n', hs]); continue; }
+        if (o.k === 's') {
+          if (o.v === 'slider') ev.push([hitT(o), 'n', hs]);
+          if (o.sr && o.sr !== 'miss') {
+            const span = (o.e - o.t) / o.r;
+            for (let k = 1; k <= o.r; k++) ev.push([o.t + k * span, 'n', hs]);
+          }
+        } else if (o.v && o.v !== 'miss') ev.push([hitT(o), 'n', hs]);
+      } else if (data.mode === 1) {
+        if ((o.k === 'don' || o.k === 'kat') && o.v && o.v !== 'miss' && o.v !== 'wrong') ev.push([hitT(o), o.k, o.b ? 4 : 0]);
+      } else if (data.mode === 2) {
+        if (o.k === 'f' && o.v === 'fruit') ev.push([o.t, 'n', 0]);
+      } else if (o.v && o.v !== 'miss') {
+        ev.push([hitT(o), 'n', 0]);
+      }
+    }
+    ev.sort((a, b) => a[0] - b[0]);
+    data.sounds = ev;
+  }
+
+  function initSounds() {
+    if (actx) return;
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC) return;
+    try { actx = new AC(); } catch (e) { return; }
+    const rate = actx.sampleRate;
+    const make = (dur, fn) => {
+      const n = Math.round(rate * dur), b = actx.createBuffer(1, n, rate), d = b.getChannelData(0);
+      let prev = 0;
+      for (let i = 0; i < n; i++) {
+        const t = i / rate, noise = Math.random() * 2 - 1, bright = noise - prev;
+        prev = noise;
+        d[i] = fn(t, noise, bright);
+      }
+      return b;
+    };
+    const TAU = Math.PI * 2;
+    sfx = {
+      n: make(0.08, (t, w, b) => Math.sin(TAU * 1100 * t) * Math.exp(-t * 70) * 0.3 + b * Math.exp(-t * 160) * 0.25),
+      whistle: make(0.25, (t) => Math.sin(TAU * (1500 + 900 * t) * t) * Math.exp(-t * 14) * 0.18),
+      finish: make(0.6, (t, w, b) => b * Math.exp(-t * 6) * 0.22),
+      clap: make(0.15, (t, w) => w * (Math.exp(-t * 90) + (t > 0.012 ? 0.7 * Math.exp(-(t - 0.012) * 70) : 0)) * 0.3),
+      don: make(0.3, (t) => Math.sin(TAU * (75 * t + 2 * (1 - Math.exp(-t * 30)))) * Math.exp(-t * 12) * 0.9),
+      kat: make(0.15, (t, w, b) => b * Math.exp(-t * 60) * 0.35 + Math.sin(TAU * 750 * t) * Math.exp(-t * 45) * 0.3)
+    };
+  }
+
+  function playSfx(name, gain) {
+    if (!actx || !sfx[name]) return;
+    const src = actx.createBufferSource();
+    src.buffer = sfx[name];
+    const g = actx.createGain();
+    g.gain.value = gain * parseFloat(volume.value) * 1.5;
+    src.connect(g); g.connect(actx.destination);
+    src.start();
+  }
+
+  // sounds of the objects between the last frame and now (nothing after a jump)
+  function playSounds(from, to) {
+    if (!hsBox.checked || !actx || !data.sounds.length) return;
+    if (to <= from || to - from > 250) return;
+    const ev = data.sounds;
+    let lo = 0, hi = ev.length;
+    while (lo < hi) { const m = (lo + hi) >> 1; if (ev[m][0] <= from) lo = m + 1; else hi = m; }
+    for (let i = lo; i < ev.length && ev[i][0] <= to; i++) {
+      const [, kind, bits] = ev[i];
+      if (kind === 'don' || kind === 'kat') { playSfx(kind, bits ? 1.3 : 1); continue; }
+      playSfx('n', 1);
+      if (bits & 2) playSfx('whistle', 1);
+      if (bits & 4) playSfx('finish', 1);
+      if (bits & 8) playSfx('clap', 1);
+    }
   }
 
   // 100s, 50s and misses along the whole replay, above the seek bar
@@ -250,6 +430,7 @@ window.shiinaReplayPlayer = function(root) {
     const pre = data.preempt;
     const fadeIn = 400 * Math.min(1, pre / 450);
     const objs = data.objects;
+    if (fpBox.checked) drawFollowPoints();
     // visible objects, drawn from the last to the first so earlier ones are on top
     const vis = [];
     for (let i = 0; i < objs.length; i++) {
@@ -263,7 +444,7 @@ window.shiinaReplayPlayer = function(root) {
       let appear = Math.max(0, Math.min(1, (now - (o.t - pre)) / fadeIn));
       const gone = now > o.e ? Math.max(0, 1 - (now - o.e) / 200) : 1;
       let bodyAlpha = appear;
-      if (data.hidden) {
+      if (hdOn()) {
         // Hidden: fade in over 40% of the approach time, then fade out over the next 30%;
         // a slider body fades out until the slider ends
         const hdIn = pre * 0.4, outStart = o.t - pre + hdIn;
@@ -330,7 +511,7 @@ window.shiinaReplayPlayer = function(root) {
         ctx.font = 'bold ' + Math.round(r * 0.8) + 'px sans-serif';
         ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
         ctx.fillText(o.n, X(o.x), Y(o.y) + 1);
-        if (!data.hidden && now < o.t) {
+        if (!hdOn() && now < o.t) {
           const ap = 1 + 3 * (o.t - now) / pre;
           ctx.strokeStyle = col; ctx.lineWidth = 2.5 * scale;
           ctx.beginPath(); ctx.arc(X(o.x), Y(o.y), r * ap, 0, Math.PI * 2); ctx.stroke();
@@ -367,6 +548,7 @@ window.shiinaReplayPlayer = function(root) {
         cx += (f[(i + 1) * 4 + 1] / 10 - cx) * k;
         cy += (f[(i + 1) * 4 + 2] / 10 - cy) * k;
       }
+      if (data.flashlight && flBox.checked) drawFlashlight(W, H, cx, cy);
       if (trailBox.checked) {
         ctx.lineWidth = 2 * scale;
         let j = i;
@@ -644,6 +826,8 @@ window.shiinaReplayPlayer = function(root) {
       if (audio && audio.paused && !audio.ended && now >= 0 && now < audio.duration * 1000) startAudio();
     }
     if (now >= end) { now = end; setPlaying(false); }
+    if (prevNow !== null) playSounds(prevNow, now);
+    prevNow = now;
     draw();
     requestAnimationFrame(tick);
   }
@@ -658,7 +842,8 @@ window.shiinaReplayPlayer = function(root) {
   function setPlaying(p) {
     playing = p;
     playBtn.innerHTML = p ? '<i class="fa-solid fa-pause"></i>' : '<i class="fa-solid fa-play"></i>';
-    if (p) { last = 0; startAudio(); requestAnimationFrame(tick); }
+    prevNow = null;
+    if (p) { initSounds(); if (actx && actx.state === 'suspended') actx.resume(); last = 0; startAudio(); requestAnimationFrame(tick); }
     else if (audio) audio.pause();
   }
 

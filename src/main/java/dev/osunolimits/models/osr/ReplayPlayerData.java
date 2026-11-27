@@ -45,6 +45,7 @@ public final class ReplayPlayerData {
             m.put("e", o.getEndTimeMs());
             m.put("x", r1(pos[i][0]));
             m.put("y", r1(pos[i][1]));
+            if ((o.getHitSound() & (2 | 4 | 8)) != 0) m.put("hs", o.getHitSound() & (2 | 4 | 8)); // whistle, finish, clap
             if (o.isSpinner()) {
                 m.put("k", "p");
             } else {
@@ -92,6 +93,7 @@ public final class ReplayPlayerData {
         out.put("preempt", Math.round(ar > 5 ? 1200 - 750 * (ar - 5) / 5 : 1200 + 600 * (5 - ar) / 5));
         out.put("rate", ReplayAnalyzer.clockRate(mods));
         out.put("hidden", (mods & 8) != 0);
+        out.put("flashlight", (mods & 1024) != 0);
         out.put("nightcore", (mods & 512) != 0);
         int[] w = OsuFileParser.TimingPoint.getHitWindows((mods & 16) != 0 ? Math.min(osu.getOd() * 1.4f, 10f) : (mods & 2) != 0 ? osu.getOd() * 0.5f : osu.getOd());
         out.put("windows", w);
