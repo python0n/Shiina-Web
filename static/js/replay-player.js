@@ -128,6 +128,27 @@ window.shiinaReplayPlayer = function(root) {
     return [p[i - 1][0] + (p[i][0] - p[i - 1][0]) * t, p[i - 1][1] + (p[i][1] - p[i - 1][1]) * t];
   }
 
+  // white arrow on a slider end, pointing back along the path (towards dist "to")
+  function reverseArrow(o, at, to, r, alpha) {
+    const a = along(o, at), b = along(o, to);
+    const ang = Math.atan2(b[1] - a[1], b[0] - a[0]);
+    const s = r * 0.5;
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    ctx.translate(X(a[0]), Y(a[1]));
+    ctx.rotate(ang);
+    // arrow: a short stem and a triangle head, with a dark edge so it shows on any colour
+    ctx.beginPath();
+    ctx.moveTo(-s * 0.8, -s * 0.18); ctx.lineTo(0, -s * 0.18); ctx.lineTo(0, -s * 0.55);
+    ctx.lineTo(s * 0.8, 0);
+    ctx.lineTo(0, s * 0.55); ctx.lineTo(0, s * 0.18); ctx.lineTo(-s * 0.8, s * 0.18);
+    ctx.closePath();
+    ctx.lineJoin = 'round';
+    ctx.strokeStyle = 'rgba(0,0,0,0.6)'; ctx.lineWidth = Math.max(2, r * 0.12); ctx.stroke();
+    ctx.fillStyle = '#ffffff'; ctx.fill();
+    ctx.restore();
+  }
+
   // index of the last frame at or before time t
   function frameAt(t) {
     const f = data.frames;
@@ -217,6 +238,16 @@ window.shiinaReplayPlayer = function(root) {
         o.pts.forEach((p, j) => j ? ctx.lineTo(X(p[0]), Y(p[1])) : ctx.moveTo(X(p[0]), Y(p[1])));
         ctx.strokeStyle = '#ffffff'; ctx.lineWidth = r * 2; ctx.stroke();
         ctx.strokeStyle = '#1b1f2a'; ctx.lineWidth = r * 2 - 4 * scale; ctx.stroke();
+        // reverse arrows: the next repeat still to come at the tail and at the head
+        if (o.r > 1) {
+          const len = o.cum[o.cum.length - 1];
+          const span = (o.e - o.t) / o.r;
+          const passed = now < o.t ? 0 : Math.floor((now - o.t) / span);
+          let atTail = false, atHead = false;
+          for (let j = passed; j <= o.r - 2; j++) { if (j % 2 === 0) atTail = true; else atHead = true; }
+          if (atTail) reverseArrow(o, len, len - Math.min(len, 12), r, bodyAlpha * gone);
+          if (atHead && now >= o.t) reverseArrow(o, 0, Math.min(len, 12), r, bodyAlpha * gone);
+        }
         // slider ball
         if (now >= o.t) {
           const len = o.cum[o.cum.length - 1];
