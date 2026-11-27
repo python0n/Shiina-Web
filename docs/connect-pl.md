@@ -62,7 +62,7 @@ status konta automatycznie zmieni się z **Pending** na aktywny.
 - **„Incorrect credentials”**: upewnij się, że najpierw zarejestrowałeś się na stronie i logujesz się kontem taksiegra, a nie kontem z oficjalnego osu!.
 - **Gra łączy się z oficjalnym osu!**: brakuje flagi albo jest literówka. Flaga musi być poza cudzysłowem: `"...\osu!.exe" -devserver taksiegra.ovh`.
 - **Polecenie w PowerShell nic nie robi albo pokazuje błąd**: użyj ręcznej metody opisanej wyżej.
-- **Dalej nie działa?** Napisz do Python- (admin serwera). Jego Discord jest na [jego profilu](https://osu.taksiegra.ovh/u/3). Dołącz zrzut ekranu z błędem.
+- **Dalej nie działa?** Napisz do Python- (admin serwera). Jego Discord jest na [jego profilu](https://osu.taksiegra.ovh/u/3), możesz też napisać na **python@taksiegra.ovh**. Dołącz zrzut ekranu z błędem.
 
 ---
 

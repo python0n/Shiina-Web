@@ -66,14 +66,14 @@ Score `status`: `0` failed, `1` submitted, `2` the player's best score on the ma
 
 ### GET /v1/get_player_count
 
-Players online and total accounts.
+Players online, total accounts, and how many people are connected through IRC (`irc`) and the website chat (`web_chat`).
 
 ```bash
 curl "https://api.taksiegra.ovh/v1/get_player_count"
 ```
 
 ```json
-{"status": "success", "counts": {"online": 4, "total": 57}}
+{"status": "success", "counts": {"online": 4, "total": 57, "irc": 1, "web_chat": 2}}
 ```
 
 ### GET /v1/online

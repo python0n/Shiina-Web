@@ -66,14 +66,14 @@ Status wyniku (`status` w wyniku): `0` niezaliczony, `1` wysłany, `2` najlepszy
 
 ### GET /v1/get_player_count
 
-Liczba graczy online i wszystkich kont.
+Liczba graczy online, wszystkich kont oraz osób połączonych przez IRC (`irc`) i czat na stronie (`web_chat`).
 
 ```bash
 curl "https://api.taksiegra.ovh/v1/get_player_count"
 ```
 
 ```json
-{"status": "success", "counts": {"online": 4, "total": 57}}
+{"status": "success", "counts": {"online": 4, "total": 57, "irc": 1, "web_chat": 2}}
 ```
 
 ### GET /v1/online
