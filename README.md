@@ -33,8 +33,18 @@ still applies. This page lists what the fork changes and the extra settings it n
 - Replay submission: players upload `.osr` files, admins review them in the admin panel. An accepted
   replay is saved by bancho (`/v1/approve_replay`) like a score sent from the game: Relax and Autopilot
   modes, pp, best score rules, the time it was played and the player's stats and rank.
-- Replay analyzer (`/analyzer`): timing error and aim per note, stability (UR), early and late hits,
-  and map recommendations for the weakest skill (stream, jump, burst, tech).
+- Replay analyzer (`/analyzer`) for osu!, taiko and mania, with mode tabs like the beatmaps page.
+  Each mode is judged by its own stable rules: osu! notes are placed like in the game (stacking, HR)
+  and slider heads are reported apart from misses; taiko judges don and kat separately (wrong colour
+  is a miss); mania uses real-time windows, MAX/300/200/100/50 and hold notes judged from press and
+  release (head and tail apart with ScoreV2). Relax replays have no key presses, so the analyzer clicks
+  where Relax would. Charts: timing per note on the song's time axis, hit error distribution, UR across
+  the map, aim relative to the movement, stats per pattern or column, and map recommendations.
+- Replay player in the browser, on the analyzer and on score pages ("Watch replay"): osu! (also
+  Relax and Autopilot) with sliders, cursor trail, keys and Hidden; taiko with the drum; mania with
+  falling notes and pressed columns. It plays the map's music and shows its background: the `.osz` is
+  downloaded once from the mirror and only the audio and background are kept (`data/analyzer-media`,
+  the last 300 sets). Catch is not supported yet.
 
 ### Beatmaps
 - Interface for bancho.py-ex's beatmap submission (BSS): maps can be uploaded straight from the editor.
@@ -129,6 +139,7 @@ still applies. This page lists what the fork changes and the extra settings it n
 | `CRON_THREADS` | threads for the background jobs (default 3) |
 | `CHAT_WS_URL` | address of bancho's chat WebSocket, e.g. `wss://api.taksiegra.ovh/ws/chat`; empty = `/ws/chat` on the site's own host |
 | `BREVO_API_KEY`, `MAIL_FROM`, `MAIL_FROM_NAME` | sending password reset e-mails through the Brevo API; without them the reset form only says that e-mail reset is unavailable |
+| `ANALYZER_OSZ_URL` | where the replay player downloads a beatmap set for its music and background, with `{id}` for the set id; default is the server's own `/d/{id}` mirror proxy |
 
 Everything else is described in `.config/.env.example`.
 
