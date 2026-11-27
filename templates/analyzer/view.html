@@ -157,8 +157,8 @@ function analyzerLoadScript(src) {
 function analyzerWithZoom(draw) {
   if (window.Chart && Chart.registry && Chart.registry.plugins.get('zoom')) { draw(); return; }
   shiinaLoad('/js/chart.min.js')
-    .then(function() { return analyzerLoadScript('https://cdnjs.cloudflare.com/ajax/libs/hammer.js/2.0.8/hammer.min.js'); })
-    .then(function() { return analyzerLoadScript('https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-zoom/2.0.1/chartjs-plugin-zoom.min.js'); })
+    .then(function() { return analyzerLoadScript('/js/vendor/hammer-2.0.8.min.js'); })
+    .then(function() { return analyzerLoadScript('/js/vendor/chartjs-plugin-zoom-2.0.1.min.js'); })
     .then(draw);
 }
 (function() {

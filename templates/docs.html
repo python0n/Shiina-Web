@@ -172,7 +172,7 @@
     function run() { blocks.forEach(function (b) { window.hljs.highlightElement(b); }); }
     if (window.hljs) { run(); return; }
     var s = document.createElement('script');
-    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js';
+    s.src = '/js/vendor/highlight-11.9.0.min.js';
     s.onload = run;
     document.head.appendChild(s);
 })();

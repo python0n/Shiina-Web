@@ -24,7 +24,7 @@
     <thumbnailator.version>0.4.21</thumbnailator.version>
     <lombok.version>1.18.42</lombok.version>
     <spring-security.version>6.5.6</spring-security.version>
-    <commonmark.version>0.27.0</commonmark.version>
+    <commonmark.version>0.30.0</commonmark.version>
     <snakeyml.version>2.7</snakeyml.version>
     <kefirbb.version>1.5</kefirbb.version>
     <owasp-encoder.version>1.6.0</owasp-encoder.version>
