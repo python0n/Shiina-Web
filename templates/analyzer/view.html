@@ -292,7 +292,7 @@ function analyzerWithZoom(draw) {
     }).catch(function() {});
 })();
 <#if noteResultsJson??>
-<#assign jsKeys = ["analyzer.chart_timing", "analyzer.chart_verdict", "analyzer.chart_axis", "analyzer.chart_time", "analyzer.slider_head", "analyzer.slider_head_missed", "analyzer.miss", "analyzer.wrong_colour", "analyzer.g.stream", "analyzer.g.jump", "analyzer.g.burst", "analyzer.g.other", "analyzer.g.don", "analyzer.g.kat", "analyzer.column", "analyzer.hits", "analyzer.aim_along", "analyzer.aim_across", "analyzer.release", "analyzer.player_error", "analyzer.big", "analyzer.g.fruit", "analyzer.g.droplet", "analyzer.g.tiny", "analyzer.g.hyper", "analyzer.tiny_missed", "analyzer.offset", "analyzer.chart_axis_catch"]>
+<#assign jsKeys = ["analyzer.chart_timing", "analyzer.chart_verdict", "analyzer.chart_axis", "analyzer.chart_time", "analyzer.slider_head", "analyzer.slider_result", "analyzer.slider_head_missed", "analyzer.miss", "analyzer.wrong_colour", "analyzer.g.stream", "analyzer.g.jump", "analyzer.g.burst", "analyzer.g.other", "analyzer.g.don", "analyzer.g.kat", "analyzer.column", "analyzer.hits", "analyzer.aim_along", "analyzer.aim_across", "analyzer.release", "analyzer.player_error", "analyzer.big", "analyzer.g.fruit", "analyzer.g.droplet", "analyzer.g.tiny", "analyzer.g.hyper", "analyzer.tiny_missed", "analyzer.offset", "analyzer.chart_axis_catch"]>
 analyzerWithZoom(function() {
   const L = {<#list jsKeys as k>"${k?keep_after("analyzer.")}": "${t[k]?js_string}"<#sep>, </#list>};
   const notes = ${noteResultsJson};
@@ -375,6 +375,7 @@ analyzerWithZoom(function() {
       lines.push(L.chart_timing + ': ' + (n.te > 0 ? '+' : '') + n.te + ' ms');
       lines.push(L.chart_verdict + ': ' + (n.v === 'slider' ? L.slider_head : n.v));
     }
+    if (n.sr) lines.push(L.slider_result + ': ' + (n.sr === 'miss' ? L.miss : n.sr));
     if (mode === 0) {
       lines.push(L['g.' + n.g]);
       if (n.ae !== undefined) lines.push('Aim: ' + n.ae + ' px');

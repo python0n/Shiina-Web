@@ -485,6 +485,7 @@ public class Analyzer extends Shiina {
                 default -> {
                     o.put("g", n.isInStream() ? "stream" : n.isInJump() ? "jump" : n.isInBurst() ? "burst" : "other");
                     if (n.isSlider()) o.put("sl", true);
+                    if (n.getSliderResult() != null) o.put("sr", n.getSliderResult());
                     if (hasHit) o.put("ae", Math.round(n.getAimError() * 10.0) / 10.0);
                     if (hasHit && n.isAimDirected()) {
                         o.put("aa", Math.round(n.getAimAlong() * 10.0) / 10.0);

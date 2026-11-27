@@ -88,6 +88,7 @@ public class ReplayAnalyzer {
         private boolean big;        // taiko
         private Double releaseError; // mania hold notes
         private String tailVerdict;  // mania hold notes with ScoreV2 (judged apart from the head)
+        private String sliderResult; // std sliders: 300/100/50/miss from the head, ticks, repeats and end
     }
 
     static final int MOD_EASY = 2;
@@ -157,6 +158,9 @@ public class ReplayAnalyzer {
 
         List<HitObject> all = osu.getHitObjects();
         float[][] pos = placedPositions(osu, mods);
+        boolean hardRock = (mods & MOD_HARDROCK) != 0;
+        List<ReplayFrame> frames = new ArrayList<>(osr.getFrames());
+        frames.sort((a, b) -> Long.compare(a.getTimeMs(), b.getTimeMs()));
 
         // clickable objects: circles and slider heads; spinners don't need aim or timing
         List<Integer> idx = new ArrayList<>();
@@ -236,7 +240,10 @@ public class ReplayAnalyzer {
                 groupErrors.get(group).add(realErr);
                 groupCounts.get(group)[1]++;
                 long absSong = Math.abs(Math.round(songErr));
-                if (note.isSlider()) nr.verdict = "slider";
+                if (note.isSlider()) {
+                    nr.verdict = "slider";
+                    nr.sliderResult = sliderResult(osu, note, p, true, frames, radius, relax, hardRock);
+                }
                 // stable: abs(round(error)) < floor(window)
                 else if (absSong < w300) nr.verdict = "300";
                 else if (absSong < w100) nr.verdict = "100";
@@ -244,8 +251,15 @@ public class ReplayAnalyzer {
                 if (realErr < 0) result.earlyHits++; else result.lateHits++;
                 allHits++;
             } else if (note.isSlider()) {
-                nr.verdict = "slider_miss";
-                result.sliderHeadMisses++;
+                nr.sliderResult = sliderResult(osu, note, p, false, frames, radius, relax, hardRock);
+                if ("miss".equals(nr.sliderResult)) {
+                    // nothing of the slider was held: a real miss in the game
+                    nr.verdict = "miss";
+                    result.analyzerMisses++;
+                } else {
+                    nr.verdict = "slider_miss";
+                    result.sliderHeadMisses++;
+                }
             } else {
                 nr.verdict = "miss";
                 result.analyzerMisses++;
@@ -283,6 +297,60 @@ public class ReplayAnalyzer {
         double overall = n > 0 ? (double) allHits / n * 100 : 100;
         generateInsights(result, overall);
         return result;
+    }
+
+    /**
+     * Stable judges a slider by how many of its parts were held: the head, every tick, every
+     * repeat and the end (checked a little before the real end, like lazer's legacy last tick).
+     * All of them = 300, at least half = 100, at least one = 50, none = miss. The ball is
+     * followed while a key is held and the cursor is within the circle radius, and once
+     * following, within 2.4 times the radius.
+     */
+    static String sliderResult(OsuData osu, HitObject o, float[] p, boolean headHit,
+                               List<ReplayFrame> frames, double radius, boolean relax, boolean hardRock) {
+        if (o.getPath() == null) return headHit ? "300" : "miss";
+        List<double[]> events = CatchBeatmap.sliderEvents(osu, o);
+        double start = o.getTimeMs(), end = o.getEndTimeMs();
+        int slides = Math.max(1, o.getSlides());
+        double span = (end - start) / slides;
+        double shift = p[0] - o.getX(); // stack offset
+        int total = 1, held = headHit ? 1 : 0;
+
+        // first frame at or after a bit before the slider
+        int f = 0, lo = 0, hi = frames.size() - 1;
+        while (lo <= hi) { int mid = (lo + hi) >>> 1; if (frames.get(mid).getTimeMs() < start - 1) lo = mid + 1; else hi = mid - 1; }
+        f = Math.max(0, lo - 1);
+        boolean tracking = false;
+        for (double[] e : events) {
+            int type = (int) e[2];
+            if (type != 1 && type != 2 && type != 3) continue;
+            total++;
+            double t = e[0];
+            while (f < frames.size() && frames.get(f).getTimeMs() <= t) {
+                ReplayFrame fr = frames.get(f);
+                boolean pressed = relax || (fr.getKeys() & 0x0F) != 0;
+                double[] b = ball(o, fr.getTimeMs(), start, span, slides, shift, hardRock);
+                double d = distance(fr.getX(), fr.getY(), (float) b[0], (float) b[1]);
+                tracking = pressed && d <= (tracking ? radius * 2.4 : radius);
+                f++;
+            }
+            if (tracking) held++;
+        }
+        if (held == total) return "300";
+        if (held * 2 >= total) return "100";
+        if (held > 0) return "50";
+        return "miss";
+    }
+
+    /** Slider ball position at time t, placed like the notes (stack offset, HR). */
+    private static double[] ball(HitObject o, double t, double start, double span, int slides, double shift, boolean hardRock) {
+        double k = span > 0 ? Math.max(0, Math.min(slides, (t - start) / span)) : 0;
+        int si = (int) Math.min(slides - 1, Math.floor(k));
+        double frac = k - si;
+        if (si % 2 == 1) frac = 1 - frac;
+        float[] q = o.getPath().positionAt(frac);
+        double y = hardRock ? PLAYFIELD_HEIGHT - q[1] : q[1];
+        return new double[]{q[0] + shift, y + shift};
     }
 
     /** Where the cursor came from: the end of the previous clickable object. */

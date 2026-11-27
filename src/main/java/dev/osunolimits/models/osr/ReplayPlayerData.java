@@ -54,6 +54,7 @@ public final class ReplayPlayerData {
                 if (ni < notes.size()) {
                     var nr = notes.get(ni);
                     m.put("v", nr.getVerdict());
+                    if (nr.getSliderResult() != null) m.put("sr", nr.getSliderResult());
                     if (nr.getClickTimeMs() != 0 || nr.getTimingError() != 0) m.put("te", Math.round(nr.getTimingError() * 10.0) / 10.0);
                     ni++;
                 }

@@ -110,11 +110,13 @@ window.shiinaReplayPlayer = function(root) {
     c.clearRect(0, 0, marks.width, marks.height);
     const col = { '100': '#88dd55', '50': '#ffbb44', 'GOOD': '#88dd55', 'miss': '#ff4444', 'wrong': '#ff4444', 'slider_miss': '#f472b6', 'tiny_miss': '#f472b6' };
     data.objects.forEach(o => {
-      const k = col[o.v];
+      // a slider is judged at its end by how much of it was held (o.sr)
+      const v = o.sr || o.v;
+      const k = col[v];
       if (!k) return;
-      const x = (o.t - start) / Math.max(1, end - start) * marks.width;
+      const x = ((o.sr ? o.e : o.t) - start) / Math.max(1, end - start) * marks.width;
       c.fillStyle = k;
-      c.fillRect(Math.round(x), o.v === 'miss' || o.v === 'wrong' ? 0 : marks.height * 0.35, Math.max(1, dpr * 1.5), marks.height);
+      c.fillRect(Math.round(x), v === 'miss' || v === 'wrong' ? 0 : marks.height * 0.35, Math.max(1, dpr * 1.5), marks.height);
     });
   }
 
@@ -282,13 +284,22 @@ window.shiinaReplayPlayer = function(root) {
         }
       }
       // verdict from the analyzer, shortly after the hit time
-      const v = VERDICT[o.v];
-      if (v && now >= o.t && now < o.t + 600 && (o.v !== '300' || box300.checked)) {
-        ctx.globalAlpha = 1 - (now - o.t) / 600;
+      // verdict from the analyzer: circles at the hit time, sliders at their end
+      const vk = o.sr || o.v;
+      const v = VERDICT[vk];
+      const vt = o.sr ? o.e : o.t;
+      if (v && now >= vt && now < vt + 600 && (vk !== '300' || box300.checked)) {
+        let vx = o.x, vy = o.y;
+        if (o.sr && o.pts && o.pts.length) {
+          const len = o.cum[o.cum.length - 1];
+          const p = along(o, o.r % 2 === 1 ? len : 0);
+          vx = p[0]; vy = p[1];
+        }
+        ctx.globalAlpha = 1 - (now - vt) / 600;
         ctx.fillStyle = v[1];
         ctx.font = 'bold ' + Math.round(r * 0.7) + 'px sans-serif';
         ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-        ctx.fillText(v[0], X(o.x), Y(o.y) - r * 1.2);
+        ctx.fillText(v[0], X(vx), Y(vy) - r * 1.2);
       }
     }
     ctx.globalAlpha = 1;

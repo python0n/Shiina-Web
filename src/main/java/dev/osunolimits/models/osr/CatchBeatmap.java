@@ -118,6 +118,16 @@ public final class CatchBeatmap {
     }
 
     private static void juiceStream(OsuData osu, HitObject h, int index, List<CatchObject> g) {
+        SliderPath path = h.getPath();
+        List<double[]> events = sliderEvents(osu, h);
+        juiceFromEvents(path, events, index, g);
+    }
+
+    /**
+     * Slider events like lazer's SliderEventGenerator: {time, path progress, type} with
+     * type 0 head, 1 tick, 2 repeat, 3 legacy last tick, 4 tail. Shared by catch and osu!.
+     */
+    static List<double[]> sliderEvents(OsuData osu, HitObject h) {
         double[] tm = timing(osu, h.getTimeMs());
         // the game's beat length adjusted by the slider velocity, as catch and taiko compute it
         double bpmMultiplier = tm[2] < 0 ? Math.max(10, Math.min(10000, (float) -tm[2])) / 100.0 : 1;
@@ -160,7 +170,10 @@ public final class CatchBeatmap {
         if (spans % 2 == 0) lastTickProgress = 1 - lastTickProgress;
         events.add(new double[]{lastTickTime, lastTickProgress, 3});
         events.add(new double[]{start + total, spans % 2, 4});
+        return events;
+    }
 
+    private static void juiceFromEvents(SliderPath path, List<double[]> events, int index, List<CatchObject> g) {
         double[] last = null;
         for (double[] e : events) {
             if (last != null) {
