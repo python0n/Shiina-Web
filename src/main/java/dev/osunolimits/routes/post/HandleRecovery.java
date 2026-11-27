@@ -2,11 +2,13 @@ package dev.osunolimits.routes.post;
 
 import java.sql.ResultSet;
 import java.util.Map;
+import java.util.UUID;
 
 import dev.osunolimits.main.App;
 import dev.osunolimits.modules.Shiina;
 import dev.osunolimits.modules.ShiinaRoute;
 import dev.osunolimits.modules.ShiinaRoute.ShiinaRequest;
+import dev.osunolimits.modules.pubsubs.SyncedAction;
 import dev.osunolimits.modules.captcha.CaptchaProvider;
 import dev.osunolimits.modules.utils.Mailer;
 import dev.osunolimits.modules.utils.PasswordReset;
@@ -61,11 +63,15 @@ public class HandleRecovery extends Shiina {
         }
 
         String pwBcrypt = Auth.bcrypt(Auth.md5(password));
-        shiina.mysql.Exec("UPDATE `users` SET `pw_bcrypt` = ? WHERE `id` = ?", pwBcrypt, userId);
+        // a new IRC key too: whoever knew the old one loses IRC access with the old password
+        shiina.mysql.Exec("UPDATE `users` SET `pw_bcrypt` = ?, `irc_key` = ? WHERE `id` = ?",
+                pwBcrypt, UUID.randomUUID().toString(), userId);
 
-        // the link works only once, and anyone logged in with the old password is logged out
+        // the link works only once, and anyone logged in with the old password is logged out:
+        // on the website here, in the game, IRC and the website chat by bancho
         PasswordReset.consumeAll(shiina.mysql, userId);
         SessionBuilder.deleteAllSessions(userId);
+        SyncedAction.passwordChanged(userId);
         UserInfoCache.reloadUser(userId);
 
         NotificationsApi.add(shiina.mysql, userId, "password_changed", Map.of(), "/settings/auth");
@@ -84,11 +90,11 @@ public class HandleRecovery extends Shiina {
 
     private static String changedMail(String name) {
         return "Cześć " + name + ",\n\n"
-                + "hasło do konta " + name + " na serwerze osu! taksiegra zostało właśnie zmienione, a wszystkie inne sesje na stronie zostały wylogowane.\n"
+                + "hasło do konta " + name + " na serwerze osu! taksiegra zostało właśnie zmienione, a wszystkie inne sesje na stronie, w grze i na IRC zostały wylogowane, a klucz IRC został zmieniony.\n"
                 + "Jeśli to nie ty, od razu napisz do admina (Python-) w grze albo na python@taksiegra.ovh.\n\n"
                 + "----------\n\n"
                 + "Hi " + name + ",\n\n"
-                + "the password of the account " + name + " on the taksiegra osu! server was just changed, and all other sessions on the website were logged out.\n"
+                + "the password of the account " + name + " on the taksiegra osu! server was just changed, and all other sessions on the website, in the game and on IRC were logged out, and the IRC key was changed.\n"
                 + "If it wasn't you, message the admin (Python-) in game or at python@taksiegra.ovh right away.\n\n"
                 + "----------\n"
                 + "Prosimy nie odpowiadać na tę wiadomość. / Please do not reply to this message.\n";

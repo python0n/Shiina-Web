@@ -193,6 +193,17 @@ public class SyncedAction {
         publishQuietly("clan_change", gson.toJson(payload));
     }
 
+    /**
+     * Tell bancho the password of an account was changed: it ends every session of
+     * that account (game client, IRC, website chat), so nobody stays logged in with
+     * the old password.
+     */
+    public static void passwordChanged(int userId) {
+        java.util.Map<String, Object> payload = new java.util.HashMap<>();
+        payload.put("id", userId);
+        publishQuietly("password_changed", gson.toJson(payload));
+    }
+
     private static void publishQuietly(String channel, String json) {
         try {
             App.jedisPool.publish(channel, json);
