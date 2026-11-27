@@ -82,12 +82,12 @@ public class AccountDeletion {
             mysql.Exec("DELETE FROM `comments` WHERE `userid` = ?", userId);
             mysql.Exec("DELETE FROM `favourites` WHERE `userid` = ?", userId);
             mysql.Exec("DELETE FROM `ingame_logins` WHERE `userid` = ?", userId);
-            mysql.Exec("DELETE FROM `logs` WHERE `from` = ? OR `to` = ?", userId, userId);
+            // TSG-28: moderation logs (restrictions, privilege changes) stay after the account is deleted
             mysql.Exec("DELETE FROM `mail` WHERE `from_id` = ? OR `to_id` = ?", userId, userId);
             mysql.Exec("DELETE FROM `ratings` WHERE `userid` = ?", userId);
             mysql.Exec("DELETE FROM `relationships` WHERE `user1` = ? OR `user2` = ?", userId, userId);
             mysql.Exec("DELETE FROM `scores` WHERE `userid` = ?", userId);
-            mysql.Exec("DELETE FROM `sh_audit` WHERE `user_id` = ? OR `target_id` = ?", userId, userId);
+            // TSG-28: the admin panel audit log (sh_audit) stays too
             mysql.Exec("DELETE FROM `sh_clan_denied` WHERE `userid` = ?", userId);
             mysql.Exec("DELETE FROM `sh_clan_pending` WHERE `userid` = ?", userId);
             mysql.Exec("DELETE FROM `sh_detections` WHERE `user` = ? OR `target` = ?", userId, userId);
