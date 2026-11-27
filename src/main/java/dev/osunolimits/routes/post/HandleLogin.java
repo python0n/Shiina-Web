@@ -2,6 +2,10 @@ package dev.osunolimits.routes.post;
 
 import dev.osunolimits.utils.KnownAccount;
 import java.sql.ResultSet;
+import java.util.ArrayDeque;
+import java.util.Deque;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import dev.osunolimits.main.App;
 import dev.osunolimits.modules.Shiina;
@@ -16,6 +20,42 @@ import spark.Request;
 import spark.Response;
 
 public class HandleLogin extends Shiina {
+
+    /**
+     * Wrong passwords are counted per (account, address), like in bancho: one address
+     * can't keep guessing, and nobody else can lock an account by failing on purpose.
+     */
+    private static final int MAX_FAILS = 10;
+    private static final long WINDOW_MS = 15 * 60 * 1000L;
+    private static final Map<String, Deque<Long>> fails = new ConcurrentHashMap<>();
+
+    private static String failKey(String account, Request req) {
+        return account.toLowerCase() + "|" + dev.osunolimits.utils.ClientIp.of(req);
+    }
+
+    private static boolean tooManyFails(String key) {
+        Deque<Long> times = fails.get(key);
+        if (times == null) {
+            return false;
+        }
+        synchronized (times) {
+            long cutoff = System.currentTimeMillis() - WINDOW_MS;
+            while (!times.isEmpty() && times.peekFirst() < cutoff) {
+                times.pollFirst();
+            }
+            return times.size() >= MAX_FAILS;
+        }
+    }
+
+    private static void recordFail(String key) {
+        if (fails.size() > 20000) {
+            fails.clear();
+        }
+        Deque<Long> times = fails.computeIfAbsent(key, k -> new ArrayDeque<>());
+        synchronized (times) {
+            times.addLast(System.currentTimeMillis());
+        }
+    }
 
     @Override
     public Object handle(Request req, Response res) throws Exception {
@@ -56,6 +96,12 @@ public class HandleLogin extends Shiina {
             rememberMe = true;
         }
 
+        String failKey = failKey(input, req);
+        if (tooManyFails(failKey)) {
+            shiina.data.put("error", "Too many failed logins, try again in 15 minutes");
+            return renderTemplate("login.html", shiina, res, req);
+        }
+
         CaptchaProvider captchaProvider = ShiinaRegistry.getCaptchaProvider();
         if (!captchaProvider.verifyCaptcha(captchaResponse).success) {
             shiina.data.put("error", "Invalid Captcha");
@@ -74,6 +120,7 @@ public class HandleLogin extends Shiina {
 
         ResultSet validationRs = shiina.mysql.Query(selectSql, input);
         if (validationRs == null || !validationRs.next()) {
+            recordFail(failKey);
             shiina.data.put("error", "Invalid (Username/Mail) or Password");
             return renderTemplate("login.html", shiina, res, req);
         }
@@ -82,9 +129,12 @@ public class HandleLogin extends Shiina {
 
         Auth.PwCheckResult pwResult = Auth.checkPwLazy(password, pwBcrypt);
         if (!pwResult.matched) {
+            recordFail(failKey);
             shiina.data.put("error", "Invalid (Username/Mail) or Password");
             return renderTemplate("login.html", shiina, res, req);
         }
+
+        fails.remove(failKey);
 
         if (pwResult.needsRehash) {
             shiina.mysql.Exec("UPDATE `users` SET `pw_bcrypt` = ? WHERE `id` = ?", pwResult.newHash, userId);

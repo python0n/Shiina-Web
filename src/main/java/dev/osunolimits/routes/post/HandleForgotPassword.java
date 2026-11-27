@@ -52,22 +52,6 @@ public class HandleForgotPassword extends Shiina {
         }
     }
 
-    /**
-     * The visitor's address. Shiina sits behind nginx, so req.ip() is 127.0.0.1 for
-     * everyone and the limit above would be one shared limit for the whole site.
-     * X-Real-IP is set by nginx and trusted only when the request came from nginx itself.
-     */
-    private static String clientIp(Request req) {
-        String remote = req.ip();
-        if ("127.0.0.1".equals(remote) || "0:0:0:0:0:0:0:1".equals(remote) || "::1".equals(remote)) {
-            String real = req.headers("X-Real-IP");
-            if (real != null && !real.isBlank() && real.length() <= 45) {
-                return real.trim();
-            }
-        }
-        return remote;
-    }
-
     private Object page(Request req, Response res, ShiinaRequest shiina, String key, String message) throws Exception {
         shiina.data.put(key, message);
         shiina.data.put("seo", new SEOBuilder("Forgot password", App.customization.get("homeDescription").toString()));
@@ -99,7 +83,7 @@ public class HandleForgotPassword extends Shiina {
             return page(req, res, shiina, "error", "Enter the e-mail address of your account");
         }
 
-        if (overIpLimit(clientIp(req))) {
+        if (overIpLimit(dev.osunolimits.utils.ClientIp.of(req))) {
             return page(req, res, shiina, "error", "Too many requests, try again later");
         }
 

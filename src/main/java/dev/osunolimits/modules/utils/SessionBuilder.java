@@ -5,8 +5,6 @@ import java.util.List;
 import com.google.gson.Gson;
 
 import dev.osunolimits.main.App;
-import dev.osunolimits.modules.geoloc.GeoLocProvider.GeoLocResponse;
-import dev.osunolimits.plugins.ShiinaRegistry;
 import dev.osunolimits.utils.Auth;
 import dev.osunolimits.utils.Auth.SessionUser;
 import lombok.AllArgsConstructor;
@@ -74,14 +72,15 @@ public class SessionBuilder {
         user.created = (int) (System.currentTimeMillis() / 1000L);
         user.refreshed = user.created;
         user.remember = remember;
-        user.ip = request.ip();
+        user.ip = dev.osunolimits.utils.ClientIp.of(request);
         user.userAgent = request.userAgent() != null ? request.userAgent() : "Unknown";
 
-        GeoLocResponse geoLocResponse = ShiinaRegistry.getGeoLocProvider().getCountryCodeSession(request.ip());
-        if(geoLocResponse != null) {
-            user.country = geoLocResponse.getCountry();
-            user.city = geoLocResponse.getCity();
-        } 
+        // TSG-30/36: no request to ip-api (plain HTTP, every visitor's address sent out,
+        // and login waited for it); the country comes from nginx, the city is not stored
+        String cc = dev.osunolimits.utils.ClientIp.country(request);
+        if (!"xx".equals(cc)) {
+            user.country = cc.toUpperCase();
+        }
 
         App.appCache.set("shiina:auth:" + authToken, gson.toJson(user), lifetime(remember));
         App.appCache.lpush("shiina:user:" + id + ":tokens", authToken);

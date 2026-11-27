@@ -9,7 +9,6 @@ import dev.osunolimits.modules.ShiinaRoute;
 import dev.osunolimits.modules.XmlConfig;
 import dev.osunolimits.modules.ShiinaRoute.ShiinaRequest;
 import dev.osunolimits.modules.captcha.CaptchaProvider;
-import dev.osunolimits.modules.geoloc.DefaultGeoLocQuery;
 import dev.osunolimits.modules.utils.SessionBuilder;
 import dev.osunolimits.modules.utils.UserInfoCache;
 import dev.osunolimits.plugins.ShiinaRegistry;
@@ -81,8 +80,9 @@ public class HandleRegister extends Shiina {
         String safeName = AccountRules.safeName(username);
         long curUnixTime = System.currentTimeMillis() / 1000L;
 
-        DefaultGeoLocQuery geoLocQuery = new DefaultGeoLocQuery();
-        country = geoLocQuery.getCountryCode(req.ip()).toLowerCase();
+        // TSG-30: the country from nginx instead of ip-api over plain HTTP
+        // (before this, req.ip() was 127.0.0.1 behind nginx, so every account got "xx")
+        country = dev.osunolimits.utils.ClientIp.country(req);
 
         String insertSql = "INSERT INTO `users`(`name`, `safe_name`, `email`, `pw_bcrypt`, `country`, `creation_time`, `latest_activity`) VALUES (?,?,?,?,?,?,?)";
         shiina.mysql.Exec(insertSql, username,safeName, email, pwBcrypt, country, curUnixTime, curUnixTime);

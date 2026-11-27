@@ -70,7 +70,7 @@ public class WebServer extends Spark {
                 return;
             }
 
-            LOG.info(req.ip()  + " | " + req.requestMethod() + " (" + res.status() + ") | " + req.pathInfo() + " | " + req.userAgent());
+            LOG.info(dev.osunolimits.utils.ClientIp.of(req) + " | " + req.requestMethod() + " (" + res.status() + ") | " + req.pathInfo() + " | " + req.userAgent());
         });
         awaitInitialization();
 
