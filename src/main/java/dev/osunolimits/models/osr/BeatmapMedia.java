@@ -189,6 +189,39 @@ public final class BeatmapMedia {
         }
     }
 
+    /** Sends a cached file, with byte ranges (the browser asks for parts of the music when the player jumps). */
+    public static Object serve(spark.Request req, spark.Response res, Path file) throws IOException {
+        res.type(BeatmapMedia.contentType(file));
+        res.header("Cache-Control", "public, max-age=86400");
+        res.header("Accept-Ranges", "bytes");
+        // the browser asks for parts of the music when the player jumps to another place
+        long length = Files.size(file);
+        String range = req.headers("Range");
+        if (range != null && range.startsWith("bytes=") && !range.contains(",")) {
+            String[] se = range.substring(6).split("-", -1);
+            try {
+                long from = se[0].isEmpty() ? Math.max(0, length - Long.parseLong(se[1])) : Long.parseLong(se[0]);
+                long to = se[0].isEmpty() || se[1].isEmpty() ? length - 1 : Math.min(length - 1, Long.parseLong(se[1]));
+                if (from > to || from >= length) {
+                    res.status(416);
+                    res.header("Content-Range", "bytes */" + length);
+                    return "";
+                }
+                byte[] part = new byte[(int) (to - from + 1)];
+                try (java.io.RandomAccessFile f = new java.io.RandomAccessFile(file.toFile(), "r")) {
+                    f.seek(from);
+                    f.readFully(part);
+                }
+                res.status(206);
+                res.header("Content-Range", "bytes " + from + "-" + to + "/" + length);
+                return part;
+            } catch (NumberFormatException e) {
+                // not a range we understand: send the whole file
+            }
+        }
+        return Files.readAllBytes(file);
+    }
+
     public static String contentType(Path p) {
         String n = p.getFileName().toString().toLowerCase(Locale.ROOT);
         if (n.endsWith(".mp3")) return "audio/mpeg";

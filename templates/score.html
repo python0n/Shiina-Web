@@ -46,6 +46,12 @@
                         <a download href="${apiUrlPub}/v1/get_replay?id=${score.id?c}" class="btn btn-light btn-lg">
                             <i class="fa-solid fa-download me-2"></i>${t["score.download_replay"]}
                         </a>
+                        <#if canWatch?? && canWatch>
+                        <button type="button" class="btn btn-outline-light btn-lg" id="watchReplayBtn"
+                                data-open="${t["score.watch_replay"]}" data-close="${t["score.close_replay"]}">
+                            <i class="fa-solid fa-play me-2"></i><span>${t["score.watch_replay"]}</span>
+                        </button>
+                        </#if>
                         <#if canPin?? && canPin>
                         <button type="button" class="btn btn-outline-light btn-lg"
                                 data-pinned="<#if scorePinned?? && scorePinned>1<#else>0</#if>"
@@ -66,6 +72,13 @@
 
         <!-- Stats Section -->
         <div class="card-body bg-body">
+            <#if canWatch?? && canWatch>
+            <!-- replay player, opened with the button above -->
+            <div id="scoreReplayCard" class="mb-4" style="display:none;">
+                <#assign rpId = "scoreReplay"><#assign rpBase = "/scores/" + score.id?c>
+                <#include "/freemarker/replayplayer.ftl">
+            </div>
+            </#if>
             <div class="row g-4 mb-4">
                 <!-- Performance Stats -->
                 <div class="col-md-3 col-6">
@@ -207,4 +220,36 @@
         </div>
     </div>
 </div>
+<#if canWatch?? && canWatch>
+<script>
+(function() {
+  var btn = document.getElementById('watchReplayBtn');
+  var card = document.getElementById('scoreReplayCard');
+  if (!btn || !card) return;
+  var player = null;
+  function label(open) {
+    btn.querySelector('span').textContent = open ? btn.dataset.close : btn.dataset.open;
+    btn.querySelector('i').className = (open ? 'fa-solid fa-xmark' : 'fa-solid fa-play') + ' me-2';
+  }
+  btn.addEventListener('click', function() {
+    if (card.style.display === 'none') {
+      card.style.display = '';
+      label(true);
+      shiinaLoad('/js/replay-player.js').then(function() {
+        if (!player && window.shiinaReplayPlayer) player = shiinaReplayPlayer(document.getElementById('scoreReplay'));
+        if (!player) return;
+        player.load().then(function(ok) {
+          card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          if (ok) player.play();
+        });
+      });
+    } else {
+      if (player) player.pause();
+      card.style.display = 'none';
+      label(false);
+    }
+  });
+})();
+</script>
+</#if>
 <#include "assets/footer.html">

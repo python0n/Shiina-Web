@@ -1,0 +1,374 @@
+/*
+ * Replay player for osu!standard, used on the analyzer and on score pages.
+ * The markup comes from templates/freemarker/replayplayer.ftl. The server answers
+ * <base>?replay=1 (objects, slider paths, cursor frames) and <base>?media=audio|bg.
+ *
+ *   const player = shiinaReplayPlayer(rootElement);
+ *   player.load().then(() => player.play());
+ *   player.seek(songTimeMs);
+ */
+window.shiinaReplayPlayer = function(root) {
+  const q = (name) => root.querySelector('[data-rp="' + name + '"]');
+  const base = root.dataset.base;
+  const body = root;
+  const canvas = q('canvas');
+  const ctx = canvas.getContext('2d');
+  const playBtn = q('play');
+  const seek = q('seek');
+  const timeLabel = q('time');
+  const speedSel = q('speed');
+  const trailBox = q('trail');
+  const box300 = q('show300');
+  const volume = q('volume');
+  const marks = q('marks');
+  const audioNote = q('noaudio');
+  const errorNote = q('error');
+  try { const v = localStorage.getItem('analyzer-volume'); if (v !== null) volume.value = v; } catch (e) {}
+  let audio = null, bg = null;
+  const COMBO = ['#ff6b8b', '#5ec8ff', '#8ce08a', '#ffc85e'];
+  const VERDICT = { '300': ['300', '#66ccff'], '100': ['100', '#88dd55'], '50': ['50', '#ffbb44'], 'miss': ['×', '#ff4444'], 'slider_miss': ['×', '#f472b6'] };
+  let data = null, playing = false, now = 0, last = 0, start = 0, end = 0, pendingSeek = null, loading = null;
+
+  function load() {
+    if (data) return Promise.resolve(true);
+    if (loading) return loading;
+    // music and background are optional: the player works without them
+    const music = new Promise((resolve) => {
+      const a = new Audio();
+      a.preload = 'auto';
+      a.addEventListener('canplay', () => resolve(a), { once: true });
+      a.addEventListener('error', () => resolve(null), { once: true });
+      a.src = base + '?media=audio';
+    });
+    loading = Promise.all([
+      fetch(base + '?replay=1', { credentials: 'same-origin' }).then(r => { if (!r.ok) throw new Error(); return r.json(); }),
+      music
+    ])
+      .then(([d, a]) => {
+        data = d;
+        if (a) {
+          audio = a;
+          audio.volume = parseFloat(volume.value);
+          if ('preservesPitch' in audio) audio.preservesPitch = !data.nightcore;
+        } else if (audioNote) {
+          audioNote.style.display = '';
+        }
+        const img = new Image();
+        img.onload = () => { bg = img; draw(); };
+        img.src = base + '?media=bg';
+        prepare();
+        body.style.display = '';
+        resize();
+        drawMarks();
+        now = pendingSeek !== null ? pendingSeek : start;
+        pendingSeek = null;
+        draw();
+        return true;
+      })
+      .catch(() => {
+        if (errorNote) { body.style.display = ''; errorNote.style.display = ''; }
+        loading = null;
+        return false;
+      });
+    return loading;
+  }
+
+  function prepare() {
+    data.objects.forEach(o => {
+      if (o.k !== 's') return;
+      // path as points plus cumulative length, to place the slider ball
+      const pts = [];
+      for (let i = 0; i < o.p.length; i += 2) pts.push([o.p[i], o.p[i + 1]]);
+      const cum = [0];
+      for (let i = 1; i < pts.length; i++) cum.push(cum[i - 1] + Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]));
+      o.pts = pts; o.cum = cum;
+    });
+    const f = data.frames;
+    data.n = f.length / 4;
+    start = data.objects.length ? data.objects[0].t - 1500 : 0;
+    end = data.objects.length ? data.objects[data.objects.length - 1].e + 1500 : (data.n ? f[(data.n - 1) * 4] : 0);
+    seek.min = start; seek.max = end;
+  }
+
+  // 100s, 50s and misses along the whole replay, above the seek bar
+  function drawMarks() {
+    const r = marks.getBoundingClientRect();
+    const dpr = window.devicePixelRatio || 1;
+    marks.width = Math.max(1, Math.round(r.width * dpr));
+    marks.height = Math.max(1, Math.round(r.height * dpr));
+    const c = marks.getContext('2d');
+    c.clearRect(0, 0, marks.width, marks.height);
+    const col = { '100': '#88dd55', '50': '#ffbb44', 'miss': '#ff4444', 'slider_miss': '#f472b6' };
+    data.objects.forEach(o => {
+      const k = col[o.v];
+      if (!k) return;
+      const x = (o.t - start) / Math.max(1, end - start) * marks.width;
+      c.fillStyle = k;
+      c.fillRect(Math.round(x), o.v === 'miss' ? 0 : marks.height * 0.35, Math.max(1, dpr * 1.5), marks.height);
+    });
+  }
+
+  function along(o, dist) {
+    const c = o.cum, p = o.pts;
+    if (!p.length) return [o.x, o.y];
+    let i = 1;
+    while (i < c.length - 1 && c[i] < dist) i++;
+    const seg = c[i] - c[i - 1] || 1;
+    const t = Math.max(0, Math.min(1, (dist - c[i - 1]) / seg));
+    return [p[i - 1][0] + (p[i][0] - p[i - 1][0]) * t, p[i - 1][1] + (p[i][1] - p[i - 1][1]) * t];
+  }
+
+  // index of the last frame at or before time t
+  function frameAt(t) {
+    const f = data.frames;
+    let lo = 0, hi = data.n - 1;
+    if (hi < 0) return -1;
+    while (lo < hi) {
+      const mid = (lo + hi + 1) >> 1;
+      if (f[mid * 4] <= t) lo = mid; else hi = mid - 1;
+    }
+    return lo;
+  }
+
+  let scale = 1, ox = 0, oy = 0;
+  function resize() {
+    const r = canvas.getBoundingClientRect();
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = Math.round(r.width * dpr);
+    canvas.height = Math.round(r.height * dpr);
+    // playfield 512x384 with a margin, like the game
+    scale = Math.min(canvas.width / 640, canvas.height / 480);
+    ox = (canvas.width - 512 * scale) / 2;
+    oy = (canvas.height - 384 * scale) / 2 + 8 * scale;
+  }
+  window.addEventListener('resize', () => { if (data) { resize(); drawMarks(); draw(); } });
+
+  const X = (x) => ox + x * scale, Y = (y) => oy + y * scale;
+
+  function draw() {
+    const W = canvas.width, H = canvas.height;
+    ctx.clearRect(0, 0, W, H);
+    if (bg) {
+      // cover the canvas, dimmed like in the game
+      const k = Math.max(W / bg.width, H / bg.height);
+      ctx.globalAlpha = 0.22;
+      ctx.drawImage(bg, (W - bg.width * k) / 2, (H - bg.height * k) / 2, bg.width * k, bg.height * k);
+      ctx.globalAlpha = 1;
+    }
+    ctx.strokeStyle = 'rgba(255,255,255,0.06)';
+    ctx.strokeRect(X(0), Y(0), 512 * scale, 384 * scale);
+    const r = data.radius * scale;
+    const pre = data.preempt;
+    const fadeIn = 400 * Math.min(1, pre / 450);
+    const objs = data.objects;
+    // visible objects, drawn from the last to the first so earlier ones are on top
+    const vis = [];
+    for (let i = 0; i < objs.length; i++) {
+      const o = objs[i];
+      if (o.t - pre > now) break;
+      if (o.e + 600 < now) continue;
+      vis.push(o);
+    }
+    for (let i = vis.length - 1; i >= 0; i--) {
+      const o = vis[i];
+      const appear = Math.max(0, Math.min(1, (now - (o.t - pre)) / fadeIn));
+      const gone = now > o.e ? Math.max(0, 1 - (now - o.e) / 200) : 1;
+      const alpha = appear * gone;
+      if (o.k === 'p') {
+        if (now < o.t - 300 || now > o.e + 200) continue;
+        const prog = Math.max(0, Math.min(1, (now - o.t) / Math.max(1, o.e - o.t)));
+        ctx.globalAlpha = alpha * 0.8;
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 3 * scale;
+        ctx.beginPath(); ctx.arc(X(256), Y(192), 180 * scale * (1 - prog) + 8 * scale, 0, Math.PI * 2); ctx.stroke();
+        ctx.globalAlpha = 1;
+        continue;
+      }
+      const col = COMBO[o.c % COMBO.length];
+      if (o.k === 's' && now <= o.e) {
+        ctx.globalAlpha = alpha * 0.9;
+        ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+        ctx.beginPath();
+        o.pts.forEach((p, j) => j ? ctx.lineTo(X(p[0]), Y(p[1])) : ctx.moveTo(X(p[0]), Y(p[1])));
+        ctx.strokeStyle = '#ffffff'; ctx.lineWidth = r * 2; ctx.stroke();
+        ctx.strokeStyle = '#1b1f2a'; ctx.lineWidth = r * 2 - 4 * scale; ctx.stroke();
+        // slider ball
+        if (now >= o.t) {
+          const len = o.cum[o.cum.length - 1];
+          const span = (o.e - o.t) / o.r;
+          const k = Math.min(o.r - 1e-6, (now - o.t) / span);
+          let f = k - Math.floor(k);
+          if (Math.floor(k) % 2 === 1) f = 1 - f;
+          const p = along(o, f * len);
+          ctx.globalAlpha = alpha;
+          ctx.fillStyle = col;
+          ctx.beginPath(); ctx.arc(X(p[0]), Y(p[1]), r * 0.85, 0, Math.PI * 2); ctx.fill();
+          ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 2 * scale;
+          ctx.beginPath(); ctx.arc(X(p[0]), Y(p[1]), r * 1.9, 0, Math.PI * 2); ctx.stroke();
+        }
+      }
+      // head circle (fades once it was hit)
+      if (now <= o.t + 150) {
+        const ha = now > o.t ? alpha * Math.max(0, 1 - (now - o.t) / 150) : alpha;
+        ctx.globalAlpha = ha;
+        ctx.fillStyle = col;
+        ctx.beginPath(); ctx.arc(X(o.x), Y(o.y), r * 0.92, 0, Math.PI * 2); ctx.fill();
+        ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 3 * scale;
+        ctx.beginPath(); ctx.arc(X(o.x), Y(o.y), r * 0.92, 0, Math.PI * 2); ctx.stroke();
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold ' + Math.round(r * 0.8) + 'px sans-serif';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.fillText(o.n, X(o.x), Y(o.y) + 1);
+        if (!data.hidden && now < o.t) {
+          const ap = 1 + 3 * (o.t - now) / pre;
+          ctx.strokeStyle = col; ctx.lineWidth = 2.5 * scale;
+          ctx.beginPath(); ctx.arc(X(o.x), Y(o.y), r * ap, 0, Math.PI * 2); ctx.stroke();
+        }
+      }
+      // verdict from the analyzer, shortly after the hit time
+      const v = VERDICT[o.v];
+      if (v && now >= o.t && now < o.t + 600 && (o.v !== '300' || box300.checked)) {
+        ctx.globalAlpha = 1 - (now - o.t) / 600;
+        ctx.fillStyle = v[1];
+        ctx.font = 'bold ' + Math.round(r * 0.7) + 'px sans-serif';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.fillText(v[0], X(o.x), Y(o.y) - r * 1.2);
+      }
+    }
+    ctx.globalAlpha = 1;
+    // cursor and trail
+    const i = frameAt(now);
+    if (i >= 0) {
+      const f = data.frames;
+      let cx = f[i * 4 + 1] / 10, cy = f[i * 4 + 2] / 10;
+      if (i + 1 < data.n) {
+        const t0 = f[i * 4], t1 = f[(i + 1) * 4];
+        const k = t1 > t0 ? Math.max(0, Math.min(1, (now - t0) / (t1 - t0))) : 0;
+        cx += (f[(i + 1) * 4 + 1] / 10 - cx) * k;
+        cy += (f[(i + 1) * 4 + 2] / 10 - cy) * k;
+      }
+      if (trailBox.checked) {
+        ctx.lineWidth = 2 * scale;
+        let j = i;
+        let px = cx, py = cy;
+        while (j > 0 && now - f[j * 4] < 120) {
+          const a = 1 - (now - f[j * 4]) / 120;
+          ctx.strokeStyle = 'rgba(255,220,120,' + (a * 0.7) + ')';
+          ctx.beginPath(); ctx.moveTo(X(px), Y(py));
+          px = f[j * 4 + 1] / 10; py = f[j * 4 + 2] / 10;
+          ctx.lineTo(X(px), Y(py)); ctx.stroke();
+          j--;
+        }
+      }
+      const keys = f[i * 4 + 3];
+      const down = (keys & 15) !== 0;
+      ctx.fillStyle = down ? '#ffd34d' : '#ffffff';
+      ctx.beginPath(); ctx.arc(X(cx), Y(cy), (down ? 7 : 5.5) * scale, 0, Math.PI * 2); ctx.fill();
+      // keys
+      const k1 = (keys & 4) !== 0, k2 = (keys & 8) !== 0;
+      const m1 = (keys & 1) !== 0 && !k1, m2 = (keys & 2) !== 0 && !k2;
+      [['K1', k1], ['K2', k2], ['M1', m1], ['M2', m2]].forEach((k, n) => {
+        const bx = Math.min(W - 40 * scale, X(512) + 10 * scale), by = H / 2 - 60 * scale + n * 32 * scale;
+        ctx.fillStyle = k[1] ? '#ffd34d' : 'rgba(255,255,255,0.12)';
+        ctx.fillRect(bx, by, 34 * scale, 26 * scale);
+        ctx.fillStyle = k[1] ? '#111' : 'rgba(255,255,255,0.6)';
+        ctx.font = 'bold ' + Math.round(12 * scale) + 'px sans-serif';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.fillText(k[0], bx + 17 * scale, by + 13 * scale);
+      });
+    }
+    // hit error meter: hits of the last 3 seconds
+    const w = data.windows || [0, 0, 0], unit = 1.1 * scale;
+    const my = H - 18 * scale, mx = X(256);
+    [[w[2], 'rgba(255,187,68,0.55)'], [w[1], 'rgba(136,221,85,0.55)'], [w[0], 'rgba(102,204,255,0.6)']].forEach(b => {
+      ctx.fillStyle = b[1];
+      ctx.fillRect(mx - b[0] * unit, my - 2 * scale, b[0] * 2 * unit, 4 * scale);
+    });
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(mx - scale, my - 8 * scale, 2 * scale, 16 * scale);
+    for (let j = objs.length - 1; j >= 0; j--) {
+      const o = objs[j];
+      if (o.t > now) continue;
+      if (now - o.t > 3000) break;
+      if (o.te === undefined) continue;
+      const a = 1 - (now - o.t) / 3000;
+      const songErr = o.te * data.rate;
+      ctx.fillStyle = Math.abs(songErr) <= w[0] ? 'rgba(102,204,255,' + a + ')' : Math.abs(songErr) <= w[1] ? 'rgba(136,221,85,' + a + ')' : 'rgba(255,187,68,' + a + ')';
+      ctx.fillRect(mx + songErr * unit - scale, my - 7 * scale, 2 * scale, 14 * scale);
+    }
+    seek.value = now;
+    timeLabel.textContent = fmt(now - start) + ' / ' + fmt(end - start);
+  }
+
+  function fmt(ms) {
+    const s = Math.max(0, Math.floor(ms / 1000));
+    return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
+  }
+
+  function tick(ts) {
+    if (!playing) return;
+    if (!document.body.contains(canvas)) { playing = false; if (audio) audio.pause(); return; } // page left (Turbo)
+    const dt = last ? ts - last : 0;
+    last = ts;
+    if (audio && !audio.paused && !audio.ended) {
+      now = audio.currentTime * 1000; // the music is the clock, so the picture stays in sync
+    } else {
+      now += dt * data.rate * parseFloat(speedSel.value);
+      if (audio && audio.paused && !audio.ended && now >= 0 && now < audio.duration * 1000) startAudio();
+    }
+    if (now >= end) { now = end; setPlaying(false); }
+    draw();
+    requestAnimationFrame(tick);
+  }
+
+  function startAudio() {
+    if (!audio || now < 0) return;
+    audio.playbackRate = data.rate * parseFloat(speedSel.value);
+    audio.currentTime = now / 1000;
+    audio.play().catch(() => {});
+  }
+
+  function setPlaying(p) {
+    playing = p;
+    playBtn.innerHTML = p ? '<i class="fa-solid fa-pause"></i>' : '<i class="fa-solid fa-play"></i>';
+    if (p) { last = 0; startAudio(); requestAnimationFrame(tick); }
+    else if (audio) audio.pause();
+  }
+
+  playBtn.addEventListener('click', () => { if (!data) return; if (now >= end) now = start; setPlaying(!playing); });
+  seek.addEventListener('input', () => { if (!data) return; now = parseFloat(seek.value); if (playing) startAudio(); draw(); });
+  speedSel.addEventListener('change', () => { if (audio) audio.playbackRate = data.rate * parseFloat(speedSel.value); });
+  volume.addEventListener('input', () => {
+    if (audio) audio.volume = parseFloat(volume.value);
+    try { localStorage.setItem('analyzer-volume', volume.value); } catch (e) {}
+  });
+  box300.addEventListener('change', () => { if (data) draw(); });
+  canvas.addEventListener('keydown', (e) => {
+    if (!data) return;
+    if (e.code === 'Space') { e.preventDefault(); setPlaying(!playing); }
+    else if (e.code === 'ArrowLeft') { now = Math.max(start, now - 2000); if (playing) startAudio(); draw(); }
+    else if (e.code === 'ArrowRight') { now = Math.min(end, now + 2000); if (playing) startAudio(); draw(); }
+  });
+  canvas.addEventListener('click', () => { canvas.focus(); if (data) setPlaying(!playing); });
+
+  // jump to a moment of the song (ms) and pause there, loading the replay first if needed
+  function seekTo(t) {
+    const target = t - 1000;
+    if (!data) {
+      pendingSeek = target;
+      return load().then(() => { canvas.scrollIntoView({ behavior: 'smooth', block: 'center' }); });
+    }
+    setPlaying(false);
+    now = Math.max(start, Math.min(end, target));
+    draw();
+    canvas.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    return Promise.resolve(true);
+  }
+
+  return {
+    load: load,
+    play: () => { if (data) setPlaying(true); },
+    pause: () => { if (data) setPlaying(false); },
+    seek: seekTo
+  };
+};
