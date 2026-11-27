@@ -240,13 +240,15 @@ function initUserpageEditor() {
 
 function loadContrySelectorIfPresent() {
     if (document.getElementById('country-selector') != undefined) {
-        shiinaLoad(['/css/select2.min.css', '/js/select2.min.js']).then(initCountrySelect2);
+        // jQuery is loaded only here, for select2 (AUD-42: no longer on every page)
+        shiinaLoad(['/css/select2.min.css', '/js/jquery.min.js', '/js/select2.min.js']).then(initCountrySelect2);
     }
 }
 
 function initCountrySelect2() {
-    if (document.getElementById('country-selector') != undefined) {
-        $('#country-selector').select2({
+    // jQuery by name: the pp calculator page defines its own global $ helper
+    if (document.getElementById('country-selector') != undefined && window.jQuery) {
+        jQuery('#country-selector').select2({
             templateResult: formatCountry,
             templateSelection: formatCountry,
             minimumResultsForSearch: Infinity // Hide search if unnecessary
@@ -259,14 +261,14 @@ function initCountrySelect2() {
             }
 
             // Get the flag URL
-            var flagUrl = $(country.element).data('flag');
+            var flagUrl = jQuery(country.element).data('flag');
             var countryName = country.text;
 
             // Create the HTML using jQuery parseHTML or native DOM
-            var $countryHtml = $(
+            var $countryHtml = jQuery(
                 '<span class="text-white">' +
-                '<img src="' + flagUrl + '" style="width: 20px; height: 15px; margin-right: 8px;">' +
-                countryName +
+                '<img src="' + shiinaEscape(flagUrl) + '" style="width: 20px; height: 15px; margin-right: 8px;">' +
+                shiinaEscape(countryName) +
                 '</span>'
             );
 
