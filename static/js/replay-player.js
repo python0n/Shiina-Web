@@ -473,10 +473,18 @@ window.shiinaReplayPlayer = function(root) {
       if (o.k === 'p') {
         if (now < o.t - 300 || now > o.e + 200) continue;
         const prog = Math.max(0, Math.min(1, (now - o.t) / Math.max(1, o.e - o.t)));
-        ctx.globalAlpha = alpha * 0.8;
+        // a spinner stays visible until it ends, also with Hidden (only its shrinking circle is hidden)
+        const sa = Math.max(0, Math.min(1, (now - (o.t - 300)) / 300)) * (now > o.e ? Math.max(0, 1 - (now - o.e) / 200) : 1);
+        ctx.globalAlpha = sa * 0.8;
         ctx.strokeStyle = '#ffffff';
         ctx.lineWidth = 3 * scale;
-        ctx.beginPath(); ctx.arc(X(256), Y(192), 180 * scale * (1 - prog) + 8 * scale, 0, Math.PI * 2); ctx.stroke();
+        ctx.beginPath(); ctx.arc(X(256), Y(192), 188 * scale, 0, Math.PI * 2); ctx.stroke();
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath(); ctx.arc(X(256), Y(192), 6 * scale, 0, Math.PI * 2); ctx.fill();
+        if (!hdOn()) {
+          ctx.globalAlpha = sa * 0.6;
+          ctx.beginPath(); ctx.arc(X(256), Y(192), 180 * scale * (1 - prog) + 8 * scale, 0, Math.PI * 2); ctx.stroke();
+        }
         ctx.globalAlpha = 1;
         continue;
       }
