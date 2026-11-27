@@ -82,8 +82,8 @@ public class UserScore extends Shiina {
             try {
                 OsrParser.OsrData osr = OsrParser.parse(Files.readAllBytes(osrFile.toPath()), true);
                 OsuFileParser.OsuData osu = OsuFileParser.parse(osuFile.getAbsolutePath());
-                // relax and autopilot replays: the game clicks or aims for the player, so no verdicts
-                ReplayAnalyzer.AnalysisResult analysis = mode == 0 ? ReplayAnalyzer.analyze(osr, osu, 0, mods) : null;
+                // verdicts for the player; with Relax the analyzer clicks where the game would
+                ReplayAnalyzer.AnalysisResult analysis = ReplayAnalyzer.analyze(osr, osu, 0, mods);
                 res.type("application/json");
                 return ReplayPlayerData.json(osr, osu, mods, analysis);
             } catch (Exception e) {

@@ -52,6 +52,7 @@ public class ReplayAnalyzer {
         private double avgBpm;
         private double maxBpm;
         private double clockRate = 1.0;
+        private boolean relax;          // std with Relax: timing means when the cursor reached the note
         private int keyCount;           // mania
         // hit windows in real milliseconds (after mods and rate), the widest last
         private List<Map<String, Object>> hitWindows = new ArrayList<>();
@@ -94,6 +95,8 @@ public class ReplayAnalyzer {
     static final int MOD_DOUBLETIME = 64;
     static final int MOD_HALFTIME = 256;
     static final int MOD_NIGHTCORE = 512;
+    static final int MOD_RELAX = 128;
+    private static final int RELAX_LENIENCY = 3;
 
     private static final int MIN_STREAM_LENGTH = 4;
     private static final double JUMP_DISTANCE_THRESHOLD = 100.0;
@@ -161,9 +164,13 @@ public class ReplayAnalyzer {
             if (!all.get(i).isSpinner()) idx.add(i);
         }
 
-        List<ReplayFrame> clicks = extractClicks(osr.getFrames());
         int n = idx.size();
         ReplayFrame[] hitBy = new ReplayFrame[n];
+        boolean relax = (mods & MOD_RELAX) != 0;
+        result.relax = relax;
+        // with Relax the replay has no key presses: the game clicks for the player
+        List<ReplayFrame> clicks = relax ? List.of() : extractClicks(osr.getFrames());
+        if (relax) relaxHits(osr.getFrames(), all, idx, pos, radius, w50, hitBy);
 
         // notelock matching
         int next = 0;
@@ -317,6 +324,62 @@ public class ReplayAnalyzer {
         return m;
     }
 
+    /**
+     * Relax: the game presses for the player as soon as the cursor is over the object, from 3 ms
+     * before its time until its 50 window ends (like osu!'s Relax mod). One click per object,
+     * at the first replay frame that meets this.
+     */
+    private static void relaxHits(List<ReplayFrame> frames, List<HitObject> all, List<Integer> idx,
+                                  float[][] pos, double radius, int w50, ReplayFrame[] hitBy) {
+        List<ReplayFrame> sorted = new ArrayList<>(frames);
+        sorted.sort((a, b) -> Long.compare(a.getTimeMs(), b.getTimeMs()));
+        int f = 0;
+        for (int n = 0; n < idx.size(); n++) {
+            int i = idx.get(n);
+            HitObject o = all.get(i);
+            double from = o.getTimeMs() - RELAX_LENIENCY, to = o.getTimeMs() + w50;
+            while (f + 1 < sorted.size() && sorted.get(f + 1).getTimeMs() <= from) f++;
+            // the cursor moves between frames, so check the path between them, not only the frames
+            for (int k = f; k + 1 < sorted.size() && sorted.get(k).getTimeMs() <= to; k++) {
+                ReplayFrame a = sorted.get(k), b = sorted.get(k + 1);
+                double t = firstInside(a, b, pos[i][0], pos[i][1], radius, from, to);
+                if (!Double.isNaN(t)) {
+                    double u = b.getTimeMs() > a.getTimeMs() ? (t - a.getTimeMs()) / (b.getTimeMs() - a.getTimeMs()) : 0;
+                    hitBy[n] = virtualFrame(Math.round(t), a.getX() + (b.getX() - a.getX()) * u, a.getY() + (b.getY() - a.getY()) * u);
+                    break;
+                }
+            }
+        }
+    }
+
+    /** Earliest time in [from, to] at which the cursor, moving straight from a to b, is inside the circle. */
+    private static double firstInside(ReplayFrame a, ReplayFrame b, float cx, float cy, double r, double from, double to) {
+        double t0 = a.getTimeMs(), t1 = b.getTimeMs();
+        double lo = Math.max(t0, from), hi = Math.min(t1, to);
+        if (hi < lo) return Double.NaN;
+        double dt = t1 - t0;
+        // position at time t: p(t) = a + (b - a) * (t - t0) / dt
+        double ax = a.getX() - cx, ay = a.getY() - cy;
+        double vx = dt > 0 ? (b.getX() - a.getX()) / dt : 0, vy = dt > 0 ? (b.getY() - a.getY()) / dt : 0;
+        // |(ax + vx s) , (ay + vy s)|^2 <= r^2 with s = t - t0
+        double A = vx * vx + vy * vy, B = 2 * (ax * vx + ay * vy), C = ax * ax + ay * ay - r * r;
+        double sLo = lo - t0, sHi = hi - t0;
+        if (A * sLo * sLo + B * sLo + C <= 0) return lo;
+        if (A < 1e-12) return Double.NaN;
+        double disc = B * B - 4 * A * C;
+        if (disc < 0) return Double.NaN;
+        double s1 = (-B - Math.sqrt(disc)) / (2 * A);
+        return s1 >= sLo && s1 <= sHi ? t0 + s1 : Double.NaN;
+    }
+
+    private static ReplayFrame virtualFrame(long time, double x, double y) {
+        ReplayFrame f = new ReplayFrame();
+        f.setTimeMs(time);
+        f.setX((float) x);
+        f.setY((float) y);
+        return f;
+    }
+
     static List<ReplayFrame> extractClicks(List<ReplayFrame> frames) {
         List<ReplayFrame> clicks = new ArrayList<>();
         ReplayFrame prev = null;
@@ -392,6 +455,7 @@ public class ReplayAnalyzer {
 
     private static void generateInsights(AnalysisResult r, double overallHitRate) {
         List<String> wk = r.weaknesses;
+        if (r.relax) insight(r, "Relax: the game clicks for you, so timing shows when your cursor reached each note.", "relax", "");
         timingInsights(r, 200);
         String aim = fmt("%.0f", r.avgAimError);
         if (r.avgAimError > 30) { insight(r, "Inaccurate aim - avg " + aim + " px from center.", "poor_aim", aim); wk.add("poor_aim"); }

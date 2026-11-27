@@ -171,8 +171,20 @@ window.shiinaReplayPlayer = function(root) {
     }
     for (let i = vis.length - 1; i >= 0; i--) {
       const o = vis[i];
-      const appear = Math.max(0, Math.min(1, (now - (o.t - pre)) / fadeIn));
+      let appear = Math.max(0, Math.min(1, (now - (o.t - pre)) / fadeIn));
       const gone = now > o.e ? Math.max(0, 1 - (now - o.e) / 200) : 1;
+      let bodyAlpha = appear;
+      if (data.hidden) {
+        // Hidden: fade in over 40% of the approach time, then fade out over the next 30%;
+        // a slider body fades out until the slider ends
+        const hdIn = pre * 0.4, outStart = o.t - pre + hdIn;
+        appear = Math.max(0, Math.min(1, (now - (o.t - pre)) / hdIn));
+        bodyAlpha = appear;
+        if (now > outStart) {
+          appear *= Math.max(0, 1 - (now - outStart) / (pre * 0.3));
+          bodyAlpha = Math.max(0, 1 - (now - outStart) / Math.max(1, o.e - outStart));
+        }
+      }
       const alpha = appear * gone;
       if (o.k === 'p') {
         if (now < o.t - 300 || now > o.e + 200) continue;
@@ -186,7 +198,7 @@ window.shiinaReplayPlayer = function(root) {
       }
       const col = COMBO[o.c % COMBO.length];
       if (o.k === 's' && now <= o.e) {
-        ctx.globalAlpha = alpha * 0.9;
+        ctx.globalAlpha = bodyAlpha * gone * 0.9;
         ctx.lineCap = 'round'; ctx.lineJoin = 'round';
         ctx.beginPath();
         o.pts.forEach((p, j) => j ? ctx.lineTo(X(p[0]), Y(p[1])) : ctx.moveTo(X(p[0]), Y(p[1])));
@@ -200,7 +212,7 @@ window.shiinaReplayPlayer = function(root) {
           let f = k - Math.floor(k);
           if (Math.floor(k) % 2 === 1) f = 1 - f;
           const p = along(o, f * len);
-          ctx.globalAlpha = alpha;
+          ctx.globalAlpha = gone; // the ball stays visible, also with Hidden
           ctx.fillStyle = col;
           ctx.beginPath(); ctx.arc(X(p[0]), Y(p[1]), r * 0.85, 0, Math.PI * 2); ctx.fill();
           ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 2 * scale;
