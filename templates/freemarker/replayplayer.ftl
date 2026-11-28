@@ -52,4 +52,21 @@
     </div>
   </div>
   <div class="text-muted small mt-2 text-center"><span data-rp="noaudio" style="display:none;">${t["analyzer.player_no_audio"]} </span>${t["analyzer.player_keys"]}</div>
+  <#if rpStaff?? && rpStaff>
+  <#-- staff tools (anticheat): frame by frame, frame spacing, a second replay to compare -->
+  <div class="border border-warning rounded p-2 mt-2 small" style="max-width:900px;margin:0 auto;">
+    <div class="fw-semibold mb-1"><i class="fa-solid fa-shield-halved me-1"></i>${t["analyzer.rp_staff_tools"]}</div>
+    <div class="text-muted mb-1">${t["analyzer.rp_step_hint"]}</div>
+    <div class="font-monospace" data-rp="ac-info">-</div>
+    <div class="text-muted mt-2">${t["analyzer.rp_ft_label"]}</div>
+    <canvas data-rp="ac-ft" style="width:100%;height:56px;display:block;"></canvas>
+    <div class="d-flex flex-wrap align-items-center gap-2 mt-2">
+      <label class="text-muted" for="${rpId}-cmp">${t["analyzer.rp_cmp_label"]}</label>
+      <input type="number" min="1" class="form-control form-control-sm" style="width:120px;" data-rp="ac-cmp-id" id="${rpId}-cmp">
+      <button type="button" class="btn btn-sm btn-outline-warning" data-rp="ac-cmp-go">${t["analyzer.rp_cmp_go"]}</button>
+      <span data-rp="ac-cmp-info" class="font-monospace"></span>
+    </div>
+    <span data-rp="ac-cmp-err" style="display:none;" class="text-danger">${t["analyzer.rp_cmp_err"]}</span>
+  </div>
+  </#if>
 </div>

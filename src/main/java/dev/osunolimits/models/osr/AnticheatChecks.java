@@ -270,6 +270,7 @@ public final class AnticheatChecks {
         int missGame = game.getOrDefault("nmiss", 0), missMine = mine.get("nmiss");
         Map<String, Object> out = new LinkedHashMap<>();
         out.put("mode", mode);
+        out.put("relax", a.isRelax());
         out.put("rows", rows);
         out.put("off", off);
         out.put("total", total);

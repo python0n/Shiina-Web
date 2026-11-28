@@ -29,6 +29,12 @@ window.shiinaReplayPlayer = function(root) {
   const marks = q('marks');
   const audioNote = q('noaudio');
   const errorNote = q('error');
+  // staff tools (only in the analyzer for the staff)
+  const acInfo = q('ac-info');
+  const acFt = q('ac-ft');
+  const cmpId = q('ac-cmp-id'), cmpGo = q('ac-cmp-go'), cmpInfo = q('ac-cmp-info'), cmpErr = q('ac-cmp-err');
+  const staff = !!acInfo;
+  let cmp = null; // second replay to compare: {frames, n}
   try { const v = localStorage.getItem('analyzer-volume'); if (v !== null) volume.value = v; } catch (e) {}
   // remembered switches (per browser)
   [[hsBox, 'analyzer-hitsounds'], [fpBox, 'analyzer-followpoints']].forEach(([box, key]) => {
@@ -370,6 +376,14 @@ window.shiinaReplayPlayer = function(root) {
       c.fillStyle = k;
       c.fillRect(Math.round(x), v === 'miss' || v === 'wrong' ? 0 : marks.height * 0.35, Math.max(1, dpr * 1.5), marks.height);
     });
+    // staff: snaps and early moves from the anticheat card, on the upper half
+    if (staff && Array.isArray(window.analyzerAcMarks)) {
+      window.analyzerAcMarks.forEach(m => {
+        const x = (m.t - start) / Math.max(1, end - start) * marks.width;
+        c.fillStyle = m.c;
+        c.fillRect(Math.round(x), 0, Math.max(1, dpr * 1.5), marks.height * 0.5);
+      });
+    }
   }
 
   function along(o, dist) {
@@ -605,13 +619,146 @@ window.shiinaReplayPlayer = function(root) {
         ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
         ctx.fillText(k[0], bx + 17 * scale, by + 13 * scale);
       });
+      if (cmp) drawCompare(cx, cy);
     }
     finish(W, H);
   }
 
+  // ---- staff tools ----
+
+  // cursor of the second replay at time t (osu! frames: time, x*10, y*10, keys)
+  function cmpCursor(t) {
+    const f = cmp.frames;
+    let lo = 0, hi = cmp.n - 1;
+    if (hi < 0) return null;
+    while (lo < hi) { const mid = (lo + hi + 1) >> 1; if (f[mid * 4] <= t) lo = mid; else hi = mid - 1; }
+    let x = f[lo * 4 + 1] / 10, y = f[lo * 4 + 2] / 10;
+    if (lo + 1 < cmp.n) {
+      const t0 = f[lo * 4], t1 = f[(lo + 1) * 4];
+      const k = t1 > t0 ? Math.max(0, Math.min(1, (t - t0) / (t1 - t0))) : 0;
+      x += (f[(lo + 1) * 4 + 1] / 10 - x) * k; y += (f[(lo + 1) * 4 + 2] / 10 - y) * k;
+    }
+    return [x, y, lo];
+  }
+
+  function drawCompare(cx, cy) {
+    const p = cmpCursor(now);
+    if (!p) return;
+    const f = cmp.frames;
+    // its trail
+    ctx.lineWidth = 2 * scale;
+    let j = p[2], px = p[0], py = p[1];
+    while (j > 0 && now - f[j * 4] < 120) {
+      const a = 1 - (now - f[j * 4]) / 120;
+      ctx.strokeStyle = 'rgba(34,211,238,' + (a * 0.7) + ')';
+      ctx.beginPath(); ctx.moveTo(X(px), Y(py));
+      px = f[j * 4 + 1] / 10; py = f[j * 4 + 2] / 10;
+      ctx.lineTo(X(px), Y(py)); ctx.stroke();
+      j--;
+    }
+    ctx.strokeStyle = 'rgba(255,255,255,0.35)'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(X(cx), Y(cy)); ctx.lineTo(X(p[0]), Y(p[1])); ctx.stroke();
+    ctx.fillStyle = '#22d3ee';
+    ctx.beginPath(); ctx.arc(X(p[0]), Y(p[1]), 5.5 * scale, 0, Math.PI * 2); ctx.fill();
+    if (cmpInfo) cmpInfo.textContent = Math.hypot(p[0] - cx, p[1] - cy).toFixed(1) + ' px';
+  }
+
+  function keyNames(k) {
+    const n = [];
+    if (data.mode === 0) {
+      if (k & 4) n.push('K1'); else if (k & 1) n.push('M1');
+      if (k & 8) n.push('K2'); else if (k & 2) n.push('M2');
+    } else {
+      for (let b = 0; b < 18; b++) if (k & (1 << b)) n.push(String(b + 1));
+    }
+    return n.length ? n.join(' ') : '-';
+  }
+
+  // the frame under the cursor of time, what changed since the previous one, frame spacing around it
+  function staffPanel() {
+    if (!staff || !data) return;
+    const f = data.frames, st = data.stride;
+    const i = frameAt(now);
+    if (i < 0) { acInfo.textContent = '-'; return; }
+    const t = f[i * st];
+    const dt = i > 0 ? t - f[(i - 1) * st] : 0;
+    const real = dt / (data.rate || 1);
+    let txt = 'frame ' + i + '/' + data.n + '  t ' + t + ' ms  +' + dt + ' ms (' + real.toFixed(1) + ' ms real)';
+    if (data.mode === 0) {
+      const x = f[i * 4 + 1] / 10, y = f[i * 4 + 2] / 10;
+      txt += '  x ' + x.toFixed(1) + ' y ' + y.toFixed(1);
+      if (i > 0 && dt > 0) {
+        const d = Math.hypot(x - f[(i - 1) * 4 + 1] / 10, y - f[(i - 1) * 4 + 2] / 10);
+        txt += '  moved ' + d.toFixed(1) + ' px (' + (d / dt).toFixed(2) + ' px/ms)';
+      }
+      txt += '  keys ' + keyNames(f[i * 4 + 3]);
+    } else if (data.mode === 2) {
+      txt += '  x ' + (f[i * 3 + 1] / 10).toFixed(1) + (f[i * 3 + 2] ? '  dash' : '');
+    } else {
+      txt += '  keys ' + keyNames(f[i * 2 + 1]);
+    }
+    acInfo.textContent = txt;
+    // frame spacing, one second each way
+    const r = acFt.getBoundingClientRect();
+    const dpr = window.devicePixelRatio || 1;
+    acFt.width = Math.max(1, Math.round(r.width * dpr));
+    acFt.height = Math.max(1, Math.round(r.height * dpr));
+    const c = acFt.getContext('2d');
+    c.clearRect(0, 0, acFt.width, acFt.height);
+    const span = 1000 * (data.rate || 1), from = now - span, to = now + span;
+    const expected = 1000 / 60 * (data.rate || 1);
+    const yOf = (d) => acFt.height - 3 * dpr - Math.min(1, d / (expected * 2)) * (acFt.height - 6 * dpr);
+    const xOf = (tt) => (tt - from) / (to - from) * acFt.width;
+    c.fillStyle = '#ef4444';
+    c.fillRect(0, Math.round(yOf(expected)), acFt.width, dpr);
+    c.fillStyle = 'rgba(255,255,255,0.25)';
+    c.fillRect(Math.round(xOf(now)), 0, dpr, acFt.height);
+    let k = Math.max(1, frameAt(from));
+    for (; k < data.n && f[k * st] <= to; k++) {
+      const d = f[k * st] - f[(k - 1) * st];
+      c.fillStyle = k === i ? '#ffd34d' : '#7dd3fc';
+      c.fillRect(Math.round(xOf(f[k * st])) - dpr, Math.round(yOf(d)) - dpr, 2 * dpr + (k === i ? dpr : 0), 2 * dpr + (k === i ? dpr : 0));
+    }
+  }
+
+  // one replay frame back or forward
+  function stepFrame(dir) {
+    const f = data.frames, st = data.stride;
+    let i = frameAt(now);
+    if (dir > 0) {
+      let j = i + 1;
+      while (j < data.n && f[j * st] <= now) j++;
+      if (j < data.n) now = f[j * st];
+    } else {
+      let j = i;
+      while (j >= 0 && f[j * st] >= now) j--;
+      if (j >= 0) now = f[j * st];
+    }
+    setPlaying(false);
+    draw();
+  }
+
+  if (cmpGo) cmpGo.addEventListener('click', () => {
+    const id = parseInt(cmpId.value, 10);
+    cmpErr.style.display = 'none';
+    if (!data || !(id > 0)) return;
+    fetch('/analyzer/' + id + '?replay=1', { credentials: 'same-origin' })
+      .then(r => { if (!r.ok) throw new Error(); return r.json(); })
+      .then(d => {
+        // the same map: same objects at the same times
+        const a = data.objects, b = d.objects || [];
+        if (d.mode !== 0 || data.mode !== 0 || a.length !== b.length || (a.length && a[0].t !== b[0].t) || (a.length && a[a.length - 1].t !== b[b.length - 1].t)) throw new Error();
+        cmp = { frames: d.frames, n: d.frames.length / 4 };
+        draw();
+      })
+      .catch(() => { cmp = null; cmpInfo.textContent = ''; cmpErr.style.display = ''; draw(); });
+  });
+
+
   // hit error meter (hits of the last 3 seconds), seek bar and time
   const BANDS = { 2: ['#66ccff', '#88dd55'], 3: ['#66ccff', '#88dd55', '#ffbb44'], 5: ['#d8f3ff', '#66ccff', '#88dd55', '#ffbb44', '#ff8844'] };
   function finish(W, H) {
+    staffPanel();
     const w = data.meter || [];
     if (w.length) {
       const pal = BANDS[w.length] || BANDS[3];
@@ -937,6 +1084,8 @@ window.shiinaReplayPlayer = function(root) {
     if (e.code === 'Space') { e.preventDefault(); setPlaying(!playing); }
     else if (e.code === 'ArrowLeft') { now = Math.max(start, now - 2000); if (playing) startAudio(); draw(); }
     else if (e.code === 'ArrowRight') { now = Math.min(end, now + 2000); if (playing) startAudio(); draw(); }
+    else if (staff && e.code === 'Comma') { e.preventDefault(); stepFrame(-1); }
+    else if (staff && e.code === 'Period') { e.preventDefault(); stepFrame(1); }
   });
   canvas.addEventListener('click', () => { canvas.focus(); if (data) setPlaying(!playing); });
 
