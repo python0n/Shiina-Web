@@ -8,7 +8,9 @@
   <div class="d-flex flex-wrap align-items-center gap-2 mt-3" style="max-width:900px;margin:0 auto;">
     <button type="button" class="btn btn-sm btn-secondary" data-rp="play" style="width:42px;"><i class="fa-solid fa-play"></i></button>
     <div class="flex-grow-1" style="min-width:160px;">
-      <canvas data-rp="marks" style="width:100%;height:10px;display:block;"></canvas>
+      <#-- the thumb of the seek bar (1.625rem in the theme) never goes past its own half, so the
+           marks leave the same space at both ends and line up with where the thumb is -->
+      <canvas data-rp="marks" style="width:calc(100% - 1.625rem);margin:0 0.8125rem;height:10px;display:block;"></canvas>
       <input type="range" class="form-range" data-rp="seek" min="0" max="1000" value="0" aria-label="${t["analyzer.chart_time"]}">
     </div>
     <span class="small text-muted font-monospace" data-rp="time">0:00 / 0:00</span>
