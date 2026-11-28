@@ -187,6 +187,89 @@
     </div>
   </div>
 
+  <#if anticheatJson??>
+  <!-- anticheat, tylko obsługa -->
+  <div class="card rounded mb-4 border-warning">
+    <div class="card-header bg-body border-bottom px-4 py-3">
+      <h6 class="mb-0 fw-semibold"><i class="fa-solid fa-shield-halved me-2"></i>${t["analyzer.ac_title"]}</h6>
+      <small class="text-muted">${t["analyzer.ac_note"]}</small>
+    </div>
+    <div class="card-body">
+      <div id="acRows" class="d-flex flex-column gap-3"></div>
+    </div>
+  </div>
+  <script><#noautoesc>
+  (function () {
+    const AC = ${anticheatJson};
+    const T = {<#list ["ac_timewarp", "ac_timewarp_desc", "ac_tiny", "ac_ur", "ac_ur_low", "ac_ur_info", "ac_holds", "ac_holds_desc", "ac_snaps", "ac_snaps_desc", "ac_ok", "ac_suspicious", "ac_few", "ac_info", "ac_show", "ac_angle"] as k>"${k}": "${t["analyzer." + k]?js_string}"<#sep>, </#list>};
+    const box = document.getElementById('acRows');
+    if (!box) return;
+    const fill = (s, o) => s.replace(/\{(\w+)\}/g, (m, k) => o[k] !== undefined ? o[k] : m);
+    const badge = (v) => {
+      const cls = v === 'suspicious' ? 'bg-warning text-dark' : v === 'ok' ? 'bg-success' : 'bg-secondary';
+      return '<span class="badge ' + cls + ' ms-2">' + (T['ac_' + v] || v) + '</span>';
+    };
+    const esc = (x) => String(x).replace(/[&<>"]/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;'}[c]));
+    const row = (title, verdict, html) => {
+      const d = document.createElement('div');
+      d.innerHTML = '<div class="fw-semibold">' + esc(title) + badge(verdict) + '</div><div class="small">' + html + '</div>';
+      box.appendChild(d);
+      return d;
+    };
+    const bars = (parent, values, step, mark) => {
+      // simple bar chart on a canvas: one bar per cell, a red line at the expected value
+      const c = document.createElement('canvas');
+      c.style.width = '100%'; c.style.height = '70px'; c.className = 'mt-1';
+      parent.appendChild(c);
+      const dpr = window.devicePixelRatio || 1;
+      c.width = c.clientWidth * dpr; c.height = 70 * dpr;
+      const g = c.getContext('2d');
+      const max = Math.max(1, ...values);
+      const w = c.width / values.length;
+      g.fillStyle = '#7dd3fc';
+      values.forEach((v, i) => { const h = v / max * (c.height - 12 * dpr); g.fillRect(i * w + 0.5, c.height - h, Math.max(1, w - 1), h); });
+      if (mark !== undefined) {
+        g.fillStyle = '#ef4444';
+        g.fillRect(mark / step * w, 0, 2 * dpr, c.height);
+      }
+      g.fillStyle = 'rgba(255,255,255,0.6)'; g.font = (10 * dpr) + 'px sans-serif';
+      g.fillText('0', 2, 10 * dpr);
+      g.fillText((values.length * step) + ' ms', c.width - 48 * dpr, 10 * dpr);
+    };
+    const tw = AC.timewarp;
+    if (tw) {
+      const r = row(T.ac_timewarp, tw.verdict, esc(fill(T.ac_timewarp_desc, tw)) + (tw.tinyShare > 1 ? '<br><span class="text-muted">' + esc(fill(T.ac_tiny, tw)) + '</span>' : ''));
+      if (tw.hist) bars(r, tw.hist, 1, tw.expected);
+    }
+    const ur = AC.ur;
+    if (ur) row(T.ac_ur, ur.verdict, esc(ur.value) + (ur.verdict === 'suspicious' ? ' - ' + esc(T.ac_ur_low) : ur.verdict === 'info' ? ' - ' + esc(T.ac_ur_info) : ''));
+    const h = AC.holds;
+    if (h) {
+      const r = row(T.ac_holds, h.verdict, h.count ? esc(fill(T.ac_holds_desc, h)) : '-');
+      if (h.hist) bars(r, h.hist, 5);
+    }
+    const sn = AC.snaps;
+    if (sn) {
+      const r = row(T.ac_snaps, sn.verdict, esc(fill(T.ac_snaps_desc, sn)));
+      if (sn.list && sn.list.length) {
+        const wrap = document.createElement('div');
+        wrap.className = 'd-flex flex-wrap gap-1 mt-1';
+        sn.list.slice(0, 60).forEach(p => {
+          const b = document.createElement('button');
+          b.type = 'button'; b.className = 'btn btn-sm btn-outline-secondary py-0';
+          const s = Math.floor(p.t / 1000);
+          b.textContent = Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0') + '.' + String(Math.floor(p.t % 1000 / 100));
+          b.title = fill(T.ac_angle, p);
+          b.addEventListener('click', () => { if (window.analyzerPlayerSeek) window.analyzerPlayerSeek(p.t); });
+          wrap.appendChild(b);
+        });
+        r.appendChild(wrap);
+      }
+    }
+  })();
+  </#noautoesc></script>
+  </#if>
+
   <!-- insighty -->
   <div class="row g-3 mb-4">
     <div class="col-md-6">

@@ -44,7 +44,14 @@ public class OsrParser {
 
         // dane kliknięć
         private List<ReplayFrame> frames = new ArrayList<>();
+
+        // every frame delta of the raw replay (before near-duplicate frames are dropped),
+        // counted per ms: [0..DELTA_HIST_MAX-1], the last cell counts everything longer.
+        // Used by the anticheat checks (timewarp).
+        private int[] frameDeltaHist = new int[DELTA_HIST_MAX + 1];
     }
+
+    public static final int DELTA_HIST_MAX = 200;
 
     @Data
     public static class ReplayFrame {
@@ -78,7 +85,7 @@ public class OsrParser {
             if (parseFrames) {
                 try {
                     String replayStr = decompressLZMA(data);
-                    osr.frames = parseReplayFrames(replayStr);
+                    osr.frames = parseReplayFrames(replayStr, osr.frameDeltaHist);
                 } catch (Exception e) {
                     // zostaw pustą listę
                 }
@@ -118,7 +125,7 @@ public class OsrParser {
                 byte[] compressed = stream.readNBytes(replayLen);
                 try {
                     String replayStr = decompressLZMA(compressed);
-                    osr.frames = parseReplayFrames(replayStr);
+                    osr.frames = parseReplayFrames(replayStr, osr.frameDeltaHist);
                 } catch (Exception e) {
                     // if decompression fails, leave an empty list
                 }
@@ -161,7 +168,7 @@ public class OsrParser {
         }
     }
 
-    private static List<ReplayFrame> parseReplayFrames(String replayStr) {
+    private static List<ReplayFrame> parseReplayFrames(String replayStr, int[] deltaHist) {
         List<ReplayFrame> frames = new ArrayList<>();
         long absoluteTime = 0;
         long lastKeptTime = Long.MIN_VALUE;
@@ -191,6 +198,7 @@ public class OsrParser {
                 if (delta == -12345) continue;
 
                 absoluteTime += delta;
+                if (delta >= 0) deltaHist[(int) Math.min(delta, DELTA_HIST_MAX)]++;
                 if (keys == lastKeys && absoluteTime - lastKeptTime < MIN_FRAME_GAP_MS && absoluteTime >= lastKeptTime) continue;
                 lastKeptTime = absoluteTime;
                 lastKeys = keys;

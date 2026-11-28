@@ -19,6 +19,7 @@ import dev.osunolimits.modules.Shiina;
 import dev.osunolimits.modules.ShiinaRoute;
 import dev.osunolimits.modules.ShiinaRoute.ShiinaRequest;
 import dev.osunolimits.modules.utils.SEOBuilder;
+import dev.osunolimits.modules.osr.AnticheatChecks;
 import dev.osunolimits.modules.osr.OsrParser;
 import dev.osunolimits.modules.osr.OsrParser.OsrData;
 import dev.osunolimits.modules.osr.OsuFileParser;
@@ -321,6 +322,15 @@ public class Analyzer extends Shiina {
 
             shiina.data.put("analysis", analysis);
             shiina.data.put("noteResultsJson", buildNoteResultsJson(analysis));
+            // anticheat hints, only for the staff
+            if (shiina.loggedIn && dev.osunolimits.utils.osu.PermissionHelper.hasPrivileges(shiina.user.priv,
+                    dev.osunolimits.utils.osu.PermissionHelper.Privileges.MODERATOR)) {
+                try {
+                    shiina.data.put("anticheatJson", JSON.toJson(AnticheatChecks.run(osr, osu, mods, analysis, mode)));
+                } catch (Exception e) {
+                    log.error("Anticheat checks failed for {}: {}", scoreId, e.getMessage());
+                }
+            }
             shiina.data.put("hitWindowsJson", JSON.toJson(analysis.getHitWindows()));
         } catch (Exception e) {
             if (replayJson) {
