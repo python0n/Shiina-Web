@@ -84,20 +84,10 @@ public class Analyzer extends Shiina {
         return -1;
     }
 
-    /** The score modes shown under a mode tab: the normal one with its Relax and Autopilot versions. */
-    static String modesOf(int mode) {
-        return switch (mode) {
-            case 0 -> "0, 4, 8";
-            case 1 -> "1, 5";
-            case 2 -> "2, 6";
-            default -> "3";
-        };
-    }
-
-    /** Mode tab of the list: 0 osu!, 1 taiko, 2 catch, 3 mania (as on the beatmaps page). */
+    /** Mode of the list as on the leaderboards: 0-3, Relax 4-6, Autopilot 8. */
     private static int listMode(Request req) {
         String m = req.queryParams("mode");
-        return m != null && m.matches("[0-3]") ? Integer.parseInt(m) : 0;
+        return m != null && m.matches("[0-68]") ? Integer.parseInt(m) : 0;
     }
 
     private Object handleList(Request req, Response res, ShiinaRequest shiina) throws Exception {
@@ -110,9 +100,9 @@ public class Analyzer extends Shiina {
             "m.title, m.artist, m.version, m.diff, m.set_id, m.id as map_id " +
             "FROM scores s " +
             "JOIN maps m ON s.map_md5 = m.md5 " +
-            "WHERE s.userid = ? AND s.mode IN (" + modesOf(mode) + ") " + (showFailed ? "" : "AND s.status > 0 ") +
+            "WHERE s.userid = ? AND s.mode = ? " + (showFailed ? "" : "AND s.status > 0 ") +
             "ORDER BY s.id DESC LIMIT 50",
-            shiina.user.id
+            shiina.user.id, mode
         );
 
         List<Map<String, Object>> scores = new ArrayList<>();
@@ -184,10 +174,10 @@ public class Analyzer extends Shiina {
             "m.id AS map_id, m.title, m.artist, m.version, m.diff, m.set_id " +
             "FROM scores s " +
             "JOIN maps m ON s.map_md5 = m.md5 " +
-            "WHERE s.userid = ? AND s.mode IN (" + modesOf(mode) + ") " + (showFailed ? "" : "AND s.status > 0 ") +
+            "WHERE s.userid = ? AND s.mode = ? " + (showFailed ? "" : "AND s.status > 0 ") +
             "AND (m.title LIKE ? OR m.artist LIKE ? OR m.version LIKE ?) " +
             "ORDER BY s.id DESC LIMIT 30",
-            shiina.user.id, like, like, like
+            shiina.user.id, mode, like, like, like
         );
         List<Map<String, Object>> results = new ArrayList<>();
         while (rs != null && rs.next()) {
