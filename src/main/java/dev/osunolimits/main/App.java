@@ -46,6 +46,8 @@ import dev.osunolimits.routes.ap.get.MapRanking;
 import dev.osunolimits.routes.ap.get.MapRequests;
 import dev.osunolimits.routes.ap.get.ModularSettings;
 import dev.osunolimits.routes.ap.get.Multiaccounts;
+import dev.osunolimits.routes.ap.get.AnticheatReports;
+import dev.osunolimits.routes.ap.post.HandleAnticheatReview;
 import dev.osunolimits.routes.ap.get.Start;
 import dev.osunolimits.routes.ap.get.Themes;
 import dev.osunolimits.routes.ap.get.groups.Groups;
@@ -372,6 +374,8 @@ shiinaDocs.initializeDocs();
         WebServer.get("/ap/mapranking", new MapRanking());
 
         WebServer.get("/ap/multiaccs", new Multiaccounts());
+        WebServer.get("/ap/anticheat", new AnticheatReports());
+        WebServer.post("/ap/anticheat/review", new HandleAnticheatReview());
         WebServer.get("/ap/audit", new Audit());
         WebServer.get("/ap/chat", new ChatExplorer());
         WebServer.get("/ap/start", new Start());

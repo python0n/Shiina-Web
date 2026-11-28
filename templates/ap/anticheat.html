@@ -1,0 +1,106 @@
+<#include "assets/base.html">
+
+<div class="container-fluid bg-body-tertiary border-bottom p-3">
+  <div class="row align-items-center g-2">
+    <div class="col">
+      <h5 class="mb-0"><i class="fa-solid fa-shield-halved"></i> Anticheat reports
+        <span class="badge bg-secondary ms-1" title="Not reviewed yet">${openCount}</span></h5>
+      <small class="text-muted">Flags the game client sends and unusual score tokens. Only hints: nobody is restricted automatically. Check the replay before deciding.</small>
+    </div>
+    <div class="col-auto d-flex flex-wrap gap-1">
+      <#assign q = (source?has_content)?then("&source=" + source, "") + (userFilter?has_content)?then("&user=" + userFilter, "")>
+      <a href="/ap/anticheat?state=open${q}" class="btn btn-sm <#if state == 'open'>btn-primary<#else>btn-outline-secondary</#if>">Open</a>
+      <a href="/ap/anticheat?state=reviewed${q}" class="btn btn-sm <#if state == 'reviewed'>btn-primary<#else>btn-outline-secondary</#if>">Reviewed</a>
+      <a href="/ap/anticheat?state=all${q}" class="btn btn-sm <#if state == 'all'>btn-primary<#else>btn-outline-secondary</#if>">All</a>
+      <span class="mx-1"></span>
+      <#assign uq = (userFilter?has_content)?then("&user=" + userFilter, "")>
+      <a href="/ap/anticheat?state=${state}${uq}" class="btn btn-sm <#if !source?has_content>btn-dark<#else>btn-outline-secondary</#if>">Any source</a>
+      <a href="/ap/anticheat?state=${state}&source=score${uq}" class="btn btn-sm <#if source == 'score'>btn-dark<#else>btn-outline-secondary</#if>">Score flags</a>
+      <a href="/ap/anticheat?state=${state}&source=lastfm${uq}" class="btn btn-sm <#if source == 'lastfm'>btn-dark<#else>btn-outline-secondary</#if>">lastfm.php</a>
+      <a href="/ap/anticheat?state=${state}&source=token${uq}" class="btn btn-sm <#if source == 'token'>btn-dark<#else>btn-outline-secondary</#if>">Score token</a>
+    </div>
+  </div>
+</div>
+
+<div class="container-fluid mt-2">
+  <#if flash == 'reviewed'><div class="alert alert-success py-2">Report marked as reviewed.</div></#if>
+  <#if flash == 'reopened'><div class="alert alert-info py-2">Report opened again.</div></#if>
+  <#if userFilter?has_content><div class="alert alert-secondary py-2">Only player id ${userFilter}. <a href="/ap/anticheat?state=${state}<#if source?has_content>&source=${source}</#if>">Show everyone</a></div></#if>
+
+  <#if reports?size == 0>
+    <div class="alert alert-info">No reports here.</div>
+  <#else>
+  <div class="table-responsive">
+    <table class="table table-hover align-middle">
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Player</th>
+          <th>Source</th>
+          <th>What</th>
+          <th>Score</th>
+          <th>Review</th>
+        </tr>
+      </thead>
+      <tbody>
+      <#list reports as r>
+        <#assign backQ = "state=" + state + (source?has_content)?then("&source=" + source, "") + (userFilter?has_content)?then("&user=" + userFilter, "") + (page > 0)?then("&page=" + page?c, "")>
+        <tr>
+          <td class="text-nowrap"><small>${r.createdAt}</small></td>
+          <td class="text-nowrap">
+            <img src="${avatarServer}/${r.userId?c}?v=${avatarV!""}" width="20" class="rounded">
+            <a href="/u/${r.userId?c}" target="_blank">${r.username}</a>
+            <a href="/ap/anticheat?state=all&user=${r.userId?c}" class="text-muted ms-1" title="All reports of this player"><i class="fa-solid fa-filter"></i></a>
+          </td>
+          <td><span class="badge <#if r.source == 'score'>bg-warning text-dark<#elseif r.source == 'lastfm'>bg-danger<#else>bg-secondary</#if>">${r.source}</span></td>
+          <td style="max-width: 520px;">
+            <#list r.flagNames as f><span class="badge bg-dark border me-1 font-monospace">${f}</span></#list>
+            <div><small>${r.detail}</small></div>
+            <#if r.map?has_content><div><small class="text-muted"><a href="/b/${r.mapId?c}" target="_blank" class="text-muted">${r.map}</a></small></div></#if>
+          </td>
+          <td class="text-nowrap">
+            <#if r.scoreId gt 0>
+              <#if r.hasScore>
+                <div><small>${r.mods} ${r.acc}% ${r.grade} <#if r.nmiss gt 0>${r.nmiss}x</#if> ${r.pp}pp</small></div>
+              </#if>
+              <a href="/scores/${r.scoreId?c}" target="_blank" class="btn btn-sm btn-outline-primary" title="Score page with the replay player"><i class="fa-solid fa-play"></i> Score</a>
+              <a href="/analyzer/${r.scoreId?c}" target="_blank" class="btn btn-sm btn-outline-secondary" title="Replay analyzer"><i class="fa-solid fa-chart-line"></i></a>
+            <#else>
+              <small class="text-muted">-</small>
+            </#if>
+          </td>
+          <td style="min-width: 220px;">
+            <#if r.reviewedAt?has_content>
+              <div><small><i class="fa-solid fa-check text-success"></i> ${r.reviewer} <span class="text-muted">${r.reviewedAt}</span></small></div>
+              <#if r.note?has_content><div><small class="fst-italic">${r.note}</small></div></#if>
+              <form data-turbo="false" method="post" action="/ap/anticheat/review" class="mt-1">
+                <input type="hidden" name="id" value="${r.id?c}">
+                <input type="hidden" name="action" value="reopen">
+                <input type="hidden" name="back" value="${backQ}">
+                <button type="submit" class="btn btn-sm btn-outline-secondary">Open again</button>
+              </form>
+            <#else>
+              <form data-turbo="false" method="post" action="/ap/anticheat/review" class="d-flex gap-1">
+                <input type="hidden" name="id" value="${r.id?c}">
+                <input type="hidden" name="action" value="review">
+                <input type="hidden" name="back" value="${backQ}">
+                <input type="text" name="note" maxlength="255" class="form-control form-control-sm" placeholder="Note (optional)">
+                <button type="submit" class="btn btn-sm btn-success" title="Mark as reviewed"><i class="fa-solid fa-check"></i></button>
+              </form>
+            </#if>
+          </td>
+        </tr>
+      </#list>
+      </tbody>
+    </table>
+  </div>
+  <div class="d-flex gap-2 mb-4">
+    <#assign pq = "state=" + state + (source?has_content)?then("&source=" + source, "") + (userFilter?has_content)?then("&user=" + userFilter, "")>
+    <#if page gt 0><a href="/ap/anticheat?${pq}&page=${(page - 1)?c}" class="btn btn-sm btn-outline-secondary">Newer</a></#if>
+    <#if hasNextPage><a href="/ap/anticheat?${pq}&page=${(page + 1)?c}" class="btn btn-sm btn-outline-secondary">Older</a></#if>
+  </div>
+  </#if>
+</div>
+
+</body>
+</html>
