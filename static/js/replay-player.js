@@ -23,6 +23,8 @@ window.shiinaReplayPlayer = function(root) {
   const fpBox = q('followpoints');
   const hdBox = q('hd');
   const flBox = q('fl');
+  const skinSel = q('maniaskin');
+  const skinWrap = root.querySelector('[data-rp-wrap="maniaskin"]');
   const volume = q('volume');
   const marks = q('marks');
   const audioNote = q('noaudio');
@@ -33,6 +35,8 @@ window.shiinaReplayPlayer = function(root) {
     try { const v = localStorage.getItem(key); if (v !== null) box.checked = v === '1'; } catch (e) {}
     box.addEventListener('change', () => { try { localStorage.setItem(key, box.checked ? '1' : '0'); } catch (e) {} if (data) draw(); });
   });
+  try { const v = localStorage.getItem('analyzer-mania-skin'); if (v === 'bars' || v === 'circles') skinSel.value = v; } catch (e) {}
+  skinSel.addEventListener('change', () => { try { localStorage.setItem('analyzer-mania-skin', skinSel.value); } catch (e) {} if (data) draw(); });
   [hdBox, flBox].forEach(box => box.addEventListener('change', () => { if (data) draw(); }));
   const hdOn = () => data.hidden && hdBox.checked;
   let audio = null, bg = null;
@@ -165,6 +169,7 @@ window.shiinaReplayPlayer = function(root) {
     const sw = (box, show) => { box.closest('.form-check').style.display = show ? '' : 'none'; };
     sw(fpBox, data.mode === 0);
     sw(hdBox, !!data.hidden);
+    if (data.mode === 3) skinWrap.style.setProperty('display', 'flex', 'important');
     sw(flBox, !!data.flashlight);
     prepareFollowPoints();
     prepareCombo();
@@ -686,6 +691,11 @@ window.shiinaReplayPlayer = function(root) {
     ctx.fillStyle = '#ffffff';
     ctx.fillRect(x0, lineY, colW * K, 2 * scale);
     const nh = 12 * scale;
+    const circles = skinSel.value === 'circles';
+    const dot = (cx, cy, rr) => {
+      ctx.beginPath(); ctx.arc(cx, cy, rr, 0, Math.PI * 2); ctx.fill();
+      ctx.save(); ctx.globalAlpha *= 0.9; ctx.strokeStyle = 'rgba(0,0,0,0.45)'; ctx.lineWidth = 2 * scale; ctx.stroke(); ctx.restore();
+    };
     for (const o of data.objects) {
       if (o.t - now > 700) break;
       const endT = o.e !== undefined ? o.e : o.t;
@@ -693,16 +703,29 @@ window.shiinaReplayPlayer = function(root) {
       const hit = o.v && o.v !== 'miss';
       const x = x0 + o.c * colW + 2 * scale, w = colW - 4 * scale;
       const y = lineY - (o.t - now) * speed;
+      const held = hit && now >= o.t;
+      const rr = Math.min(w * 0.45, 26 * scale);
       ctx.globalAlpha = o.v === 'miss' && now > o.t ? 0.35 : 1;
       ctx.fillStyle = COLS(o.c);
       if (o.e !== undefined) {
         const yEnd = lineY - (o.e - now) * speed;
-        const yHead = hit && now >= o.t ? lineY : y;
+        const yHead = held ? lineY : y;
         ctx.globalAlpha *= 0.65;
-        ctx.fillRect(x + w * 0.15, yEnd, w * 0.7, Math.max(0, yHead - yEnd));
+        if (circles) {
+          // body between the two circles, with a smaller circle as the tail
+          const bw = rr * 1.3;
+          const top = yEnd, bottom = held ? lineY : y - rr;
+          ctx.fillRect(x + w / 2 - bw / 2, top, bw, Math.max(0, bottom - top));
+          if (yEnd < lineY) dot(x + w / 2, yEnd, rr * 0.7);
+        } else {
+          ctx.fillRect(x + w * 0.15, yEnd, w * 0.7, Math.max(0, yHead - yEnd));
+        }
         ctx.globalAlpha = o.v === 'miss' && now > o.t ? 0.35 : 1;
       }
-      if (!(hit && now >= o.t)) ctx.fillRect(x, y - nh, w, nh);
+      if (!held) {
+        if (circles) dot(x + w / 2, y - rr, rr);
+        else ctx.fillRect(x, y - nh, w, nh);
+      }
     }
     ctx.globalAlpha = 1;
     const laneCover = (top, bottom, fadeUp) => {
@@ -730,7 +753,12 @@ window.shiinaReplayPlayer = function(root) {
     // keys
     for (let c = 0; c < K; c++) {
       ctx.fillStyle = mask & (1 << c) ? COLS(c) : 'rgba(255,255,255,0.12)';
-      ctx.fillRect(x0 + c * colW + 3 * scale, lineY + 10 * scale, colW - 6 * scale, 24 * scale);
+      if (skinSel.value === 'circles') {
+        const kr = Math.min((colW - 6 * scale) / 2, 16 * scale);
+        ctx.beginPath(); ctx.arc(x0 + c * colW + colW / 2, lineY + 10 * scale + kr, kr, 0, Math.PI * 2); ctx.fill();
+      } else {
+        ctx.fillRect(x0 + c * colW + 3 * scale, lineY + 10 * scale, colW - 6 * scale, 24 * scale);
+      }
     }
   }
 

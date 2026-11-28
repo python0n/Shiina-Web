@@ -25,6 +25,13 @@
       <input class="form-check-input" type="checkbox" data-rp="show300" id="${rpId}-300">
       <label class="form-check-label" for="${rpId}-300">${t["analyzer.player_300"]}</label>
     </div>
+    <div class="d-flex align-items-center gap-1 small" data-rp-wrap="maniaskin" style="display:none !important;">
+      <label class="text-muted" for="${rpId}-skin">${t["analyzer.player_mania_skin"]}</label>
+      <select class="form-select form-select-sm" style="width:auto;" data-rp="maniaskin" id="${rpId}-skin">
+        <option value="bars">${t["analyzer.player_skin_bars"]}</option>
+        <option value="circles">${t["analyzer.player_skin_circles"]}</option>
+      </select>
+    </div>
     <div class="form-check form-switch mb-0 small">
       <input class="form-check-input" type="checkbox" data-rp="hitsounds" id="${rpId}-hs" checked>
       <label class="form-check-label" for="${rpId}-hs">${t["analyzer.player_hitsounds"]}</label>
