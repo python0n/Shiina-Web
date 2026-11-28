@@ -209,7 +209,7 @@ public class Analyzer extends Shiina {
         }
 
         ResultSet rs = shiina.mysql.Query(
-            "SELECT s.id, s.userid, s.mode, s.map_md5, s.acc, s.score, s.grade, s.pp, s.mods, s.max_combo, s.nmiss, s.n300, s.n100, s.n50, " +
+            "SELECT s.id, s.userid, s.mode, s.map_md5, s.acc, s.score, s.grade, s.pp, s.mods, s.max_combo, s.nmiss, s.n300, s.n100, s.n50, s.ngeki, s.nkatu, " +
             "m.id as map_id, m.title, m.artist, m.version, m.diff, m.set_id, m.od, m.cs " +
             "FROM scores s " +
             "JOIN maps m ON s.map_md5 = m.md5 " +
@@ -218,7 +218,10 @@ public class Analyzer extends Shiina {
         );
 
         if (rs == null || !rs.next()) return redirect(res, shiina, "/analyzer");
-        if (rs.getInt("userid") != shiina.user.id) return redirect(res, shiina, "/analyzer");
+        // the staff can open any score (anticheat checks), everyone else only their own
+        boolean staff = shiina.loggedIn && dev.osunolimits.utils.osu.PermissionHelper.hasPrivileges(shiina.user.priv,
+                dev.osunolimits.utils.osu.PermissionHelper.Privileges.MODERATOR);
+        if (rs.getInt("userid") != shiina.user.id && !staff) return redirect(res, shiina, "/analyzer");
         int mode = rs.getInt("mode");
         if (mode < 0 || mode > 3) return redirect(res, shiina, "/analyzer");
         boolean replayJson = "1".equals(req.queryParams("replay"));
@@ -242,6 +245,8 @@ public class Analyzer extends Shiina {
         score.put("n300", rs.getInt("n300"));
         score.put("n100", rs.getInt("n100"));
         score.put("n50", rs.getInt("n50"));
+        Map<String, Integer> gameCounts = new HashMap<>();
+        for (String c : new String[]{"n300", "n100", "n50", "nmiss", "ngeki", "nkatu"}) gameCounts.put(c, rs.getInt(c));
         score.put("mods_str", modString(rs.getInt("mods")));
         score.put("mods", rs.getInt("mods"));
         score.put("mode", mode);
@@ -323,10 +328,9 @@ public class Analyzer extends Shiina {
             shiina.data.put("analysis", analysis);
             shiina.data.put("noteResultsJson", buildNoteResultsJson(analysis));
             // anticheat hints, only for the staff
-            if (shiina.loggedIn && dev.osunolimits.utils.osu.PermissionHelper.hasPrivileges(shiina.user.priv,
-                    dev.osunolimits.utils.osu.PermissionHelper.Privileges.MODERATOR)) {
+            if (staff) {
                 try {
-                    shiina.data.put("anticheatJson", JSON.toJson(AnticheatChecks.run(osr, osu, mods, analysis, mode)));
+                    shiina.data.put("anticheatJson", JSON.toJson(AnticheatChecks.run(osr, osu, mods, analysis, mode, gameCounts)));
                 } catch (Exception e) {
                     log.error("Anticheat checks failed for {}: {}", scoreId, e.getMessage());
                 }

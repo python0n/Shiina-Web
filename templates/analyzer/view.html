@@ -201,7 +201,7 @@
   <script><#noautoesc>
   (function () {
     const AC = ${anticheatJson};
-    const T = {<#list ["ac_timewarp", "ac_timewarp_desc", "ac_tiny", "ac_ur", "ac_ur_low", "ac_ur_info", "ac_holds", "ac_holds_desc", "ac_snaps", "ac_snaps_desc", "ac_ok", "ac_suspicious", "ac_few", "ac_info", "ac_show", "ac_angle"] as k>"${k}": "${t["analyzer." + k]?js_string}"<#sep>, </#list>};
+    const T = {<#list ["ac_timewarp", "ac_timewarp_desc", "ac_tiny", "ac_ur", "ac_ur_low", "ac_ur_info", "ac_holds", "ac_holds_desc", "ac_snaps", "ac_snaps_desc", "ac_ok", "ac_suspicious", "ac_few", "ac_info", "ac_show", "ac_angle", "ac_counts", "ac_counts_desc", "ac_counts_better", "ac_col_game", "ac_col_replay", "ac_reaction", "ac_reaction_desc", "ac_lead"] as k>"${k}": "${t["analyzer." + k]?js_string}"<#sep>, </#list>};
     const box = document.getElementById('acRows');
     if (!box) return;
     const fill = (s, o) => s.replace(/\{(\w+)\}/g, (m, k) => o[k] !== undefined ? o[k] : m);
@@ -265,6 +265,41 @@
         });
         r.appendChild(wrap);
       }
+    }
+    const seekButtons = (parent, items, label, title) => {
+      const wrap = document.createElement('div');
+      wrap.className = 'd-flex flex-wrap gap-1 mt-1';
+      items.slice(0, 60).forEach(p => {
+        const b = document.createElement('button');
+        b.type = 'button'; b.className = 'btn btn-sm btn-outline-secondary py-0';
+        b.textContent = label(p);
+        b.title = title(p);
+        b.addEventListener('click', () => { if (window.analyzerPlayerSeek) window.analyzerPlayerSeek(p.seek !== undefined ? p.seek : p.t); });
+        wrap.appendChild(b);
+      });
+      parent.appendChild(wrap);
+    };
+    const clock = (t) => { const s = Math.floor(Math.max(0, t) / 1000); return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); };
+    const ct = AC.counts;
+    if (ct) {
+      const names = ct.mode === 1 ? {n300: 'GREAT', n100: 'GOOD', nmiss: 'miss'}
+        : ct.mode === 2 ? {n300: 'fruit', n100: 'drop', n50: 'droplet', nkatu: 'droplet miss', nmiss: 'miss'}
+        : ct.mode === 3 ? {ngeki: 'MAX', n300: '300', nkatu: '200', n100: '100', n50: '50', nmiss: 'miss'}
+        : {n300: '300', n100: '100', n50: '50', nmiss: 'miss'};
+      let tbl = '<table class="table table-sm w-auto mt-1 mb-0"><thead><tr><th></th>';
+      ct.rows.forEach(r => { tbl += '<th class="text-center">' + esc(names[r.name] || r.name) + '</th>'; });
+      tbl += '</tr></thead><tbody><tr><td class="text-muted">' + esc(T.ac_col_game) + '</td>';
+      ct.rows.forEach(r => { tbl += '<td class="text-center">' + esc(r.game) + '</td>'; });
+      tbl += '</tr><tr><td class="text-muted">' + esc(T.ac_col_replay) + '</td>';
+      ct.rows.forEach(r => { tbl += '<td class="text-center' + (r.game !== r.replay ? ' text-warning' : '') + '">' + esc(r.replay) + '</td>'; });
+      tbl += '</tr></tbody></table>';
+      row(T.ac_counts, ct.verdict, esc(fill(T.ac_counts_desc, ct)) + (ct.gameBetter && ct.verdict !== 'ok' ? '<br><span class="text-warning">' + esc(T.ac_counts_better) + '</span>' : '') + tbl);
+    }
+    const re = AC.reaction;
+    if (re) {
+      const r = row(T.ac_reaction, re.verdict, esc(fill(T.ac_reaction_desc, re)));
+      const early = (re.list || []).filter(p => p.lead > 50).map(p => Object.assign({seek: p.t - 1500}, p));
+      if (early.length) seekButtons(r, early, p => clock(p.t), p => fill(T.ac_lead, p));
     }
   })();
   </#noautoesc></script>
