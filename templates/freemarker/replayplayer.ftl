@@ -60,6 +60,7 @@
     <div class="font-monospace" data-rp="ac-info">-</div>
     <div class="text-muted mt-2">${t["analyzer.rp_ft_label"]}</div>
     <canvas data-rp="ac-ft" style="width:100%;height:56px;display:block;"></canvas>
+    <div class="text-muted">${t["analyzer.rp_ft_how"]}</div>
     <div class="d-flex flex-wrap align-items-center gap-2 mt-2">
       <label class="text-muted" for="${rpId}-cmp">${t["analyzer.rp_cmp_label"]}</label>
       <input type="number" min="1" class="form-control form-control-sm" style="width:120px;" data-rp="ac-cmp-id" id="${rpId}-cmp">

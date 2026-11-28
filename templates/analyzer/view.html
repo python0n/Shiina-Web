@@ -201,7 +201,7 @@
   <script><#noautoesc>
   (function () {
     const AC = ${anticheatJson};
-    const T = {<#list ["ac_timewarp", "ac_timewarp_desc", "ac_tiny", "ac_ur", "ac_ur_low", "ac_ur_info", "ac_holds", "ac_holds_desc", "ac_snaps", "ac_snaps_desc", "ac_ok", "ac_suspicious", "ac_few", "ac_info", "ac_show", "ac_angle", "ac_counts", "ac_counts_desc", "ac_counts_better", "ac_col_game", "ac_col_replay", "ac_reaction", "ac_reaction_desc", "ac_lead", "ac_counts_rx"] as k>"${k}": "${t["analyzer." + k]?js_string}"<#sep>, </#list>};
+    const T = {<#list ["ac_timewarp", "ac_timewarp_desc", "ac_tiny", "ac_ur", "ac_ur_low", "ac_ur_info", "ac_holds", "ac_holds_desc", "ac_snaps", "ac_snaps_desc", "ac_ok", "ac_suspicious", "ac_few", "ac_info", "ac_show", "ac_angle", "ac_counts", "ac_counts_desc", "ac_counts_better", "ac_col_game", "ac_col_replay", "ac_reaction", "ac_reaction_desc", "ac_lead", "ac_counts_rx", "ac_how", "ac_timewarp_how", "ac_ur_how", "ac_holds_how", "ac_snaps_how", "ac_counts_how", "ac_reaction_how"] as k>"${k}": "${t["analyzer." + k]?js_string}"<#sep>, </#list>};
     const box = document.getElementById('acRows');
     if (!box) return;
     const fill = (s, o) => s.replace(/\{(\w+)\}/g, (m, k) => o[k] !== undefined ? o[k] : m);
@@ -210,9 +210,10 @@
       return '<span class="badge ' + cls + ' ms-2">' + (T['ac_' + v] || v) + '</span>';
     };
     const esc = (x) => String(x).replace(/[&<>"]/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;'}[c]));
-    const row = (title, verdict, html) => {
+    const row = (title, verdict, html, how) => {
       const d = document.createElement('div');
-      d.innerHTML = '<div class="fw-semibold">' + esc(title) + badge(verdict) + '</div><div class="small">' + html + '</div>';
+      d.innerHTML = '<div class="fw-semibold">' + esc(title) + badge(verdict) + '</div><div class="small">' + html + '</div>'
+        + (how ? '<div class="small text-muted mt-1 ac-how"><span class="fw-semibold">' + esc(T.ac_how) + '</span> ' + esc(how) + '</div>' : '');
       box.appendChild(d);
       return d;
     };
@@ -238,19 +239,19 @@
     };
     const tw = AC.timewarp;
     if (tw) {
-      const r = row(T.ac_timewarp, tw.verdict, esc(fill(T.ac_timewarp_desc, tw)) + (tw.tinyShare > 1 ? '<br><span class="text-muted">' + esc(fill(T.ac_tiny, tw)) + '</span>' : ''));
+      const r = row(T.ac_timewarp, tw.verdict, esc(fill(T.ac_timewarp_desc, tw)) + (tw.tinyShare > 1 ? '<br><span class="text-muted">' + esc(fill(T.ac_tiny, tw)) + '</span>' : ''), T.ac_timewarp_how);
       if (tw.hist) bars(r, tw.hist, 1, tw.expected);
     }
     const ur = AC.ur;
-    if (ur) row(T.ac_ur, ur.verdict, esc(ur.value) + (ur.verdict === 'suspicious' ? ' - ' + esc(T.ac_ur_low) : ur.verdict === 'info' ? ' - ' + esc(T.ac_ur_info) : ''));
+    if (ur) row(T.ac_ur, ur.verdict, esc(ur.value) + (ur.verdict === 'suspicious' ? ' - ' + esc(T.ac_ur_low) : ur.verdict === 'info' ? ' - ' + esc(T.ac_ur_info) : ''), T.ac_ur_how);
     const h = AC.holds;
     if (h) {
-      const r = row(T.ac_holds, h.verdict, h.count ? esc(fill(T.ac_holds_desc, h)) : '-');
+      const r = row(T.ac_holds, h.verdict, h.count ? esc(fill(T.ac_holds_desc, h)) : '-', T.ac_holds_how);
       if (h.hist) bars(r, h.hist, 5);
     }
     const sn = AC.snaps;
     if (sn) {
-      const r = row(T.ac_snaps, sn.verdict, esc(fill(T.ac_snaps_desc, sn)));
+      const r = row(T.ac_snaps, sn.verdict, esc(fill(T.ac_snaps_desc, sn)), T.ac_snaps_how);
       if (sn.list && sn.list.length) {
         const wrap = document.createElement('div');
         wrap.className = 'd-flex flex-wrap gap-1 mt-1';
@@ -297,14 +298,16 @@
       tbl += '</tr><tr><td class="text-muted">' + esc(T.ac_col_replay) + '</td>';
       ct.rows.forEach(r => { tbl += '<td class="text-center' + (r.game !== r.replay ? ' text-warning' : '') + '">' + esc(r.replay) + '</td>'; });
       tbl += '</tr></tbody></table>';
-      row(T.ac_counts, ct.verdict, esc(fill(T.ac_counts_desc, ct)) + (ct.relax ? '<br><span class="text-muted">' + esc(T.ac_counts_rx) + '</span>' : '') + (ct.gameBetter && ct.verdict !== 'ok' ? '<br><span class="text-warning">' + esc(T.ac_counts_better) + '</span>' : '') + tbl);
+      row(T.ac_counts, ct.verdict, esc(fill(T.ac_counts_desc, ct)) + (ct.relax ? '<br><span class="text-muted">' + esc(T.ac_counts_rx) + '</span>' : '') + (ct.gameBetter && ct.verdict !== 'ok' ? '<br><span class="text-warning">' + esc(T.ac_counts_better) + '</span>' : '') + tbl, T.ac_counts_how);
     }
     const re = AC.reaction;
     if (re) {
-      const r = row(T.ac_reaction, re.verdict, esc(fill(T.ac_reaction_desc, re)));
+      const r = row(T.ac_reaction, re.verdict, esc(fill(T.ac_reaction_desc, re)), T.ac_reaction_how);
       const early = (re.list || []).filter(p => p.lead > 50).map(p => Object.assign({seek: p.t - 1500}, p));
       if (early.length) seekButtons(r, early, p => clock(p.t), p => fill(T.ac_lead, p));
     }
+    // the "suspicious when" line goes under the chart or the buttons of its check
+    box.querySelectorAll('.ac-how').forEach(h => h.parentElement.appendChild(h));
   })();
   </#noautoesc></script>
   </#if>

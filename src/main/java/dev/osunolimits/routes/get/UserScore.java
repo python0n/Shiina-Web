@@ -109,6 +109,10 @@ public class UserScore extends Shiina {
             }
         }
         shiina.data.put("canWatch", canWatch);
+        // the analyzer opens for the player who set the score and for the staff
+        boolean staff = shiina.loggedIn && dev.osunolimits.utils.osu.PermissionHelper.hasPrivileges(shiina.user.priv,
+                dev.osunolimits.utils.osu.PermissionHelper.Privileges.MODERATOR);
+        shiina.data.put("canAnalyze", canWatch && shiina.loggedIn && (shiina.user.id == s.getUserId() || staff));
 
         shiina.data.put("score", s);
         if (shiina.loggedIn && shiina.user.id == s.getUserId()) {

@@ -52,6 +52,11 @@
                             <i class="fa-solid fa-play me-2"></i><span>${t["score.watch_replay"]}</span>
                         </button>
                         </#if>
+                        <#if canAnalyze?? && canAnalyze>
+                        <a href="/analyzer/${score.id?c}" class="btn btn-outline-light btn-lg">
+                            <i class="fa-solid fa-magnifying-glass-chart me-2"></i>${t["score.analyze"]}
+                        </a>
+                        </#if>
                         <#if canPin?? && canPin>
                         <button type="button" class="btn btn-outline-light btn-lg"
                                 data-pinned="<#if scorePinned?? && scorePinned>1<#else>0</#if>"
