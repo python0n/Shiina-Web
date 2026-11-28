@@ -76,6 +76,24 @@ public class Analyzer extends Shiina {
         }
     }
 
+    /** The mode of a score without Relax / Autopilot (4-6 and 8 in bancho.py), or -1 if unknown. */
+    static int baseMode(int mode) {
+        if (mode >= 0 && mode <= 3) return mode;
+        if (mode >= 4 && mode <= 6) return mode - 4;
+        if (mode == 8) return 0;
+        return -1;
+    }
+
+    /** The score modes shown under a mode tab: the normal one with its Relax and Autopilot versions. */
+    static String modesOf(int mode) {
+        return switch (mode) {
+            case 0 -> "0, 4, 8";
+            case 1 -> "1, 5";
+            case 2 -> "2, 6";
+            default -> "3";
+        };
+    }
+
     /** Mode tab of the list: 0 osu!, 1 taiko, 2 catch, 3 mania (as on the beatmaps page). */
     private static int listMode(Request req) {
         String m = req.queryParams("mode");
@@ -92,9 +110,9 @@ public class Analyzer extends Shiina {
             "m.title, m.artist, m.version, m.diff, m.set_id, m.id as map_id " +
             "FROM scores s " +
             "JOIN maps m ON s.map_md5 = m.md5 " +
-            "WHERE s.userid = ? AND s.mode = ? " + (showFailed ? "" : "AND s.status > 0 ") +
+            "WHERE s.userid = ? AND s.mode IN (" + modesOf(mode) + ") " + (showFailed ? "" : "AND s.status > 0 ") +
             "ORDER BY s.id DESC LIMIT 50",
-            shiina.user.id, mode
+            shiina.user.id
         );
 
         List<Map<String, Object>> scores = new ArrayList<>();
@@ -120,7 +138,7 @@ public class Analyzer extends Shiina {
             score.put("n50", rs.getInt("n50"));
             score.put("nmiss", rs.getInt("nmiss"));
             score.put("hasReplay", new File(OSR_PATH + scoreId + ".osr").exists());
-            score.put("mode", rs.getInt("mode"));
+            score.put("mode", baseMode(rs.getInt("mode")));
             scores.add(score);
         }
 
@@ -166,10 +184,10 @@ public class Analyzer extends Shiina {
             "m.id AS map_id, m.title, m.artist, m.version, m.diff, m.set_id " +
             "FROM scores s " +
             "JOIN maps m ON s.map_md5 = m.md5 " +
-            "WHERE s.userid = ? AND s.mode = ? " + (showFailed ? "" : "AND s.status > 0 ") +
+            "WHERE s.userid = ? AND s.mode IN (" + modesOf(mode) + ") " + (showFailed ? "" : "AND s.status > 0 ") +
             "AND (m.title LIKE ? OR m.artist LIKE ? OR m.version LIKE ?) " +
             "ORDER BY s.id DESC LIMIT 30",
-            shiina.user.id, mode, like, like, like
+            shiina.user.id, like, like, like
         );
         List<Map<String, Object>> results = new ArrayList<>();
         while (rs != null && rs.next()) {
@@ -192,7 +210,7 @@ public class Analyzer extends Shiina {
             o.put("mods", rs.getInt("mods"));
             o.put("mods_str", modString(rs.getInt("mods")));
             o.put("hasReplay", new java.io.File(OSR_PATH + scoreId + ".osr").exists());
-            o.put("mode", rs.getInt("mode"));
+            o.put("mode", baseMode(rs.getInt("mode")));
             results.add(o);
         }
         res.type("application/json");
@@ -222,8 +240,10 @@ public class Analyzer extends Shiina {
         boolean staff = shiina.loggedIn && dev.osunolimits.utils.osu.PermissionHelper.hasPrivileges(shiina.user.priv,
                 dev.osunolimits.utils.osu.PermissionHelper.Privileges.MODERATOR);
         if (rs.getInt("userid") != shiina.user.id && !staff) return redirect(res, shiina, "/analyzer");
-        int mode = rs.getInt("mode");
-        if (mode < 0 || mode > 3) return redirect(res, shiina, "/analyzer");
+        // bancho.py keeps Relax scores as modes 4-6 and Autopilot as 8: the map and the replay are
+        // the same as in the normal mode, the mods tell the analyzer about Relax and Autopilot
+        int mode = baseMode(rs.getInt("mode"));
+        if (mode < 0) return redirect(res, shiina, "/analyzer");
         boolean replayJson = "1".equals(req.queryParams("replay"));
 
         int mapId = rs.getInt("map_id");
